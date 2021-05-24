@@ -1,0 +1,50 @@
+{
+    "device_frame_version": "latest",
+    "default": {
+        "background": "background.jpg",
+        "padding": 50,
+        "font_scale_factor": 0.2,
+        "title": {
+            "font": "OpenSans-Regular.ttf",
+            "color": "#FFFFFF"
+        }
+    },
+    "data": [
+        {
+            "filter": "Library",
+            "title": {
+                "text": "All your photos in one place"
+            }
+        },
+        {
+            "filter": "Preferences",
+            "title": {
+                "text": "Back up and sync all photos"
+            }
+        },
+        {
+            "filter": "Password",
+            "title": {
+                "text": "End-to-end encrypted data"
+            }
+        },
+        {
+            "filter": "Albums",
+            "title": {
+                "text": "Organise photos into albums"
+            }
+        },
+        {
+            "filter": "Photo",
+            "title": {
+                "text": "Selectively share photos"
+            }
+        },
+        {
+            "filter": "Logins",
+            "title": {
+                "text": "Multiple sign-in options"
+            }
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message TULocation {
+   double latitude  = 1;
+   double longitude = 2;
+   double altitude  = 3;
+}

@@ -1,0 +1,12 @@
+# The Deliverfile allows you to store various App Store Connect metadata
+# For more information, check out the docs
+# https://docs.fastlane.tools/actions/deliver/
+
+username "vin047@icloud.com"
+app_identifier "app.tripup.ios"
+
+screenshots_path "./fastlane/screenshots"
+overwrite_screenshots true
+
+submit_for_review false
+automatic_release false

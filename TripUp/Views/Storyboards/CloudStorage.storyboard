@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="DrT-j1-RPo">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Cloud StorageVC-->
+        <scene sceneID="Hbo-7T-8tN">
+            <objects>
+                <viewController id="DrT-j1-RPo" customClass="CloudStorageVC" customModule="TripUp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ved-0f-Hqi">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dZw-yp-bnP" userLabel="Close Button">
+                                <rect key="frame" x="20" y="108" width="30" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="1eX-uC-fNt"/>
+                                    <constraint firstAttribute="width" constant="30" id="KGi-kk-ef7"/>
+                                    <constraint firstAttribute="width" secondItem="dZw-yp-bnP" secondAttribute="height" multiplier="1:1" id="fpP-UK-Odz"/>
+                                </constraints>
+                                <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button" image="close-circle"/>
+                                <connections>
+                                    <segue destination="0tH-K7-LGx" kind="unwind" unwindAction="unwindAction:" id="mlG-7a-JZp"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select a storage tier" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VXM-6z-57F">
+                                <rect key="frame" x="83" y="253" width="248" height="23"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="19"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="FfO-eZ-YVA">
+                                <rect key="frame" x="62" y="306" width="290" height="224"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="itx-bI-a3u">
+                                        <rect key="frame" x="0.0" y="0.0" width="290" height="58"/>
+                                        <color key="backgroundColor" systemColor="systemIndigoColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="itx-bI-a3u" secondAttribute="height" multiplier="20:4" id="G2H-y3-GLC"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                        <state key="normal" title="50 GB £0.99 / Month">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mne-Lv-eRE">
+                                        <rect key="frame" x="0.0" y="83" width="290" height="58"/>
+                                        <color key="backgroundColor" systemColor="systemIndigoColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                        <state key="normal" title="200 GB £2.99 / Month">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZOg-Cz-8WB">
+                                        <rect key="frame" x="0.0" y="166" width="290" height="58"/>
+                                        <color key="backgroundColor" systemColor="systemIndigoColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                        <state key="normal" title="400 GB £4.99 / Month">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="ETg-dh-pJN">
+                                <rect key="frame" x="197" y="580" width="20" height="20"/>
+                            </activityIndicatorView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v6I-5E-btz">
+                                <rect key="frame" x="62" y="625" width="290" height="58"/>
+                                <color key="backgroundColor" systemColor="systemIndigoColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="v6I-5E-btz" secondAttribute="height" multiplier="20:4" id="Ktj-0b-5Vd"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                <state key="normal" title="2 GB Free">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="purchase:" destination="DrT-j1-RPo" eventType="touchUpInside" id="NUe-1v-YuQ"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFt-ek-J9k">
+                                <rect key="frame" x="62" y="608.5" width="290" height="91"/>
+                                <string key="text">Thanks for supporting TripUp! You're awesome! 🥳
+You're currently subscribed to 50 GB</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="fEt-hM-Key"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="v6I-5E-btz" firstAttribute="width" secondItem="FfO-eZ-YVA" secondAttribute="width" id="0lq-W0-Ykc"/>
+                            <constraint firstItem="ETg-dh-pJN" firstAttribute="top" secondItem="FfO-eZ-YVA" secondAttribute="bottom" constant="50" id="2XV-lC-nFu"/>
+                            <constraint firstItem="FfO-eZ-YVA" firstAttribute="width" secondItem="fEt-hM-Key" secondAttribute="width" multiplier="0.7" id="3X3-q2-hFK"/>
+                            <constraint firstItem="dFt-ek-J9k" firstAttribute="centerY" secondItem="v6I-5E-btz" secondAttribute="centerY" id="IWa-nc-ONP"/>
+                            <constraint firstItem="dZw-yp-bnP" firstAttribute="top" secondItem="fEt-hM-Key" secondAttribute="top" constant="20" id="cyp-xz-fvx"/>
+                            <constraint firstItem="v6I-5E-btz" firstAttribute="top" secondItem="ETg-dh-pJN" secondAttribute="bottom" constant="25" id="d3A-Pv-Hef"/>
+                            <constraint firstItem="ETg-dh-pJN" firstAttribute="centerX" secondItem="ved-0f-Hqi" secondAttribute="centerX" id="eAu-XJ-5eQ"/>
+                            <constraint firstItem="dZw-yp-bnP" firstAttribute="leading" secondItem="fEt-hM-Key" secondAttribute="leading" constant="20" id="ePX-DT-jxy"/>
+                            <constraint firstItem="FfO-eZ-YVA" firstAttribute="top" secondItem="VXM-6z-57F" secondAttribute="bottom" constant="30" id="jpl-pP-fsJ"/>
+                            <constraint firstItem="VXM-6z-57F" firstAttribute="centerX" secondItem="ved-0f-Hqi" secondAttribute="centerX" id="pRA-az-wSh"/>
+                            <constraint firstItem="dFt-ek-J9k" firstAttribute="centerX" secondItem="ved-0f-Hqi" secondAttribute="centerX" id="sB5-SM-iVJ"/>
+                            <constraint firstItem="VXM-6z-57F" firstAttribute="width" secondItem="fEt-hM-Key" secondAttribute="width" multiplier="0.6" id="sJq-lq-cKE"/>
+                            <constraint firstItem="FfO-eZ-YVA" firstAttribute="centerY" secondItem="ved-0f-Hqi" secondAttribute="centerY" constant="-30" id="sjA-Yc-LOp"/>
+                            <constraint firstItem="FfO-eZ-YVA" firstAttribute="centerX" secondItem="ved-0f-Hqi" secondAttribute="centerX" id="t77-RP-pcd"/>
+                            <constraint firstItem="dFt-ek-J9k" firstAttribute="width" secondItem="FfO-eZ-YVA" secondAttribute="width" id="y8B-nG-eMb"/>
+                            <constraint firstItem="v6I-5E-btz" firstAttribute="centerX" secondItem="ved-0f-Hqi" secondAttribute="centerX" id="yDD-WG-TjS"/>
+                        </constraints>
+                    </view>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <connections>
+                        <outlet property="activityIndicator" destination="ETg-dh-pJN" id="g9M-xO-BzO"/>
+                        <outlet property="closeButton" destination="dZw-yp-bnP" id="Ngq-LT-kCx"/>
+                        <outlet property="entitlementInfo" destination="dFt-ek-J9k" id="2in-Cv-bcp"/>
+                        <outlet property="freeButton" destination="v6I-5E-btz" id="BSh-6e-8aj"/>
+                        <outlet property="headerLabel" destination="VXM-6z-57F" id="RcW-3m-ulF"/>
+                        <outlet property="stackView" destination="FfO-eZ-YVA" id="hpX-H7-VYZ"/>
+                        <outletCollection property="labels" destination="VXM-6z-57F" collectionClass="NSMutableArray" id="Y9P-0M-Az6"/>
+                        <outletCollection property="labels" destination="dFt-ek-J9k" collectionClass="NSMutableArray" id="1JV-va-fBK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="WRS-wb-fLW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="0tH-K7-LGx" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="1817" y="1114"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="close-circle" width="312" height="312"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemIndigoColor">
+            <color red="0.34509803921568627" green="0.33725490196078434" blue="0.83921568627450982" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

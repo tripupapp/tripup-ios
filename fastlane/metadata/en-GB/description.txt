@@ -1,0 +1,22 @@
+TripUp is a privacy-focused photo backup and sharing app.
+
+• BACKUP: Backup all your photos in original quality with end-to-end encryption.
+
+• SHARING: Share encrypted photos privately with others via shared albums.
+
+• MERGED ALBUMS: Share individual photos in an album with a group of users and keep the rest to yourself. Forget about making one private and one shared album for every event!
+
+• CONSOLIDATED LIBRARY: Photos shared by others will be smart-merged into your main library. No need to copy photos from a shared album to your main library anymore!
+
+• MULTIPLE LOGINS: Use your phone number, e-mail or Sign in with Apple ID.
+
+• PRIVATE: All photos and metadata are end-to-end encrypted using PGP encryption with Curve25519 keys. Use Sign in with Apple ID and share your profile via a profile link – no need to hand out your email or phone number to others!
+
+• CROSS-PLATFORM API: Access your photo library from multiple devices and platforms.
+
+• OPEN SOURCE: Both server and client apps are open source.
+
+It's 2021 – it's about time we had an easy to use photo backup and sharing app that respects our privacy!
+
+
+This app offers optional cloud subscription storage options as a monthly purchase which will be applied to your iTunes account on confirmation of purchase. Subscriptions will automatically renew unless cancelled within 24-hours before the end of the current period. You can cancel anytime with your iTunes account settings. Any unused portion of a free trial, if offered, will be forfeited when you purchase a subscription. For more information, refer to our Privacy Policy (https://tripup.app/privacy) and Terms of Use (https://tripup.app/terms).

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>705258999963-nd7a8hsgpb7v8n2lt6npom2u9p543d7o.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.705258999963-nd7a8hsgpb7v8n2lt6npom2u9p543d7o</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDvR6B2OuzMQBcvgQTfAZonWWAYEI5oTZg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>705258999963</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>app.tripup.ios</string>
+	<key>PROJECT_ID</key>
+	<string>tripup-3ad66</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tripup-3ad66.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:705258999963:ios:739ad1cb24d404d3</string>
+	<key>DATABASE_URL</key>
+	<string>https://tripup-3ad66.firebaseio.com</string>
+</dict>
+</plist>

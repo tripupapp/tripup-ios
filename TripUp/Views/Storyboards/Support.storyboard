@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="KJs-sd-hWi">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Feedback & Support-->
+        <scene sceneID="jJL-Fd-j6S">
+            <objects>
+                <viewController hidesBottomBarWhenPushed="YES" id="KJs-sd-hWi" customClass="SupportView" customModule="TripUp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="I3f-KP-cc3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Have questions, concerns or want to give feedback? Feel free to reach out on the following channels" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YtX-44-aap" userLabel="InfoLabel">
+                                <rect key="frame" x="37.666666666666657" y="133.66666666666666" width="300" height="57.333333333333343"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="dQD-3H-gbZ">
+                                <rect key="frame" x="116.00000000000001" y="241" width="143.33333333333337" height="260"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="JCv-MJ-nrM" userLabel="WhatsApp">
+                                        <rect key="frame" x="0.0" y="0.0" width="143.33333333333334" height="50"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="WhatsApp" translatesAutoresizingMaskIntoConstraints="NO" id="Wpe-J0-qev" userLabel="Image">
+                                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" secondItem="Wpe-J0-qev" secondAttribute="height" multiplier="1:1" id="JKG-Nb-444"/>
+                                                    <constraint firstAttribute="height" constant="50" id="qMz-UN-9rS"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="WhatsApp" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Txv-71-uLl" userLabel="Label">
+                                                <rect key="frame" x="54.999999999999993" y="0.0" width="88.333333333333314" height="50"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="dwk-rl-1E6" appends="YES" id="OPY-xB-36W"/>
+                                        </connections>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="frZ-Dn-fAt" userLabel="Discord">
+                                        <rect key="frame" x="0.0" y="70" width="143.33333333333334" height="50"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Discord" translatesAutoresizingMaskIntoConstraints="NO" id="02a-9Z-5is" userLabel="Image">
+                                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="50" id="urU-Qs-syb"/>
+                                                    <constraint firstAttribute="width" secondItem="02a-9Z-5is" secondAttribute="height" multiplier="1:1" id="x0C-AB-9az"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Discord" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8he-JL-vRs" userLabel="Label">
+                                                <rect key="frame" x="54.999999999999993" y="0.0" width="88.333333333333314" height="50"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="EKB-iC-UZD" appends="YES" id="C0u-re-TLV"/>
+                                        </connections>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="gqt-4o-58x" userLabel="Reddit">
+                                        <rect key="frame" x="0.0" y="140" width="143.33333333333334" height="50"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ysz-Lh-G8U">
+                                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Reddit" translatesAutoresizingMaskIntoConstraints="NO" id="aVw-3y-7Oh" userLabel="Image">
+                                                        <rect key="frame" x="2.3333333333333286" y="2.6666666666666856" width="45" height="45"/>
+                                                    </imageView>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" secondItem="ysz-Lh-G8U" secondAttribute="height" multiplier="1:1" id="GwP-3V-5h2"/>
+                                                    <constraint firstItem="aVw-3y-7Oh" firstAttribute="leading" secondItem="ysz-Lh-G8U" secondAttribute="leading" constant="2.5" id="afc-1E-wOz"/>
+                                                    <constraint firstAttribute="height" constant="50" id="eFX-qs-Txu"/>
+                                                    <constraint firstAttribute="trailing" secondItem="aVw-3y-7Oh" secondAttribute="trailing" constant="2.5" id="qhh-N2-ru8"/>
+                                                    <constraint firstItem="aVw-3y-7Oh" firstAttribute="top" secondItem="ysz-Lh-G8U" secondAttribute="top" constant="2.5" id="tiK-mr-Rbb"/>
+                                                    <constraint firstAttribute="bottom" secondItem="aVw-3y-7Oh" secondAttribute="bottom" constant="2.5" id="vTF-2d-RpD"/>
+                                                </constraints>
+                                            </view>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reddit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dtD-i5-TOx" userLabel="Label">
+                                                <rect key="frame" x="54.999999999999993" y="0.0" width="88.333333333333314" height="50"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="93B-9d-4tS" appends="YES" id="Ei2-7K-8JR"/>
+                                        </connections>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="K2s-4S-Ubz" userLabel="Email">
+                                        <rect key="frame" x="0.0" y="210" width="143.33333333333334" height="50"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wKF-xq-Lac">
+                                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="envelope" translatesAutoresizingMaskIntoConstraints="NO" id="JkF-9N-NR3" userLabel="Image">
+                                                        <rect key="frame" x="2.3333333333333286" y="2.6666666666666856" width="45" height="45"/>
+                                                        <color key="tintColor" systemColor="linkColor"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="JkF-9N-NR3" secondAttribute="height" multiplier="1:1" id="7gT-OH-rqo"/>
+                                                        </constraints>
+                                                        <userDefinedRuntimeAttributes>
+                                                            <userDefinedRuntimeAttribute type="color" keyPath="tintColor">
+                                                                <color key="value" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                        </userDefinedRuntimeAttributes>
+                                                    </imageView>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="JkF-9N-NR3" secondAttribute="trailing" constant="2.5" id="0qx-2M-Mrc"/>
+                                                    <constraint firstAttribute="bottom" secondItem="JkF-9N-NR3" secondAttribute="bottom" constant="2.5" id="5KD-WR-l9R"/>
+                                                    <constraint firstItem="JkF-9N-NR3" firstAttribute="top" secondItem="wKF-xq-Lac" secondAttribute="top" constant="2.5" id="Ij7-dR-AAb"/>
+                                                    <constraint firstItem="JkF-9N-NR3" firstAttribute="leading" secondItem="wKF-xq-Lac" secondAttribute="leading" constant="2.5" id="fRN-A5-0Ir"/>
+                                                </constraints>
+                                            </view>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g44-2W-hlh" userLabel="Label">
+                                                <rect key="frame" x="54.999999999999993" y="0.0" width="88.333333333333314" height="50"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="TJN-iu-Qqi" appends="YES" id="QhD-Rx-fPN"/>
+                                        </connections>
+                                    </stackView>
+                                </subviews>
+                                <gestureRecognizers/>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="EyV-b5-85u"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="YtX-44-aap" firstAttribute="centerY" secondItem="I3f-KP-cc3" secondAttribute="centerY" multiplier="0.4" id="0yk-xq-9Bk"/>
+                            <constraint firstItem="YtX-44-aap" firstAttribute="width" secondItem="I3f-KP-cc3" secondAttribute="width" multiplier="0.8" id="2Tp-1v-Tmz"/>
+                            <constraint firstItem="dQD-3H-gbZ" firstAttribute="centerX" secondItem="I3f-KP-cc3" secondAttribute="centerX" id="89k-vF-UOc"/>
+                            <constraint firstItem="YtX-44-aap" firstAttribute="centerX" secondItem="I3f-KP-cc3" secondAttribute="centerX" id="Eob-9G-cx6"/>
+                            <constraint firstItem="dQD-3H-gbZ" firstAttribute="top" secondItem="YtX-44-aap" secondAttribute="bottom" constant="50" id="f5j-yA-DlU"/>
+                        </constraints>
+                    </view>
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" title="Feedback &amp; Support" id="m4a-mj-HLa"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mLD-lu-GNs" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="EKB-iC-UZD" userLabel="Discord">
+                    <connections>
+                        <action selector="tappedDiscord:" destination="KJs-sd-hWi" id="dbq-hW-NtI"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="93B-9d-4tS" userLabel="Reddit">
+                    <connections>
+                        <action selector="tappedReddit:" destination="KJs-sd-hWi" id="Ta8-G1-vbc"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="dwk-rl-1E6" userLabel="WhatsApp">
+                    <connections>
+                        <action selector="tappedWhatsApp:" destination="KJs-sd-hWi" id="NhM-xj-3bj"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="TJN-iu-Qqi" userLabel="Email">
+                    <connections>
+                        <action selector="tappedEmail:" destination="KJs-sd-hWi" id="Lbn-Ww-9Rd"/>
+                    </connections>
+                </tapGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="-171" y="224"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="Discord" width="132" height="150"/>
+        <image name="Reddit" width="128" height="128"/>
+        <image name="WhatsApp" width="496" height="497"/>
+        <image name="envelope" width="384" height="288"/>
+        <systemColor name="linkColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

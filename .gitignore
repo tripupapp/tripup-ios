@@ -1,0 +1,6 @@
+# fastlane snapshot + frameit generated screenshots
+fastlane/screenshots/*/*
+fastlane/screenshots/screenshots.html
+
+# fastlane deliver generated html
+fastlane/Preview.html

@@ -1,0 +1,10 @@
+Password after number verification: VMregsoFSMswHbHTqTnRIxZZJBk+zF+BMyUSV3VZV8I=
+
+Shared albums can only be created between users who are registered with TripUp and have each others contacts in their contact book (phone number must include country prefix if numbers are from a different region to the users locale). If an existing shared album has already been created and user signs in on a new device without the contact information, or access to contacts is denied, "Tripper" is displayed as the sender/owner. In a shared album, photos need to explicitly made visible by swiping the photo to the right (causing the "eye" icon to appear).
+
+The demo account comes with an album created and shared with a secondary demo account. The details for the second demo account are:
+* phone number: +4405555900001
+* verification code: 123456
+* password: ln5MzGHZgxt69P09aROOqsttfMkSQ2ZO/9WA7W920lY=
+
+Please contact me if you require further demo accounts.

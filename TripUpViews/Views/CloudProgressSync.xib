@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CloudProgressSync" customModule="TripUp" customModuleProvider="target">
+            <connections>
+                <outlet property="progressLabel" destination="GVG-Kn-ncM" id="KEj-Nx-n7p"/>
+                <outlet property="progressView" destination="zJr-oQ-vTs" id="x1M-Bs-DbV"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="610" height="121"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="zJr-oQ-vTs">
+                    <rect key="frame" x="0.0" y="44" width="610" height="3"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="3" id="zsB-qe-iKM"/>
+                    </constraints>
+                </progressView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Synced 5/10 changes to the cloud" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GVG-Kn-ncM">
+                    <rect key="frame" x="195" y="49" width="220" height="17"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <color key="textColor" systemColor="secondaryLabelColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <constraints>
+                <constraint firstItem="GVG-Kn-ncM" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="036-vz-kzZ"/>
+                <constraint firstItem="zJr-oQ-vTs" firstAttribute="width" secondItem="vUN-kp-3ea" secondAttribute="width" id="65q-Ah-6zw"/>
+                <constraint firstItem="zJr-oQ-vTs" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="6O6-j3-IF1"/>
+                <constraint firstItem="zJr-oQ-vTs" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="bg2-Vp-fL8"/>
+                <constraint firstItem="GVG-Kn-ncM" firstAttribute="top" secondItem="zJr-oQ-vTs" secondAttribute="bottom" constant="2" id="fEr-AL-7VW"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="-24.637681159420293" y="94.084821428571431"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

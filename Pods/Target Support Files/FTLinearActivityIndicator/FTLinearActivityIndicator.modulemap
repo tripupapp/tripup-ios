@@ -1,0 +1,6 @@
+framework module FTLinearActivityIndicator {
+  umbrella header "FTLinearActivityIndicator-umbrella.h"
+
+  export *
+  module * { export * }
+}

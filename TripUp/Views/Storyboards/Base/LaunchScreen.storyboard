@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="tDJ-op-9OT">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="XWo-dU-FsK">
+            <objects>
+                <viewController id="tDJ-op-9OT" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="4Yg-rl-7Oi">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="h2O-8C-UmX">
+                                <rect key="frame" x="112.66666666666669" y="331" width="150" height="150"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="h2O-8C-UmX" secondAttribute="height" multiplier="1:1" id="SgD-zf-NeR"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="h2O-8C-UmX" firstAttribute="centerX" secondItem="4Yg-rl-7Oi" secondAttribute="centerX" id="15P-wI-2Sv"/>
+                            <constraint firstItem="h2O-8C-UmX" firstAttribute="centerY" secondItem="4Yg-rl-7Oi" secondAttribute="centerY" id="IKl-Rj-2jX"/>
+                            <constraint firstItem="h2O-8C-UmX" firstAttribute="width" secondItem="4Yg-rl-7Oi" secondAttribute="width" multiplier="0.4" id="aNb-Wq-eEi"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Nqx-1V-e07"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="St7-Y3-gNW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1614" y="421"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="Logo" width="158" height="158"/>
+    </resources>
+</document>

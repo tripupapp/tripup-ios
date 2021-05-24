@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="YJi-Ul-vBO">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--In App Purchase View-->
+        <scene sceneID="JA6-PX-kY0">
+            <objects>
+                <viewController id="YJi-Ul-vBO" customClass="InAppPurchaseView" customModule="TripUp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gHf-6h-laH">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <subviews>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l7A-uI-ate" userLabel="PopupView">
+                                <rect key="frame" x="9.3333333333333428" y="218.33333333333334" width="356.33333333333326" height="385.33333333333326"/>
+                                <subviews>
+                                    <navigationBar contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WmV-cM-pfr">
+                                        <rect key="frame" x="0.0" y="0.0" width="356.33333333333331" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="LBB-Rh-3D6"/>
+                                        </constraints>
+                                        <items>
+                                            <navigationItem title="TripUp Pro 🚀" id="2VS-QY-Xs5">
+                                                <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="MAD-oM-lbS">
+                                                    <connections>
+                                                        <action selector="dismiss:" destination="YJi-Ul-vBO" id="J9L-k8-2rD"/>
+                                                    </connections>
+                                                </barButtonItem>
+                                            </navigationItem>
+                                        </items>
+                                    </navigationBar>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WdY-qJ-g60">
+                                        <rect key="frame" x="12.666666666666657" y="48.999999999999957" width="331" height="211.33333333333337"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="211" id="KCu-3z-RhC"/>
+                                            <constraint firstAttribute="height" relation="lessThanOrEqual" constant="275" id="twr-L0-Xuj"/>
+                                        </constraints>
+                                        <mutableString key="text">TripUp uses its own cloud service to share and store your photos. If you run out of cloud storage you’ll still be able to receive photos from others, but you won't be able to share anymore! 😱
+
+With a pro subscription you’ll:
+• get 20GB cloud storage ⛅
+• support the development of TripUp 👨‍💻
+• encourage others to value their privacy 🔐
+
+“If there is no price to be paid, it is also not of value“ – Albert Einstein</mutableString>
+                                        <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fkE-lM-aQY">
+                                        <rect key="frame" x="12.666666666666657" y="280.33333333333337" width="331" height="85"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="oxu-Gb-wdt">
+                                                <rect key="frame" x="13" y="0.0" width="305" height="85"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HVO-FX-EFV" userLabel="product1">
+                                                        <rect key="frame" x="0.0" y="0.0" width="85" height="85"/>
+                                                        <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="HVO-FX-EFV" secondAttribute="height" multiplier="1:1" id="QOp-aG-6Zn"/>
+                                                        </constraints>
+                                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <state key="normal">
+                                                            <attributedString key="attributedTitle">
+                                                                <fragment>
+                                                                    <string key="content">£0.99
+20 GB</string>
+                                                                    <attributes>
+                                                                        <font key="NSFont" size="17" name=".AppleSystemUIFont"/>
+                                                                        <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="charWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                                    </attributes>
+                                                                </fragment>
+                                                            </attributedString>
+                                                        </state>
+                                                        <userDefinedRuntimeAttributes>
+                                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                                <integer key="value" value="10"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                        </userDefinedRuntimeAttributes>
+                                                        <connections>
+                                                            <action selector="purchase:" destination="YJi-Ul-vBO" eventType="touchUpInside" id="nhE-3y-es7"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="characterWrap" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PQp-o1-LR6" userLabel="product2">
+                                                        <rect key="frame" x="110" y="0.0" width="85" height="85"/>
+                                                        <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="PQp-o1-LR6" secondAttribute="height" multiplier="1:1" id="DEX-Tz-JPL"/>
+                                                        </constraints>
+                                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <state key="normal">
+                                                            <attributedString key="attributedTitle">
+                                                                <fragment>
+                                                                    <string key="content">£2.99
+200 GB</string>
+                                                                    <attributes>
+                                                                        <font key="NSFont" size="17" name=".AppleSystemUIFont"/>
+                                                                        <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                                    </attributes>
+                                                                </fragment>
+                                                            </attributedString>
+                                                        </state>
+                                                        <userDefinedRuntimeAttributes>
+                                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                                <integer key="value" value="10"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                        </userDefinedRuntimeAttributes>
+                                                        <connections>
+                                                            <action selector="purchase:" destination="YJi-Ul-vBO" eventType="touchUpInside" id="5Tm-iW-4ZP"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Dkl-da-owE" userLabel="product3">
+                                                        <rect key="frame" x="220" y="0.0" width="85" height="85"/>
+                                                        <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="Dkl-da-owE" secondAttribute="height" multiplier="1:1" id="gmh-q5-0Jv"/>
+                                                        </constraints>
+                                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <state key="normal">
+                                                            <attributedString key="attributedTitle">
+                                                                <fragment>
+                                                                    <string key="content">£4.99
+Unlimited</string>
+                                                                    <attributes>
+                                                                        <font key="NSFont" size="17" name=".AppleSystemUIFont"/>
+                                                                        <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="charWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                                    </attributes>
+                                                                </fragment>
+                                                            </attributedString>
+                                                        </state>
+                                                        <userDefinedRuntimeAttributes>
+                                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                                <integer key="value" value="10"/>
+                                                            </userDefinedRuntimeAttribute>
+                                                        </userDefinedRuntimeAttributes>
+                                                        <connections>
+                                                            <action selector="purchase:" destination="YJi-Ul-vBO" eventType="touchUpInside" id="uIg-is-qpa"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
+                                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="VfQ-YG-Snz">
+                                                <rect key="frame" x="147" y="23.999999999999943" width="37" height="37"/>
+                                                <color key="color" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </activityIndicatorView>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" priority="750" constant="85" id="IUT-aN-U9M"/>
+                                            <constraint firstItem="oxu-Gb-wdt" firstAttribute="centerX" secondItem="fkE-lM-aQY" secondAttribute="centerX" id="RjI-1y-3o9"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="75" id="aiN-ns-WnA"/>
+                                            <constraint firstItem="oxu-Gb-wdt" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="fkE-lM-aQY" secondAttribute="leading" id="b7d-CL-wU1"/>
+                                            <constraint firstItem="VfQ-YG-Snz" firstAttribute="centerY" secondItem="fkE-lM-aQY" secondAttribute="centerY" id="e0L-fY-R4R"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="oxu-Gb-wdt" secondAttribute="trailing" id="eSY-V1-cWf"/>
+                                            <constraint firstAttribute="height" relation="lessThanOrEqual" constant="85" id="jDB-HV-b14"/>
+                                            <constraint firstItem="VfQ-YG-Snz" firstAttribute="centerX" secondItem="fkE-lM-aQY" secondAttribute="centerX" id="pdF-WX-Lqj"/>
+                                            <constraint firstItem="oxu-Gb-wdt" firstAttribute="top" secondItem="fkE-lM-aQY" secondAttribute="top" id="tKn-kH-Z3r"/>
+                                            <constraint firstAttribute="bottom" secondItem="oxu-Gb-wdt" secondAttribute="bottom" id="u96-Vm-jXl"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstItem="fkE-lM-aQY" firstAttribute="leading" secondItem="l7A-uI-ate" secondAttribute="leading" constant="12.5" id="0Lg-8L-TEZ"/>
+                                    <constraint firstItem="WdY-qJ-g60" firstAttribute="leading" secondItem="l7A-uI-ate" secondAttribute="leading" constant="12.5" id="9Re-hR-Qg1"/>
+                                    <constraint firstAttribute="bottom" secondItem="fkE-lM-aQY" secondAttribute="bottom" constant="20" id="DNR-aV-wcB"/>
+                                    <constraint firstItem="WdY-qJ-g60" firstAttribute="top" secondItem="WmV-cM-pfr" secondAttribute="bottom" constant="5" id="EIb-jZ-DTC"/>
+                                    <constraint firstAttribute="trailing" secondItem="WmV-cM-pfr" secondAttribute="trailing" id="SfP-2N-Tam"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" secondItem="l7A-uI-ate" secondAttribute="height" multiplier="356:385" id="alc-e4-cyI"/>
+                                    <constraint firstAttribute="trailing" secondItem="fkE-lM-aQY" secondAttribute="trailing" constant="12.5" id="au0-jP-Wwg"/>
+                                    <constraint firstItem="fkE-lM-aQY" firstAttribute="top" secondItem="WdY-qJ-g60" secondAttribute="bottom" constant="20" id="cEy-Bx-aLm"/>
+                                    <constraint firstItem="WmV-cM-pfr" firstAttribute="leading" secondItem="l7A-uI-ate" secondAttribute="leading" id="cnf-yd-4Ez"/>
+                                    <constraint firstAttribute="trailing" secondItem="WdY-qJ-g60" secondAttribute="trailing" constant="12.5" id="fUc-ld-PX9"/>
+                                    <constraint firstItem="WmV-cM-pfr" firstAttribute="top" secondItem="l7A-uI-ate" secondAttribute="top" id="uRQ-xp-gu0"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.64996254280821919" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="l7A-uI-ate" firstAttribute="width" secondItem="MMM-2B-SDE" secondAttribute="width" multiplier="0.95" id="0oW-d9-5co"/>
+                            <constraint firstItem="l7A-uI-ate" firstAttribute="height" secondItem="MMM-2B-SDE" secondAttribute="height" multiplier="0.525" priority="750" id="3og-On-bGc"/>
+                            <constraint firstItem="l7A-uI-ate" firstAttribute="centerX" secondItem="MMM-2B-SDE" secondAttribute="centerX" id="9cg-bg-91J"/>
+                            <constraint firstItem="l7A-uI-ate" firstAttribute="centerY" secondItem="MMM-2B-SDE" secondAttribute="centerY" id="WUa-xT-6OA"/>
+                            <constraint firstItem="MMM-2B-SDE" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="l7A-uI-ate" secondAttribute="bottom" constant="75.5" id="eth-5o-W9n"/>
+                            <constraint firstItem="l7A-uI-ate" firstAttribute="top" relation="greaterThanOrEqual" secondItem="MMM-2B-SDE" secondAttribute="top" constant="75.5" id="jPf-z9-vVm"/>
+                            <constraint firstItem="l7A-uI-ate" firstAttribute="height" relation="lessThanOrEqual" secondItem="gHf-6h-laH" secondAttribute="height" multiplier="0.67" id="zze-oG-cbp"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="MMM-2B-SDE"/>
+                    </view>
+                    <connections>
+                        <outlet property="activityIndicator" destination="VfQ-YG-Snz" id="lnI-lR-uBv"/>
+                        <outlet property="parcelPanel" destination="oxu-Gb-wdt" id="Wyi-Ky-Ont"/>
+                        <outlet property="popupView" destination="l7A-uI-ate" id="FQp-3c-pZu"/>
+                        <outlet property="product1" destination="HVO-FX-EFV" id="pDs-Zl-CFZ"/>
+                        <outlet property="product2" destination="PQp-o1-LR6" id="xMe-Rt-mVe"/>
+                        <outlet property="product3" destination="Dkl-da-owE" id="9nF-d0-NKF"/>
+                        <outlet property="textView" destination="WdY-qJ-g60" id="FZ5-Vi-tps"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TMF-1s-n4e" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-28.985507246376812" y="168.75"/>
+        </scene>
+    </scenes>
+</document>
