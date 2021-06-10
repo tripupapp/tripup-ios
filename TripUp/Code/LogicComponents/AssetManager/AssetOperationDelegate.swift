@@ -193,6 +193,7 @@ extension AssetManager: AssetOperationDelegate {
                 for (index, asset) in assets.enumerated() {
                     var json: [String: Any] = [
                         "assetID": asset.uuid.string,
+                        "type": asset.type.rawValue,
                         "remotePath": asset.physicalAssets.low.remotePath!.absoluteString,
                         "pixelWidth": Int(asset.pixelSize.width),
                         "pixelHeight": Int(asset.pixelSize.height),

@@ -352,6 +352,7 @@ class CameraView: UIViewController {
 
             let _ = Asset(
                 uuid: UUID(),
+                type: .photo,
                 ownerID: self.ownerID,
                 creationDate: Date(),
                 location: self.locationManager.currentLocation,

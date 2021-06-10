@@ -55,7 +55,7 @@ class PhotoLibary: NSObject {
 
     func fetchAllAssets(callback: @escaping ([PHAsset], [String]) -> Void) {
         DispatchQueue.global().async {
-            let fetchResult = PHAsset.fetchAssets(with: .image, options: self.fetchOptions)
+            let fetchResult = PHAsset.fetchAssets(with: self.fetchOptions)
             var assets = [PHAsset]()
             assets.reserveCapacity(fetchResult.count)
             var localIDs = [String]()

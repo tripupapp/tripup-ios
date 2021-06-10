@@ -29,6 +29,7 @@ extension AssetManager {
         var physicalAssets: PhysicalAssets!
 
         let uuid: UUID
+        let type: AssetType
         let ownerID: UUID
         let creationDate: Date?
         let location: TULocation?
@@ -113,8 +114,9 @@ extension AssetManager {
             }
         }
 
-        private init(uuid: UUID, ownerID: UUID, creationDate: Date?, location: TULocation?, pixelSize: CGSize) {
+        private init(uuid: UUID, type: AssetType, ownerID: UUID, creationDate: Date?, location: TULocation?, pixelSize: CGSize) {
             self.uuid = uuid
+            self.type = type
             self.ownerID = ownerID
             self.creationDate = creationDate
             self.location = location
@@ -124,6 +126,7 @@ extension AssetManager {
         convenience init(from object: AssetObject) {
             self.init(
                 uuid: UUID(uuidString: object.uuid)!,
+                type: AssetType(rawValue: object.type) ?? .unknown,
                 ownerID: UUID(uuidString: object.ownerID)!,
                 creationDate: object.creationDate,
                 location: TULocation(from: object),

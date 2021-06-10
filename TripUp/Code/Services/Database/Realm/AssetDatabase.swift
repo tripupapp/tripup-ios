@@ -273,9 +273,9 @@ extension RealmDatabase: AssetDatabase {
     func pruneLocalIDs(forAssetIDs assetIDs: [UUID]) throws {
         try autoreleasepool {
             let realm = try Realm()
-            let imageObjects: Results<AssetObject> = try query(assetIDs, from: realm)
+            let assetObjects: Results<AssetObject> = try query(assetIDs, from: realm)
             try realm.write {
-                imageObjects.forEach{ $0.localIdentifier = nil }
+                assetObjects.forEach{ $0.localIdentifier = nil }
             }
         }
     }
@@ -302,13 +302,13 @@ extension RealmDatabase: AssetDatabase {
     func addLocalAssets<T>(_ assets: T) throws where T: Collection, T.Element == (Asset, String) {
         try autoreleasepool {
             let realm = try Realm()
-            let imageObjects: [AssetObject] = assets.map {
+            let assetObjects: [AssetObject] = assets.map {
                 let object = AssetObject($0.0)
                 object.localIdentifier = $0.1
                 return object
             }
             try realm.write {
-                realm.add(imageObjects)
+                realm.add(assetObjects)
             }
         }
     }
@@ -327,12 +327,12 @@ extension RealmDatabase: AssetDatabase {
     func remove<T>(assetIDs: T) throws -> [(Group, Group)]? where T: Collection, T.Element == UUID {
         try autoreleasepool {
             let realm = try Realm()
-            let imageObjects: Results<AssetObject> = try query(assetIDs, from: realm)
-            guard imageObjects.count == assetIDs.count else { throw DatabaseError.recordCountMismatch(expected: assetIDs.count, actual: imageObjects.count) }
-            let groupObjects = Array(Set(imageObjects.flatMap{ $0.groups }))
+            let assetObjects: Results<AssetObject> = try query(assetIDs, from: realm)
+            guard assetObjects.count == assetIDs.count else { throw DatabaseError.recordCountMismatch(expected: assetIDs.count, actual: assetObjects.count) }
+            let groupObjects = Array(Set(assetObjects.flatMap{ $0.groups }))
             let groupsBeforeUpdate = groupObjects.map{ Group(from: $0) }
             try realm.write {
-                delete(imageObjects, using: realm)
+                delete(assetObjects, using: realm)
             }
             return changes(between: groupsBeforeUpdate, and: groupObjects)
         }

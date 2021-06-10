@@ -76,6 +76,7 @@ extension ModelController {
                 let assets: [(Asset, String)] = newPHAssets.map { asset in
                     return (Asset(
                         uuid: UUID(),   // FIXME: check uuid isn't already taken
+                        type: AssetType(iosMediaType: asset.mediaType),
                         ownerID: self.primaryUserID,
                         creationDate: asset.creationDate,
                         location: TULocation(asset.location),

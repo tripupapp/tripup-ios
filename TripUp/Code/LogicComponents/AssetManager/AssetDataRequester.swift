@@ -18,6 +18,12 @@ protocol AssetDataRequester {
 extension AssetManager: AssetDataRequester {
     func requestImage(for asset: Asset, format: RequestFormat, callback: @escaping (_ image: UIImage?, _ info: ResultInfo?) -> Void) {
         precondition(Thread.isMainThread)
+        guard asset.type != .unknown else {
+            fatalError()
+        }
+        guard asset.type != .audio else {
+            fatalError()
+        }
         if asset.imported {
             requestImageData(for: asset, format: format) { (data, info) in
                 precondition(Thread.isMainThread)
@@ -123,6 +129,13 @@ extension AssetManager: AssetDataRequester {
                 }
             }
         } else {
+            guard asset.type == .photo else {
+                assertionFailure()
+                DispatchQueue.main.async {
+                    callback(nil, nil)
+                }
+                return
+            }
             assetController.assetIDlocalIDMap { [weak self] (idMap) in
                 guard let self = self, let localID = idMap[asset.uuid] else {
                     DispatchQueue.main.async {

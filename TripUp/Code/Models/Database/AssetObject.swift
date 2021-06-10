@@ -11,6 +11,7 @@ import RealmSwift
 
 @objcMembers final class AssetObject: Object {
     dynamic var uuid: String = ""
+    dynamic var type: String = ""
     dynamic var ownerID: String = ""
     dynamic var creationDate: Date? = nil
     let latitude = RealmOptional<Double>()
@@ -44,6 +45,7 @@ import RealmSwift
     convenience init(_ asset: Asset) {
         self.init()
         self.uuid = asset.uuid.string
+        self.type = asset.type.rawValue
         self.ownerID = asset.ownerID.string
         self.creationDate = asset.creationDate
         self.latitude.value = asset.location?.latitude
@@ -69,12 +71,12 @@ import RealmSwift
 extension AssetObject {
     convenience init?(id: UUID, assetData: [String: Any], decryptedAssetData: [String: Any?]) {
         // server data response check
-        guard let ownerIDstring = assetData["ownerid"] as? String, let pixelWidth = assetData["pixelwidth"] as? Int, let pixelHeight = assetData["pixelheight"] as? Int, let remotePathLow = assetData["remotepath"] as? String else {
+        guard let type = assetData["type"] as? String, let ownerIDstring = assetData["ownerid"] as? String, let pixelWidth = assetData["pixelwidth"] as? Int, let pixelHeight = assetData["pixelheight"] as? Int, let remotePathLow = assetData["remotepath"] as? String else {
             assertionFailure("invalid JSON response – assetID: \(id.string)")
             return nil
         }
         // valid data check
-        guard UUID(uuidString: ownerIDstring) != nil, pixelWidth != 0, pixelHeight != 0, URL(string: remotePathLow) != nil else {
+        guard AssetType(rawValue: type) != nil, UUID(uuidString: ownerIDstring) != nil, pixelWidth != 0, pixelHeight != 0, URL(string: remotePathLow) != nil else {
             assertionFailure("invalid server data – assetID: \(id.string)")
             return nil
         }
@@ -92,6 +94,7 @@ extension AssetObject {
 
         self.init()
         self.uuid = id.string
+        self.type = type
         self.ownerID = ownerIDstring
         self.creationDate = creationDate
         self.latitude.value = location?.latitude

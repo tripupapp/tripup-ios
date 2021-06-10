@@ -9,8 +9,33 @@
 import Foundation
 import Photos
 
+enum AssetType: String {
+    case photo
+    case video
+    case audio
+    case unknown
+}
+
+extension AssetType {
+    init(iosMediaType: PHAssetMediaType) {
+        switch iosMediaType {
+        case .image:
+            self = .photo
+        case .video:
+            self = .video
+        case .audio:
+            self = .audio
+        case .unknown:
+            self = .unknown
+        @unknown default:
+            fatalError()
+        }
+    }
+}
+
 struct Asset: Hashable {
     let uuid: UUID
+    let type: AssetType
     let ownerID: UUID
     let creationDate: Date?
     let location: TULocation?
@@ -64,6 +89,7 @@ extension Array where Iterator.Element == Asset {
 extension Asset {
     init(_ mutableAsset: AssetManager.MutableAsset) {
         self.uuid = mutableAsset.uuid
+        self.type = mutableAsset.type
         self.ownerID = mutableAsset.ownerID
         self.creationDate = mutableAsset.creationDate
         self.location = mutableAsset.location
@@ -77,6 +103,7 @@ extension Asset {
 extension Asset {
     init(from object: AssetObject) {
         self.uuid = UUID(uuidString: object.uuid)!
+        self.type = AssetType(rawValue: object.type) ?? .unknown
         self.ownerID = UUID(uuidString: object.ownerID)!
         self.creationDate = object.creationDate
         self.location = TULocation(from: object)
