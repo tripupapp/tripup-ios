@@ -272,19 +272,6 @@
                                             <subviews>
                                                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" indicatorStyle="white" maximumZoomScale="3" translatesAutoresizingMaskIntoConstraints="NO" id="gC2-a1-tnn">
                                                     <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                                                    <subviews>
-                                                        <imageView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GzC-aF-oyF">
-                                                            <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                                                        </imageView>
-                                                    </subviews>
-                                                    <constraints>
-                                                        <constraint firstAttribute="trailing" secondItem="GzC-aF-oyF" secondAttribute="trailing" id="0Af-hb-FDh"/>
-                                                        <constraint firstAttribute="bottom" secondItem="GzC-aF-oyF" secondAttribute="bottom" id="37d-o8-qq8"/>
-                                                        <constraint firstItem="GzC-aF-oyF" firstAttribute="top" secondItem="gC2-a1-tnn" secondAttribute="top" id="9VN-Bh-J9j"/>
-                                                        <constraint firstItem="GzC-aF-oyF" firstAttribute="leading" secondItem="gC2-a1-tnn" secondAttribute="leading" id="BHC-gh-meP"/>
-                                                        <constraint firstItem="GzC-aF-oyF" firstAttribute="centerY" secondItem="gC2-a1-tnn" secondAttribute="centerY" id="KJq-KC-F6C"/>
-                                                        <constraint firstItem="GzC-aF-oyF" firstAttribute="centerX" secondItem="gC2-a1-tnn" secondAttribute="centerX" id="Pzo-cE-ig4"/>
-                                                    </constraints>
                                                     <connections>
                                                         <outlet property="delegate" destination="kUW-at-gGA" id="2hc-W3-ElI"/>
                                                     </connections>
@@ -316,7 +303,6 @@
                                         <size key="customSize" width="375" height="812"/>
                                         <connections>
                                             <outlet property="activityIndicator" destination="zmO-05-zVg" id="7bZ-Up-2df"/>
-                                            <outlet property="imageView" destination="GzC-aF-oyF" id="0g3-Y6-0Hd"/>
                                             <outlet property="originalMissingLabel" destination="YdB-nC-5nM" id="FO5-uK-0JM"/>
                                             <outlet property="scrollView" destination="gC2-a1-tnn" id="Dhi-z3-wBR"/>
                                         </connections>

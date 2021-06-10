@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 class TUFullscreenViewDelegate {
+    weak var fullscreenViewController: FullscreenViewController?
     let bottomToolbarItems: [UIBarButtonItem]?  // use item references from here, as the actual UIToolbar items array may contain spacers
     weak var ownerLabel: UILabel?
 
@@ -60,36 +61,43 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
     func configure(cell: FullscreenViewCell, forItemAt index: Int) {
         let asset = assets[index]
 
-        cell.assetID = asset.uuid
-        cell.imageView.image = nil
-        cell.originalMissingLabel.isHidden = true
-        cell.activityIndicator.startAnimating()
+        if asset.type == .photo {
+            let photoPlayerViewController = cell.requestPhotoPlayer(assignParentViewController: fullscreenViewController!)
 
-        if let image = cache.object(forKey: asset.uuid as NSUUID) {
-            cell.imageView.image = image
-            cell.activityIndicator.stopAnimating()
-        } else {
-            let imageViewSize = cell.imageView.bounds.size
-            let widthRatio = imageViewSize.width / asset.pixelSize.width
-            let heightRatio = imageViewSize.height / asset.pixelSize.height
-            let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
-            let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
-            assetRequester?.requestImage(for: asset, format: .highQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
-                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
-                if resultInfo.final {
-                    if let image = image {
-                        if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
-                            cache.setObject(image, forKey: asset.uuid as NSUUID)
+            cell.assetID = asset.uuid
+            photoPlayerViewController.imageView.image = nil
+            cell.originalMissingLabel.isHidden = true
+            cell.activityIndicator.startAnimating()
+
+            if let image = cache.object(forKey: asset.uuid as NSUUID) {
+                photoPlayerViewController.imageView.image = image
+                cell.activityIndicator.stopAnimating()
+            } else {
+                let imageViewSize = photoPlayerViewController.imageView.bounds.size
+                let widthRatio = imageViewSize.width / asset.pixelSize.width
+                let heightRatio = imageViewSize.height / asset.pixelSize.height
+                let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
+                let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
+                assetRequester?.requestImage(for: asset, format: .highQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
+                    guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
+                    if resultInfo.final {
+                        if let image = image {
+                            if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
+                                cache.setObject(image, forKey: asset.uuid as NSUUID)
+                            }
+                            photoPlayerViewController.imageView.image = image
+                        } else {
+                            cell.originalMissingLabel.isHidden = false
                         }
-                        cell.imageView.image = image
-                    } else {
-                        cell.originalMissingLabel.isHidden = false
+                        cell.activityIndicator.stopAnimating()
+                    } else if photoPlayerViewController.imageView.image == nil {
+                        photoPlayerViewController.imageView.image = image
                     }
-                    cell.activityIndicator.stopAnimating()
-                } else if cell.imageView.image == nil {
-                    cell.imageView.image = image
                 }
             }
+        } else if asset.type == .video {
+            let avPlayerViewController = cell.requestAVPlayer(assignParentViewController: fullscreenViewController!)
+
         }
     }
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Photo Player View Controller-->
+        <scene sceneID="xJE-vZ-cxa">
+            <objects>
+                <viewController storyboardIdentifier="photo" id="lUm-Hp-GQu" customClass="PhotoPlayerViewController" customModule="TripUp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="cUD-EJ-DMY">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hsw-fd-9VN">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="EdB-ip-Phs"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="hsw-fd-9VN" firstAttribute="leading" secondItem="cUD-EJ-DMY" secondAttribute="leading" id="8f4-OP-WCq"/>
+                            <constraint firstAttribute="bottom" secondItem="hsw-fd-9VN" secondAttribute="bottom" id="bEG-Gu-TK4"/>
+                            <constraint firstItem="hsw-fd-9VN" firstAttribute="top" secondItem="cUD-EJ-DMY" secondAttribute="top" id="dIS-ge-D7D"/>
+                            <constraint firstAttribute="trailing" secondItem="hsw-fd-9VN" secondAttribute="trailing" id="uVi-ek-4la"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="hsw-fd-9VN" id="EaI-7h-DzQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ehu-bt-1z5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="691" y="-380"/>
+        </scene>
+        <!--AV Player View Controller-->
+        <scene sceneID="w9Z-r9-wKv">
+            <objects>
+                <avPlayerViewController storyboardIdentifier="audiovideo" videoGravity="AVLayerVideoGravityResizeAspect" id="ohe-Ms-Pu4" sceneMemberID="viewController"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bjc-KS-dpn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1501" y="-380"/>
+        </scene>
+    </scenes>
+</document>

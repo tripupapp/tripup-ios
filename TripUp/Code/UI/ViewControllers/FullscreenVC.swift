@@ -15,6 +15,7 @@ protocol FullscreenViewTransitionDelegate {
 }
 
 protocol FullscreenViewDelegate: class {
+    var fullscreenViewController: FullscreenViewController? { get set }
     var modelCount: Int { get }
     var modelIsEmpty: Bool { get }
     var ownerLabel: UILabel? { get set }
@@ -55,6 +56,8 @@ class FullscreenViewController: UIViewController {
 
         self.modalPresentationStyle = .overFullScreen
         self.modalPresentationCapturesStatusBarAppearance = true
+
+        delegate.fullscreenViewController = self
     }
 
     func assertDependencies() {
@@ -233,7 +236,7 @@ class FullscreenViewController: UIViewController {
             let targetFrame = presenter.transitioning(to: indexPath.item)
             presentingImageView.frame = frame(forSize: delegate.fullsizeOfItem(at: indexPath.item))
             presentingImageView.center = cell.contentView.center
-            presentingImageView.image = cell.imageView.image
+            presentingImageView.image = (cell.playerViewController as? PhotoPlayerViewController)?.imageView.image
             presentingImageView.isHidden = false
             collectionView.isHidden = true
             overlayViews.forEach{ $0.isHidden = true }

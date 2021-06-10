@@ -19,6 +19,8 @@
 		200E12F7233FE2B9003012A2 /* GroupObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12F6233FE2B9003012A2 /* GroupObject.swift */; };
 		200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12F8233FE6C3003012A2 /* AssetObject.swift */; };
 		200E12FB233FEEAC003012A2 /* AVFileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12FA233FEEAC003012A2 /* AVFileType.swift */; };
+		200FE48D2672B022006B5D53 /* AssetPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200FE48C2672B022006B5D53 /* AssetPlayerViewController.swift */; };
+		200FE4952672B03D006B5D53 /* AssetPlayers.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 200FE4942672B03C006B5D53 /* AssetPlayers.storyboard */; };
 		20168805210A546A00FA5D53 /* ContactsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168803210A546A00FA5D53 /* ContactsManager.swift */; };
 		2016880D210A54C300FA5D53 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016880B210A54C300FA5D53 /* API.swift */; };
 		20168818210A550400FA5D53 /* AWSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168815210A550400FA5D53 /* AWSAdapter.swift */; };
@@ -271,6 +273,8 @@
 		200E12F6233FE2B9003012A2 /* GroupObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupObject.swift; sourceTree = "<group>"; };
 		200E12F8233FE6C3003012A2 /* AssetObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetObject.swift; sourceTree = "<group>"; };
 		200E12FA233FEEAC003012A2 /* AVFileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVFileType.swift; sourceTree = "<group>"; };
+		200FE48C2672B022006B5D53 /* AssetPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetPlayerViewController.swift; sourceTree = "<group>"; };
+		200FE4942672B03C006B5D53 /* AssetPlayers.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AssetPlayers.storyboard; sourceTree = "<group>"; };
 		20168803210A546A00FA5D53 /* ContactsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsManager.swift; sourceTree = "<group>"; };
 		2016880B210A54C300FA5D53 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		20168815210A550400FA5D53 /* AWSAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AWSAdapter.swift; sourceTree = "<group>"; };
@@ -518,6 +522,14 @@
 			path = Database;
 			sourceTree = "<group>";
 		};
+		200FE42226725E94006B5D53 /* Media */ = {
+			isa = PBXGroup;
+			children = (
+				200FE4942672B03C006B5D53 /* AssetPlayers.storyboard */,
+			);
+			path = Media;
+			sourceTree = "<group>";
+		};
 		20168792210A50B200FA5D53 /* Code */ = {
 			isa = PBXGroup;
 			children = (
@@ -743,6 +755,7 @@
 		2057C77D24EBD9BD00718F1C /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				200FE48C2672B022006B5D53 /* AssetPlayerViewController.swift */,
 				2057C77B24EBD9A400718F1C /* AuthenticationView.swift */,
 				2057C77F24EBDA6C00718F1C /* Base */,
 				2016883C210A55B400FA5D53 /* CameraView.swift */,
@@ -803,6 +816,7 @@
 				2016885F210A568400FA5D53 /* Camera.storyboard */,
 				202D6331250946490095FA36 /* CloudStorage.storyboard */,
 				2079D58B242E4D310050E0AF /* InAppPurchase.storyboard */,
+				200FE42226725E94006B5D53 /* Media */,
 				20168863210A568400FA5D53 /* Photo.storyboard */,
 				201C0A9E2437842D00F57C04 /* Policy.storyboard */,
 				2005844423E8AB7800535DA1 /* Security.storyboard */,
@@ -1333,6 +1347,7 @@
 				20C547AF24EC4D3B00CE5325 /* Main.storyboard in Resources */,
 				208280F924699D7B00DFEF2B /* GoogleService-Info.plist in Resources */,
 				2005843D23E8254F00535DA1 /* Preferences.storyboard in Resources */,
+				200FE4952672B03D006B5D53 /* AssetPlayers.storyboard in Resources */,
 				20F14AE6244EFAF000003CE2 /* eula.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1595,6 +1610,7 @@
 				207150AD23424E9B00829C5D /* UserObject.swift in Sources */,
 				2057B78E2306149C00F41BB2 /* Logger.swift in Sources */,
 				20A796A12466F02300A0CB10 /* PhoneNumberUtils.swift in Sources */,
+				200FE48D2672B022006B5D53 /* AssetPlayerViewController.swift in Sources */,
 				20331BED24291651009789DB /* UInt64.swift in Sources */,
 				20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */,
 				200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */,
