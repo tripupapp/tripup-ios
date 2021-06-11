@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreMedia.CMTime
 import UIKit
 
 protocol FullscreenViewTransitionDelegate {
@@ -18,7 +19,6 @@ protocol FullscreenViewDelegate: class {
     var fullscreenViewController: FullscreenViewController? { get set }
     var modelCount: Int { get }
     var modelIsEmpty: Bool { get }
-    var ownerLabel: UILabel? { get set }
     var bottomToolbarItems: [UIBarButtonItem]? { get }
     func fullsizeOfItem(at index: Int) -> CGSize
     func configure(cell: FullscreenViewCell, forItemAt index: Int)
@@ -35,11 +35,14 @@ class FullscreenViewController: UIViewController {
     @IBOutlet var presentingImageView: UIImageView!
     @IBOutlet var overlayViews: [UIView]!
     @IBOutlet var ownerLabel: UILabel!
+    @IBOutlet var avControlsView: AVControlsView!
     @IBOutlet var bottomToolbar: UIToolbar!
 
     var delegate: FullscreenViewDelegate!
     var onDismiss: (() -> Void)?
     private var initialIndex: Int!
+    private var avPlayerPlayPauseObserver: NSKeyValueObservation?
+    private var avPlayerPlaytimeObserver: Any?
     private var presenter: FullscreenViewTransitionDelegate?
     private var hideStatusBar: Bool = true {
         didSet {
@@ -87,7 +90,6 @@ class FullscreenViewController: UIViewController {
 
         ownerLabel.layer.cornerRadius = 5.0
         ownerLabel.layer.masksToBounds = true
-        delegate.ownerLabel = ownerLabel
 
         overlayViews.forEach{ $0.isHidden = false }
         overlayViews.forEach{ $0.alpha = 0.0 }
@@ -184,6 +186,24 @@ class FullscreenViewController: UIViewController {
         }
     }
 
+    @IBAction func playPauseAction(_ sender: UIButton) {
+        guard let cell = collectionView.visibleCells.first as? FullscreenViewCell, let player = cell.avPlayerView.player else {
+            return
+        }
+        switch player.timeControlStatus {
+        case .playing:
+            player.pause()
+        case .paused:
+            let currentItem = player.currentItem
+            if currentItem?.currentTime() == currentItem?.duration {
+                currentItem?.seek(to: .zero, completionHandler: nil)
+            }
+            player.play()
+        default:
+            player.pause()
+        }
+    }
+
     @IBAction func toggleOverlay(_ sender: Any) {
         UIView.animate(withDuration: 0.3) {
             if let alpha: CGFloat = self.overlayViews.first?.alpha == 1.0 ? 0.0 : 1.0 {
@@ -236,7 +256,7 @@ class FullscreenViewController: UIViewController {
             let targetFrame = presenter.transitioning(to: indexPath.item)
             presentingImageView.frame = frame(forSize: delegate.fullsizeOfItem(at: indexPath.item))
             presentingImageView.center = cell.contentView.center
-            presentingImageView.image = (cell.playerViewController as? PhotoPlayerViewController)?.imageView.image
+            presentingImageView.image = cell.imageView.image //(cell.playerViewController as? PhotoPlayerViewController)?.imageView.image
             presentingImageView.isHidden = false
             collectionView.isHidden = true
             overlayViews.forEach{ $0.isHidden = true }
@@ -286,6 +306,39 @@ extension FullscreenViewController: UICollectionViewDataSource {
             }
         }
         delegate.configure(cell: cell, forItemAt: indexPath.item)
+        if let avPlayer = cell.avPlayerView.player {
+            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] _, _ in
+                DispatchQueue.main.async {
+                    guard avPlayer === cell.avPlayerView.player else {
+                        return
+                    }
+                    var buttonImage: UIImage?
+                    if #available(iOS 13.0, *) {
+                        switch avPlayer.timeControlStatus {
+                        case .playing:
+                            buttonImage = UIImage(named: "pause.fill")
+                        case .paused, .waitingToPlayAtSpecifiedRate:
+                            buttonImage = UIImage(named: "play.fill")
+                        @unknown default:
+                            buttonImage = UIImage(named: "pause.fill")
+                        }
+                    } else {
+                        // Fallback on earlier versions
+                    }
+                    guard let image = buttonImage else {
+                        return
+                    }
+                    self?.avControlsView.playPauseButton.setImage(image, for: .normal)
+                }
+            }
+            let interval = CMTime(value: 1, timescale: 2)
+            avPlayerPlaytimeObserver = avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+                let timeElapsed = Float(time.seconds)
+                self?.avControlsView.scrubber.value = timeElapsed
+            }
+        } else {
+            avPlayerPlayPauseObserver = nil
+        }
         return cell
     }
 

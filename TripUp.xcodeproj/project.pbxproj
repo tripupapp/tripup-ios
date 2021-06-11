@@ -19,8 +19,6 @@
 		200E12F7233FE2B9003012A2 /* GroupObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12F6233FE2B9003012A2 /* GroupObject.swift */; };
 		200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12F8233FE6C3003012A2 /* AssetObject.swift */; };
 		200E12FB233FEEAC003012A2 /* AVFileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12FA233FEEAC003012A2 /* AVFileType.swift */; };
-		200FE48D2672B022006B5D53 /* AssetPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200FE48C2672B022006B5D53 /* AssetPlayerViewController.swift */; };
-		200FE4952672B03D006B5D53 /* AssetPlayers.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 200FE4942672B03C006B5D53 /* AssetPlayers.storyboard */; };
 		20168805210A546A00FA5D53 /* ContactsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168803210A546A00FA5D53 /* ContactsManager.swift */; };
 		2016880D210A54C300FA5D53 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016880B210A54C300FA5D53 /* API.swift */; };
 		20168818210A550400FA5D53 /* AWSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168815210A550400FA5D53 /* AWSAdapter.swift */; };
@@ -149,6 +147,8 @@
 		20BD57BD23E99252008AC240 /* SecurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BD57BC23E99252008AC240 /* SecurityView.swift */; };
 		20BE88CF2673588F006089DE /* AssetImageRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE88CE2673588F006089DE /* AssetImageRequester.swift */; };
 		20BE88D72673590B006089DE /* AssetAVRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE88D62673590B006089DE /* AssetAVRequester.swift */; };
+		20BE892B26741664006089DE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE892A26741664006089DE /* AVPlayerView.swift */; };
+		20BE8945267417D3006089DE /* AVControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE8944267417D3006089DE /* AVControlsView.swift */; };
 		20C0065D24EAAEC40084B4C0 /* AssetSyncTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */; };
 		20C17EE325D6F67800279AEF /* UserNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C17EE225D6F67800279AEF /* UserNotifications.swift */; };
 		20C4F60123D3701D00B041B2 /* LoginLogicController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C4F60023D3701D00B041B2 /* LoginLogicController.swift */; };
@@ -275,8 +275,6 @@
 		200E12F6233FE2B9003012A2 /* GroupObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupObject.swift; sourceTree = "<group>"; };
 		200E12F8233FE6C3003012A2 /* AssetObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetObject.swift; sourceTree = "<group>"; };
 		200E12FA233FEEAC003012A2 /* AVFileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVFileType.swift; sourceTree = "<group>"; };
-		200FE48C2672B022006B5D53 /* AssetPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetPlayerViewController.swift; sourceTree = "<group>"; };
-		200FE4942672B03C006B5D53 /* AssetPlayers.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AssetPlayers.storyboard; sourceTree = "<group>"; };
 		20168803210A546A00FA5D53 /* ContactsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsManager.swift; sourceTree = "<group>"; };
 		2016880B210A54C300FA5D53 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		20168815210A550400FA5D53 /* AWSAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AWSAdapter.swift; sourceTree = "<group>"; };
@@ -407,6 +405,8 @@
 		20BD57BC23E99252008AC240 /* SecurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityView.swift; sourceTree = "<group>"; };
 		20BE88CE2673588F006089DE /* AssetImageRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetImageRequester.swift; sourceTree = "<group>"; };
 		20BE88D62673590B006089DE /* AssetAVRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetAVRequester.swift; sourceTree = "<group>"; };
+		20BE892A26741664006089DE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
+		20BE8944267417D3006089DE /* AVControlsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVControlsView.swift; sourceTree = "<group>"; };
 		20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetSyncTracker.swift; sourceTree = "<group>"; };
 		20C17EE225D6F67800279AEF /* UserNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotifications.swift; sourceTree = "<group>"; };
 		20C4F60023D3701D00B041B2 /* LoginLogicController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginLogicController.swift; sourceTree = "<group>"; };
@@ -524,14 +524,6 @@
 				207150AC23424E9B00829C5D /* UserObject.swift */,
 			);
 			path = Database;
-			sourceTree = "<group>";
-		};
-		200FE42226725E94006B5D53 /* Media */ = {
-			isa = PBXGroup;
-			children = (
-				200FE4942672B03C006B5D53 /* AssetPlayers.storyboard */,
-			);
-			path = Media;
 			sourceTree = "<group>";
 		};
 		20168792210A50B200FA5D53 /* Code */ = {
@@ -759,7 +751,6 @@
 		2057C77D24EBD9BD00718F1C /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				200FE48C2672B022006B5D53 /* AssetPlayerViewController.swift */,
 				2057C77B24EBD9A400718F1C /* AuthenticationView.swift */,
 				2057C77F24EBDA6C00718F1C /* Base */,
 				2016883C210A55B400FA5D53 /* CameraView.swift */,
@@ -780,6 +771,8 @@
 		2057C77E24EBD9C600718F1C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				20BE8944267417D3006089DE /* AVControlsView.swift */,
+				20BE892A26741664006089DE /* AVPlayerView.swift */,
 				20789E3523EABD0800F73638 /* BadgeView.swift */,
 				2047DBD223294CFC00598647 /* FullscreenViewCell.swift */,
 				2006BB4B2488F17400A87B3F /* GuideBox.swift */,
@@ -820,7 +813,6 @@
 				2016885F210A568400FA5D53 /* Camera.storyboard */,
 				202D6331250946490095FA36 /* CloudStorage.storyboard */,
 				2079D58B242E4D310050E0AF /* InAppPurchase.storyboard */,
-				200FE42226725E94006B5D53 /* Media */,
 				20168863210A568400FA5D53 /* Photo.storyboard */,
 				201C0A9E2437842D00F57C04 /* Policy.storyboard */,
 				2005844423E8AB7800535DA1 /* Security.storyboard */,
@@ -1361,7 +1353,6 @@
 				20C547AF24EC4D3B00CE5325 /* Main.storyboard in Resources */,
 				208280F924699D7B00DFEF2B /* GoogleService-Info.plist in Resources */,
 				2005843D23E8254F00535DA1 /* Preferences.storyboard in Resources */,
-				200FE4952672B03D006B5D53 /* AssetPlayers.storyboard in Resources */,
 				20F14AE6244EFAF000003CE2 /* eula.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1558,6 +1549,7 @@
 				202335FA25E189C3004823B4 /* Background.swift in Sources */,
 				20168853210A560700FA5D53 /* NewStreamView.swift in Sources */,
 				205396A021BEE12500C323F5 /* AtomicVar.swift in Sources */,
+				20BE892B26741664006089DE /* AVPlayerView.swift in Sources */,
 				2057B78A2306030F00F41BB2 /* AppDelegateExtension.swift in Sources */,
 				20168852210A560700FA5D53 /* RootView.swift in Sources */,
 				20168847210A55D200FA5D53 /* UserSelectionView.swift in Sources */,
@@ -1581,6 +1573,7 @@
 				20168828210A554A00FA5D53 /* Date.swift in Sources */,
 				203A6607245488D200A3F4B4 /* Keyboard.swift in Sources */,
 				20C0065D24EAAEC40084B4C0 /* AssetSyncTracker.swift in Sources */,
+				20BE8945267417D3006089DE /* AVControlsView.swift in Sources */,
 				2033EB082507F16100EB1FFE /* LoginNavigationController.swift in Sources */,
 				207150BA23428B6D00829C5D /* GroupDatabase.swift in Sources */,
 				20351D8C25E56B2400A1FE9F /* AssetSubOperationBatch.swift in Sources */,
@@ -1626,7 +1619,6 @@
 				207150AD23424E9B00829C5D /* UserObject.swift in Sources */,
 				2057B78E2306149C00F41BB2 /* Logger.swift in Sources */,
 				20A796A12466F02300A0CB10 /* PhoneNumberUtils.swift in Sources */,
-				200FE48D2672B022006B5D53 /* AssetPlayerViewController.swift in Sources */,
 				20331BED24291651009789DB /* UInt64.swift in Sources */,
 				20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */,
 				200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */,
