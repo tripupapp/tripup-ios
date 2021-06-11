@@ -1,22 +1,22 @@
 //
-//  DataRequester.swift
+//  AssetImageRequester.swift
 //  TripUp
 //
-//  Created by Vinoth Ramiah on 18/08/2020.
-//  Copyright © 2020 Vinoth Ramiah. All rights reserved.
+//  Created by Vinoth Ramiah on 11/06/2021.
+//  Copyright © 2021 Vinoth Ramiah. All rights reserved.
 //
 
 import Foundation
-import Photos
+import Photos.PHImageManager
 import UIKit.UIImage
 
-protocol AssetDataRequester {
-    func requestImage(for asset: Asset, format: AssetManager.RequestFormat, callback: @escaping (_ image: UIImage?, _ info: AssetManager.ResultInfo?) -> Void)
-    func requestImageData(for asset: Asset, format: AssetManager.RequestFormat, callback: @escaping (_ imageData: Data?, _ info: AssetManager.ResultInfo?) -> Void)
+protocol AssetImageRequester {
+    func requestImage(for asset: Asset, format: AssetManager.ImageRequestFormat, callback: @escaping (_ image: UIImage?, _ info: AssetManager.ResultInfo?) -> Void)
+    func requestImageData(for asset: Asset, format: AssetManager.ImageRequestFormat, callback: @escaping (_ imageData: Data?, _ info: AssetManager.ResultInfo?) -> Void)
 }
 
-extension AssetManager: AssetDataRequester {
-    func requestImage(for asset: Asset, format: RequestFormat, callback: @escaping (_ image: UIImage?, _ info: ResultInfo?) -> Void) {
+extension AssetManager: AssetImageRequester {
+    func requestImage(for asset: Asset, format: ImageRequestFormat, callback: @escaping (_ image: UIImage?, _ info: ResultInfo?) -> Void) {
         precondition(Thread.isMainThread)
         guard asset.type != .unknown else {
             fatalError()
@@ -110,7 +110,7 @@ extension AssetManager: AssetDataRequester {
         }
     }
 
-    func requestImageData(for asset: Asset, format: RequestFormat, callback: @escaping (_ imageData: Data?, _ info: ResultInfo?) -> Void) {
+    func requestImageData(for asset: Asset, format: ImageRequestFormat, callback: @escaping (_ imageData: Data?, _ info: ResultInfo?) -> Void) {
         if asset.imported {
             switch format {
             case .best:
@@ -181,3 +181,4 @@ extension AssetManager: AssetDataRequester {
         }
     }
 }
+

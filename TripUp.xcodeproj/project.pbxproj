@@ -147,6 +147,8 @@
 		20B40E0825DFE73900706811 /* TripUpViews.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 20B40E0025DFE73900706811 /* TripUpViews.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		20B7F4512621FBD1004765EC /* DebugVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B7F4502621FBD1004765EC /* DebugVC.swift */; };
 		20BD57BD23E99252008AC240 /* SecurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BD57BC23E99252008AC240 /* SecurityView.swift */; };
+		20BE88CF2673588F006089DE /* AssetImageRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE88CE2673588F006089DE /* AssetImageRequester.swift */; };
+		20BE88D72673590B006089DE /* AssetAVRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE88D62673590B006089DE /* AssetAVRequester.swift */; };
 		20C0065D24EAAEC40084B4C0 /* AssetSyncTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */; };
 		20C17EE325D6F67800279AEF /* UserNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C17EE225D6F67800279AEF /* UserNotifications.swift */; };
 		20C4F60123D3701D00B041B2 /* LoginLogicController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C4F60023D3701D00B041B2 /* LoginLogicController.swift */; };
@@ -403,6 +405,8 @@
 		20B40E0325DFE73900706811 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		20B7F4502621FBD1004765EC /* DebugVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugVC.swift; sourceTree = "<group>"; };
 		20BD57BC23E99252008AC240 /* SecurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityView.swift; sourceTree = "<group>"; };
+		20BE88CE2673588F006089DE /* AssetImageRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetImageRequester.swift; sourceTree = "<group>"; };
+		20BE88D62673590B006089DE /* AssetAVRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetAVRequester.swift; sourceTree = "<group>"; };
 		20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetSyncTracker.swift; sourceTree = "<group>"; };
 		20C17EE225D6F67800279AEF /* UserNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotifications.swift; sourceTree = "<group>"; };
 		20C4F60023D3701D00B041B2 /* LoginLogicController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginLogicController.swift; sourceTree = "<group>"; };
@@ -842,7 +846,7 @@
 		2057C78A24EBE80A00718F1C /* AssetManager */ = {
 			isa = PBXGroup;
 			children = (
-				2057C79124EBEEA400718F1C /* AssetDataRequester.swift */,
+				20BE88CD26735873006089DE /* AssetDataRequester */,
 				202FD4E525EE67DF004CA1C3 /* AssetImportQueuingOperation.swift */,
 				20A2580C2450BD4F00AA5F37 /* AssetManager.swift */,
 				20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */,
@@ -976,6 +980,16 @@
 				2091D49925E000DD00863BC6 /* Views */,
 			);
 			path = TripUpViews;
+			sourceTree = "<group>";
+		};
+		20BE88CD26735873006089DE /* AssetDataRequester */ = {
+			isa = PBXGroup;
+			children = (
+				20BE88D62673590B006089DE /* AssetAVRequester.swift */,
+				2057C79124EBEEA400718F1C /* AssetDataRequester.swift */,
+				20BE88CE2673588F006089DE /* AssetImageRequester.swift */,
+			);
+			path = AssetDataRequester;
 			sourceTree = "<group>";
 		};
 		20C4F5FF23D36FCF00B041B2 /* LogicComponents */ = {
@@ -1514,6 +1528,7 @@
 				20BD57BD23E99252008AC240 /* SecurityView.swift in Sources */,
 				20AD627422B27227003F4ED4 /* AsymmetricKey.swift in Sources */,
 				200453BD2555B9A300822AEE /* ModelController.swift in Sources */,
+				20BE88D72673590B006089DE /* AssetAVRequester.swift in Sources */,
 				2057C79024EBEC6F00718F1C /* AssetOperationDelegate.swift in Sources */,
 				203B1AB5224ABDD800D0229C /* AssetActivityItemProvider.swift in Sources */,
 				20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */,
@@ -1546,6 +1561,7 @@
 				2057B78A2306030F00F41BB2 /* AppDelegateExtension.swift in Sources */,
 				20168852210A560700FA5D53 /* RootView.swift in Sources */,
 				20168847210A55D200FA5D53 /* UserSelectionView.swift in Sources */,
+				20BE88CF2673588F006089DE /* AssetImageRequester.swift in Sources */,
 				20A6381C233E412F00217E27 /* AssetController.swift in Sources */,
 				202FD4E625EE67DF004CA1C3 /* AssetImportQueuingOperation.swift in Sources */,
 				2057C77C24EBD9A500718F1C /* AuthenticationView.swift in Sources */,

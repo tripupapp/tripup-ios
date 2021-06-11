@@ -52,10 +52,15 @@ class AssetManager {
         case low
     }
 
-    enum RequestFormat {
+    enum ImageRequestFormat {
         case best
         case highQuality(CGSize, CGFloat)
         case lowQuality(CGSize, CGFloat)
+        case fast
+    }
+
+    enum AVRequestFormat {
+        case best
         case fast
     }
 
