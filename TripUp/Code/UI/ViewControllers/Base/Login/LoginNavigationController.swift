@@ -30,7 +30,7 @@ class LoginNavigationController: UINavigationController, UIViewControllerAnimate
             audioPlayer.prepareToPlay()
             audioPlayer.numberOfLoops = -1
             audioPlayer.play()
-            audioPlayer.volume = 0.05   // volume is logarithmic - https://stackoverflow.com/a/30098872/2728986
+            audioPlayer.volume = 0.2    // volume is logarithmic - https://stackoverflow.com/a/30098872/2728986
             self.audioPlayer = audioPlayer
         }
     }
