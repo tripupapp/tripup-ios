@@ -140,10 +140,13 @@ class FullscreenViewController: UIViewController {
             }) { _ in
                 UIView.animate(withDuration: 0.2) {
                     self.overlayViews.forEach{ $0.alpha = 1.0 }
+                    self.delegate.configureOverlayViews(forItemAt: self.initialIndex)
                 }
                 self.presentingImageView.isHidden = true
                 self.collectionView.isHidden = false
             }
+        } else {
+            delegate.configureOverlayViews(forItemAt: initialIndex)
         }
     }
 
@@ -354,17 +357,13 @@ extension FullscreenViewController: UICollectionViewDataSourcePrefetching {
 }
 
 extension FullscreenViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        delegate.configureOverlayViews(forItemAt: indexPath.item)
-    }
-
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let cell = cell as! FullscreenViewCell
         cell.scrollView.zoomScale = 1.0
     }
 
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        let center = CGPoint(x: scrollView.contentOffset.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        let center = CGPoint(x: targetContentOffset.pointee.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
         if let indexPath = collectionView.indexPathForItem(at: center) {
             delegate.configureOverlayViews(forItemAt: indexPath.item)
         }
