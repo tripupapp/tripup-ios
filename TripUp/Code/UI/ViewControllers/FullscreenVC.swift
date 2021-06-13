@@ -225,8 +225,13 @@ class FullscreenViewController: UIViewController {
         collectionView.performBatchUpdates({
             collectionView.insertItems(at: indexPaths)
         }) { [weak self] success in
-            if success, let self = self, self.delegate.modelIsEmpty {
+            guard let self = self, success else {
+                return
+            }
+            if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
+            } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
+                self.delegate.configureOverlayViews(forItemAt: currentIndexPath.item)
             }
         }
     }
@@ -236,8 +241,13 @@ class FullscreenViewController: UIViewController {
         collectionView.performBatchUpdates({
             collectionView.deleteItems(at: indexPaths)
         }) { [weak self] success in
-            if success, let self = self, self.delegate.modelIsEmpty {
+            guard let self = self, success else {
+                return
+            }
+            if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
+            } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
+                self.delegate.configureOverlayViews(forItemAt: currentIndexPath.item)
             }
         }
     }
@@ -247,8 +257,13 @@ class FullscreenViewController: UIViewController {
         collectionView.performBatchUpdates({
             collectionView.moveItem(at: indexPath, to: indexPath)
         }) { [weak self] success in
-            if success, let self = self, self.delegate.modelIsEmpty {
+            guard let self = self, success else {
+                return
+            }
+            if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
+            } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
+                self.delegate.configureOverlayViews(forItemAt: currentIndexPath.item)
             }
         }
     }
