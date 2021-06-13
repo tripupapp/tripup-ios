@@ -276,7 +276,7 @@
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="byE-4i-qwO">
                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                                         </imageView>
-                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AgS-l1-1Lb" customClass="AVPlayer">
+                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AgS-l1-1Lb" customClass="AVPlayerView" customModule="TripUp" customModuleProvider="target">
                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                                         </view>
                                                     </subviews>
@@ -323,7 +323,7 @@
                                         <size key="customSize" width="375" height="812"/>
                                         <connections>
                                             <outlet property="activityIndicator" destination="zmO-05-zVg" id="7bZ-Up-2df"/>
-                                            <outlet property="avPlayerView" destination="AgS-l1-1Lb" id="VIG-R8-6if"/>
+                                            <outlet property="avPlayerView" destination="AgS-l1-1Lb" id="oTC-7e-EDy"/>
                                             <outlet property="imageView" destination="byE-4i-qwO" id="48f-vH-yc4"/>
                                             <outlet property="originalMissingLabel" destination="YdB-nC-5nM" id="FO5-uK-0JM"/>
                                             <outlet property="scrollView" destination="gC2-a1-tnn" id="Dhi-z3-wBR"/>
