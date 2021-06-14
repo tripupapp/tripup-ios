@@ -303,6 +303,9 @@ class FullscreenViewController: UIViewController {
                     self?.avControlsView.playPauseButton.setImage(image, for: .normal)
                 }
             }
+            if let avPlayerItem = avPlayer.currentItem, avPlayerItem.status == .readyToPlay {
+                avPlayer.play()
+            }
 //            let interval = CMTime(value: 1, timescale: 2)
 //            avPlayerPlaytimeObserver = avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
 //                let timeElapsed = Float(time.seconds)
@@ -310,6 +313,7 @@ class FullscreenViewController: UIViewController {
 //            }
         } else {
             avPlayerPlayPauseObserver = nil
+            avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
         }
         delegate.configureOverlayViews(forItemAt: indexPath.item)
     }
@@ -388,6 +392,8 @@ extension FullscreenViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let cell = cell as! FullscreenViewCell
         cell.scrollView.zoomScale = 1.0
+        cell.avPlayerView.player?.pause()
+        cell.avPlayerView.player?.currentItem?.seek(to: .zero, completionHandler: nil)
     }
 
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
