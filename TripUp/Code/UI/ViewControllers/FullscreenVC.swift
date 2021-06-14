@@ -429,6 +429,15 @@ extension FullscreenViewController: UICollectionViewDelegate {
             configureOverlayViews(forIndexPath: indexPath)
         }
     }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let center = CGPoint(x: scrollView.contentOffset.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
+        if let indexPath = collectionView.indexPathForItem(at: center), let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell {
+            if let avPlayer = cell.avPlayerView.player, let avPlayerItemStatus = avPlayer.currentItem?.status, avPlayerItemStatus == .readyToPlay {
+                avPlayer.play()
+            }
+        }
+    }
 }
 
 extension FullscreenViewController: UICollectionViewDelegateFlowLayout {
