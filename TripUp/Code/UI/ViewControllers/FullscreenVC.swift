@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AVFoundation.AVPlayer
 import CoreMedia.CMTime
 import UIKit
 
@@ -57,7 +58,7 @@ class FullscreenViewController: UIViewController {
     }()
     private var initialIndex: Int!
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?
-    private var avPlayerPlaytimeObserver: Any?
+    private var avPlayerPlaytimeObserver: (AVPlayer, Any)?
     private var presenter: FullscreenViewTransitionDelegate?
     private var hideStatusBar: Bool = true {
         didSet {
@@ -285,6 +286,9 @@ class FullscreenViewController: UIViewController {
 
     private func configureOverlayViews(forIndexPath indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell
+        if let avPlayerPlaytimeObserver = avPlayerPlaytimeObserver {
+            avPlayerPlaytimeObserver.0.removeTimeObserver(avPlayerPlaytimeObserver.1)
+        }
         if let avPlayer = cell?.avPlayerView.player {
             avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus) { [weak self, weak cell] _, _ in
                 DispatchQueue.main.async {
@@ -303,17 +307,20 @@ class FullscreenViewController: UIViewController {
                     self?.avControlsView.playPauseButton.setImage(image, for: .normal)
                 }
             }
+            let interval = CMTime(value: 1, timescale: 2)
+            avPlayerPlaytimeObserver = (avPlayer, avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+                let timeElapsed = Float(time.seconds)
+                self?.avControlsView.scrubber.value = timeElapsed
+            })
             if let avPlayerItem = avPlayer.currentItem, avPlayerItem.status == .readyToPlay {
+                avControlsView.scrubber.maximumValue = Float(avPlayerItem.duration.seconds)
                 avPlayer.play()
             }
-//            let interval = CMTime(value: 1, timescale: 2)
-//            avPlayerPlaytimeObserver = avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-//                let timeElapsed = Float(time.seconds)
-//                self?.avControlsView.scrubber.value = timeElapsed
-//            }
         } else {
             avPlayerPlayPauseObserver = nil
+            avPlayerPlaytimeObserver = nil
             avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
+            avControlsView.scrubber.value = 0
         }
         delegate.configureOverlayViews(forItemAt: indexPath.item)
     }
