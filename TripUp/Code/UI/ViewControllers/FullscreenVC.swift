@@ -40,6 +40,21 @@ class FullscreenViewController: UIViewController {
 
     var delegate: FullscreenViewDelegate!
     var onDismiss: (() -> Void)?
+
+    private lazy var playButton: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage(systemName: "play.fill")
+        } else {
+            return UIImage(named: "")
+        }
+    }()
+    private lazy var pauseButton: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage(systemName: "pause.fill")
+        } else {
+            return UIImage(named: "")
+        }
+    }()
     private var initialIndex: Int!
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?
     private var avPlayerPlaytimeObserver: Any?
@@ -140,13 +155,13 @@ class FullscreenViewController: UIViewController {
             }) { _ in
                 UIView.animate(withDuration: 0.2) {
                     self.overlayViews.forEach{ $0.alpha = 1.0 }
-                    self.delegate.configureOverlayViews(forItemAt: self.initialIndex)
+                    self.configureOverlayViews(forIndexPath: IndexPath(item: self.initialIndex, section: 0))
                 }
                 self.presentingImageView.isHidden = true
                 self.collectionView.isHidden = false
             }
         } else {
-            delegate.configureOverlayViews(forItemAt: initialIndex)
+            configureOverlayViews(forIndexPath: IndexPath(item: initialIndex, section: 0))
         }
     }
 
@@ -231,7 +246,7 @@ class FullscreenViewController: UIViewController {
             if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
             } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
-                self.delegate.configureOverlayViews(forItemAt: currentIndexPath.item)
+                self.configureOverlayViews(forIndexPath: currentIndexPath)
             }
         }
     }
@@ -247,7 +262,7 @@ class FullscreenViewController: UIViewController {
             if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
             } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
-                self.delegate.configureOverlayViews(forItemAt: currentIndexPath.item)
+                self.configureOverlayViews(forIndexPath: currentIndexPath)
             }
         }
     }
@@ -263,9 +278,40 @@ class FullscreenViewController: UIViewController {
             if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
             } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
-                self.delegate.configureOverlayViews(forItemAt: currentIndexPath.item)
+                self.configureOverlayViews(forIndexPath: currentIndexPath)
             }
         }
+    }
+
+    private func configureOverlayViews(forIndexPath indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell
+        if let avPlayer = cell?.avPlayerView.player {
+            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus) { [weak self, weak cell] _, _ in
+                DispatchQueue.main.async {
+                    guard avPlayer === cell?.avPlayerView.player else {
+                        return
+                    }
+                    var image: UIImage?
+                    switch avPlayer.timeControlStatus {
+                    case .playing:
+                        image = self?.pauseButton
+                    case .paused, .waitingToPlayAtSpecifiedRate:
+                        image = self?.playButton
+                    @unknown default:
+                        image = self?.pauseButton
+                    }
+                    self?.avControlsView.playPauseButton.setImage(image, for: .normal)
+                }
+            }
+//            let interval = CMTime(value: 1, timescale: 2)
+//            avPlayerPlaytimeObserver = avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+//                let timeElapsed = Float(time.seconds)
+//                self?.avControlsView.scrubber.value = timeElapsed
+//            }
+        } else {
+            avPlayerPlayPauseObserver = nil
+        }
+        delegate.configureOverlayViews(forItemAt: indexPath.item)
     }
 
     private func dismiss(indexPath: IndexPath, withCell cell: FullscreenViewCell) {
@@ -324,39 +370,6 @@ extension FullscreenViewController: UICollectionViewDataSource {
             }
         }
         delegate.configure(cell: cell, forItemAt: indexPath.item)
-        if let avPlayer = cell.avPlayerView.player {
-            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] _, _ in
-                DispatchQueue.main.async {
-                    guard avPlayer === cell.avPlayerView.player else {
-                        return
-                    }
-                    var buttonImage: UIImage?
-                    if #available(iOS 13.0, *) {
-                        switch avPlayer.timeControlStatus {
-                        case .playing:
-                            buttonImage = UIImage(named: "pause.fill")
-                        case .paused, .waitingToPlayAtSpecifiedRate:
-                            buttonImage = UIImage(named: "play.fill")
-                        @unknown default:
-                            buttonImage = UIImage(named: "pause.fill")
-                        }
-                    } else {
-                        // Fallback on earlier versions
-                    }
-                    guard let image = buttonImage else {
-                        return
-                    }
-                    self?.avControlsView.playPauseButton.setImage(image, for: .normal)
-                }
-            }
-            let interval = CMTime(value: 1, timescale: 2)
-            avPlayerPlaytimeObserver = avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-                let timeElapsed = Float(time.seconds)
-                self?.avControlsView.scrubber.value = timeElapsed
-            }
-        } else {
-            avPlayerPlayPauseObserver = nil
-        }
         return cell
     }
 
@@ -380,7 +393,7 @@ extension FullscreenViewController: UICollectionViewDelegate {
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         let center = CGPoint(x: targetContentOffset.pointee.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
         if let indexPath = collectionView.indexPathForItem(at: center) {
-            delegate.configureOverlayViews(forItemAt: indexPath.item)
+            configureOverlayViews(forIndexPath: indexPath)
         }
     }
 }
