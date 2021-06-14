@@ -292,9 +292,9 @@ class FullscreenViewController: UIViewController {
             avPlayerPlaytimeObserver.0.removeTimeObserver(avPlayerPlaytimeObserver.1)
         }
         if let avPlayer = cell?.avPlayerView.player {
-            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus) { [weak self, weak cell] _, _ in
+            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self, weak cell, weak avPlayer] _, _ in
                 DispatchQueue.main.async {
-                    guard avPlayer === cell?.avPlayerView.player else {
+                    guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
                         return
                     }
                     var image: UIImage?
@@ -310,7 +310,10 @@ class FullscreenViewController: UIViewController {
                 }
             }
             let interval = CMTime(value: 1, timescale: 2)
-            avPlayerPlaytimeObserver = (avPlayer, avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            avPlayerPlaytimeObserver = (avPlayer, avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self, weak cell, weak avPlayer] time in
+                guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
+                    return
+                }
                 let timeElapsed = Float(time.seconds)
                 self?.avControlsView.scrubber.value = timeElapsed
             })
