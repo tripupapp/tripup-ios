@@ -399,8 +399,9 @@
                                             <constraint firstAttribute="width" constant="30" id="EMR-jp-XSS"/>
                                             <constraint firstAttribute="width" secondItem="UeC-9E-0fb" secondAttribute="height" multiplier="1:1" id="hVP-5Q-DUW"/>
                                         </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <color key="tintColor" systemColor="systemGrayColor"/>
-                                        <state key="normal" image="play.fill" catalog="system">
+                                        <state key="normal" image="play">
                                             <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30"/>
                                         </state>
                                         <connections>
@@ -620,7 +621,7 @@
         <image name="close-circle" width="312" height="312"/>
         <image name="eye-off-outline" width="360" height="288"/>
         <image name="eye-outline-toolbar" width="24" height="16"/>
-        <image name="play.fill" catalog="system" width="116" height="128"/>
+        <image name="play" width="240" height="276"/>
         <systemColor name="lightTextColor">
             <color white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

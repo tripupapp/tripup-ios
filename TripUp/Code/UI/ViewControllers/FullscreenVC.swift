@@ -41,18 +41,18 @@ class FullscreenViewController: UIViewController {
     var delegate: FullscreenViewDelegate!
     var onDismiss: (() -> Void)?
 
-    private lazy var playButton: UIImage? = {
+    private lazy var playButtonImage: UIImage? = {
         if #available(iOS 13.0, *) {
             return UIImage(systemName: "play.fill")
         } else {
-            return UIImage(named: "")
+            return UIImage(named: "play")
         }
     }()
-    private lazy var pauseButton: UIImage? = {
+    private lazy var pauseButtonImage: UIImage? = {
         if #available(iOS 13.0, *) {
             return UIImage(systemName: "pause.fill")
         } else {
-            return UIImage(named: "")
+            return UIImage(named: "pause")
         }
     }()
     private var initialIndex: Int!
@@ -294,11 +294,11 @@ class FullscreenViewController: UIViewController {
                     var image: UIImage?
                     switch avPlayer.timeControlStatus {
                     case .playing:
-                        image = self?.pauseButton
+                        image = self?.pauseButtonImage
                     case .paused, .waitingToPlayAtSpecifiedRate:
-                        image = self?.playButton
+                        image = self?.playButtonImage
                     @unknown default:
-                        image = self?.pauseButton
+                        image = self?.pauseButtonImage
                     }
                     self?.avControlsView.playPauseButton.setImage(image, for: .normal)
                 }
