@@ -59,6 +59,7 @@ class FullscreenViewController: UIViewController {
     private var initialIndex: Int!
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?
     private var avPlayerPlaytimeObserver: (AVPlayer, Any)?
+    private var avPlayerStatusObserver: NSKeyValueObservation?
     private var presenter: FullscreenViewTransitionDelegate?
     private var hideStatusBar: Bool = true {
         didSet {
@@ -284,6 +285,7 @@ class FullscreenViewController: UIViewController {
         }
     }
 
+    // usually called after cell has loaded (after cellForItemAt method). Note that cell contents loaded asynchronously might not be ready yet
     private func configureOverlayViews(forIndexPath indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell
         if let avPlayerPlaytimeObserver = avPlayerPlaytimeObserver {
@@ -312,13 +314,31 @@ class FullscreenViewController: UIViewController {
                 let timeElapsed = Float(time.seconds)
                 self?.avControlsView.scrubber.value = timeElapsed
             })
-            if let avPlayerItem = avPlayer.currentItem, avPlayerItem.status == .readyToPlay {
-                avControlsView.scrubber.maximumValue = Float(avPlayerItem.duration.seconds)
-                avPlayer.play()
+            avPlayerStatusObserver = avPlayer.observe(\.currentItem?.status, options: [.initial, .new]) { [weak self, weak cell, weak avPlayer] (_, _) in
+                DispatchQueue.main.async {
+                    guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
+                        return
+                    }
+                    guard let currentItem = avPlayer.currentItem else {
+                        return
+                    }
+                    switch currentItem.status {
+                    case .failed:
+                        self?.avControlsView.isUserInteractionEnabled = false
+                        self?.view.makeToastie("failed to load video, error: \(String(describing: currentItem.error))")
+                    case .readyToPlay:
+                        self?.avControlsView.isUserInteractionEnabled = true
+                        self?.avControlsView.scrubber.maximumValue = Float(currentItem.duration.seconds)
+                        self?.avControlsView.scrubber.value = 0
+                    default:
+                        self?.avControlsView.isUserInteractionEnabled = false
+                    }
+                }
             }
         } else {
             avPlayerPlayPauseObserver = nil
             avPlayerPlaytimeObserver = nil
+            avPlayerStatusObserver = nil
             avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
             avControlsView.scrubber.value = 0
         }
