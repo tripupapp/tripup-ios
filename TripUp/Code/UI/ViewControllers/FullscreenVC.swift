@@ -113,11 +113,11 @@ class FullscreenViewController: UIViewController {
         overlayViews.forEach{ $0.isHidden = false }
         overlayViews.forEach{ $0.alpha = 0.0 }
 
-        // generate scrubber thumb circle image
+        // generate scrubber thumb circle image (thumbImage is only set from storyboard if colours changed from default values)
         if let defaultThumbHeight = avControlsView.scrubber.thumbImage(for: .normal)?.size.height {
             let height = defaultThumbHeight / 2
             let thumbView = UIView()
-            thumbView.backgroundColor = .systemGray
+            thumbView.backgroundColor = .white
             thumbView.frame = CGRect(x: 0, y: height / 2, width: height, height: height)
             thumbView.layer.cornerRadius = height / 2
             let renderer = UIGraphicsImageRenderer(bounds: thumbView.bounds)
@@ -131,6 +131,7 @@ class FullscreenViewController: UIViewController {
             avControlsView.scrubber.setThumbImage(resizedImage, for: .normal)
             avControlsView.scrubber.setThumbImage(resizedImage, for: .reserved)
             avControlsView.scrubber.setThumbImage(resizedImage, for: .selected)
+            avControlsView.scrubber.value = 0
         }
 
         if #available(iOS 13.0, *) {
@@ -179,10 +180,10 @@ class FullscreenViewController: UIViewController {
             }) { _ in
                 UIView.animate(withDuration: 0.2) {
                     self.overlayViews.forEach{ $0.alpha = 1.0 }
-                    self.configureOverlayViews(forIndexPath: IndexPath(item: self.initialIndex, section: 0))
                 }
                 self.presentingImageView.isHidden = true
                 self.collectionView.isHidden = false
+                self.configureOverlayViews(forIndexPath: IndexPath(item: self.initialIndex, section: 0))
             }
         } else {
             configureOverlayViews(forIndexPath: IndexPath(item: initialIndex, section: 0))
