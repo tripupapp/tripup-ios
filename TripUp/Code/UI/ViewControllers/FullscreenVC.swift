@@ -60,6 +60,8 @@ class FullscreenViewController: UIViewController {
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?
     private var avPlayerPlaytimeObserver: (AVPlayer, Any)?
     private var avPlayerStatusObserver: NSKeyValueObservation?
+    private var avPlayerSeeking = false
+    private var avPlayerChaseTime: CMTime = .zero
     private var presenter: FullscreenViewTransitionDelegate?
     private var hideStatusBar: Bool = true {
         didSet {
@@ -221,6 +223,20 @@ class FullscreenViewController: UIViewController {
             player.play()
         default:
             player.pause()
+        }
+    }
+
+    @IBAction func scrubberDidChange(_ sender: UISlider) {
+        guard let cell = collectionView.visibleCells.first as? FullscreenViewCell, let player = cell.avPlayerView.player else {
+            return
+        }
+        player.pause()
+        let newTime = CMTime(seconds: Double(sender.value), preferredTimescale: player.currentTime().timescale)
+        if CMTimeCompare(newTime, avPlayerChaseTime) != 0 {
+            avPlayerChaseTime = newTime
+            if !avPlayerSeeking {
+                seek(player: player)
+            }
         }
     }
 
@@ -387,6 +403,22 @@ class FullscreenViewController: UIViewController {
             centeredFrame = CGRect(x: x, y: 0, width: screenBounds.size.width - (2 * x), height: screenBounds.size.height)
         }
         return centeredFrame
+    }
+
+    // https://developer.apple.com/library/archive/qa/qa1820/_index.html
+    private func seek(player: AVPlayer) {
+        avPlayerSeeking = true
+        let seekTimeInProgress = avPlayerChaseTime
+        player.seek(to: seekTimeInProgress, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] (_) in
+            guard let self = self else {
+                return
+            }
+            if CMTimeCompare(seekTimeInProgress, self.avPlayerChaseTime) == 0 {
+                self.avPlayerSeeking = false
+            } else {
+                self.seek(player: player)
+            }
+        }
     }
 }
 

@@ -392,6 +392,9 @@
                                         <color key="minimumTrackTintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="maximumTrackTintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="thumbTintColor" systemColor="systemGrayColor"/>
+                                        <connections>
+                                            <action selector="scrubberDidChange:" destination="Zuw-Ig-Mc7" eventType="valueChanged" id="1YT-if-wQn"/>
+                                        </connections>
                                     </slider>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UeC-9E-0fb">
                                         <rect key="frame" x="152.66666666666666" y="65" width="30" height="30"/>
