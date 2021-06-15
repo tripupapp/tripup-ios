@@ -113,6 +113,26 @@ class FullscreenViewController: UIViewController {
         overlayViews.forEach{ $0.isHidden = false }
         overlayViews.forEach{ $0.alpha = 0.0 }
 
+        // generate scrubber thumb circle image
+        if let defaultThumbHeight = avControlsView.scrubber.thumbImage(for: .normal)?.size.height {
+            let height = defaultThumbHeight / 2
+            let thumbView = UIView()
+            thumbView.backgroundColor = .systemGray
+            thumbView.frame = CGRect(x: 0, y: height / 2, width: height, height: height)
+            thumbView.layer.cornerRadius = height / 2
+            let renderer = UIGraphicsImageRenderer(bounds: thumbView.bounds)
+            let resizedImage = renderer.image { rendererContext in
+                thumbView.layer.render(in: rendererContext.cgContext)
+            }
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .application)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .disabled)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .focused)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .highlighted)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .normal)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .reserved)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .selected)
+        }
+
         if #available(iOS 13.0, *) {
             let toolbarAppearance = UIToolbarAppearance()
             toolbarAppearance.configureWithTransparentBackground()
