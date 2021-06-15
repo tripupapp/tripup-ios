@@ -345,13 +345,16 @@ class FullscreenViewController: UIViewController {
                     self?.avControlsView.playPauseButton.setImage(image, for: .normal)
                 }
             }
-            let interval = CMTime(value: 1, timescale: 2)
+            let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
             avPlayerPlaytimeObserver = (avPlayer, avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self, weak cell, weak avPlayer] time in
                 guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
                     return
                 }
-                let timeElapsed = Float(time.seconds)
-                self?.avControlsView.scrubber.value = timeElapsed
+                guard let self = self, !self.avControlsView.scrubber.isTracking else {
+                    return
+                }
+                let value = time.seconds
+                self.avControlsView.scrubber.setValue(Float(value), animated: true)
             })
             avPlayerStatusObserver = avPlayer.observe(\.currentItem?.status, options: [.initial, .new]) { [weak self, weak cell, weak avPlayer] (_, _) in
                 DispatchQueue.main.async {
