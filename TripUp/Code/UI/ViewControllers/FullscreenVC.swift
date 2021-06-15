@@ -34,6 +34,7 @@ protocol FullscreenViewDelegate: class {
 class FullscreenViewController: UIViewController {
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var presentingImageView: UIImageView!
+    @IBOutlet var presentingPlayerView: AVPlayerView!
     @IBOutlet var overlayViews: [UIView]!
     @IBOutlet var ownerLabel: UILabel!
     @IBOutlet var avControlsView: AVControlsView!
@@ -392,18 +393,27 @@ class FullscreenViewController: UIViewController {
         hideStatusBar = false
         if let presenter = presenter {
             let targetFrame = presenter.transitioning(to: indexPath.item)
-            presentingImageView.frame = frame(forSize: delegate.fullsizeOfItem(at: indexPath.item))
-            presentingImageView.center = cell.contentView.center
-            presentingImageView.image = cell.imageView.image //(cell.playerViewController as? PhotoPlayerViewController)?.imageView.image
-            presentingImageView.isHidden = false
+            var presentingView: UIView!
+            if let image = cell.imageView.image {
+                presentingImageView.image = image
+                presentingView = presentingImageView
+            } else {
+                presentingPlayerView.player = cell.avPlayerView.player
+                presentingPlayerView.player?.pause()
+                presentingPlayerView.fill()
+                presentingView = presentingPlayerView
+            }
+            presentingView.frame = frame(forSize: delegate.fullsizeOfItem(at: indexPath.item))
+            presentingView.center = cell.contentView.center
+            presentingView.isHidden = false
             collectionView.isHidden = true
             overlayViews.forEach{ $0.isHidden = true }
             UIView.animate(withDuration: 0.2, animations: {
                 self.view.backgroundColor = .clear
-                self.presentingImageView.frame = targetFrame
+                presentingView.frame = targetFrame
             }) { _ in
                 UIView.animate(withDuration: 0.2, animations: {
-                    self.presentingImageView.alpha = 0
+                    presentingView.alpha = 0
                 }, completion: { _ in
                     self.dismiss(animated: false, completion: self.onDismiss)
                 })

@@ -26,6 +26,10 @@ class AVPlayerView: UIView {
         }
     }
 
+    func fill() {
+        playerLayer.videoGravity = .resizeAspectFill
+    }
+
     private var playerLayer: AVPlayerLayer {
         layer as! AVPlayerLayer
     }

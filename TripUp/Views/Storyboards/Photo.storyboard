@@ -253,6 +253,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Qw-ih-trX" userLabel="PresentingPlayerView" customClass="AVPlayerView" customModule="TripUp" customModuleProvider="target">
+                                <rect key="frame" x="67" y="342" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                             <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fwb-Mw-VvR" userLabel="PresentingImageView">
                                 <rect key="frame" x="67" y="342" width="240" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -502,6 +507,7 @@
                         <outlet property="collectionView" destination="lch-Zt-uaX" id="729-oM-rA2"/>
                         <outlet property="ownerLabel" destination="XSB-Nc-4Q8" id="Cf7-xb-IhD"/>
                         <outlet property="presentingImageView" destination="Fwb-Mw-VvR" id="hT7-z7-SeE"/>
+                        <outlet property="presentingPlayerView" destination="1Qw-ih-trX" id="Pyi-IC-dUP"/>
                         <outletCollection property="overlayViews" destination="kYR-wI-ahX" collectionClass="NSMutableArray" id="MlK-at-zoo"/>
                         <outletCollection property="overlayViews" destination="XSB-Nc-4Q8" collectionClass="NSMutableArray" id="bkM-2K-0NT"/>
                         <outletCollection property="overlayViews" destination="KGc-tw-fpS" collectionClass="NSMutableArray" id="dLg-dW-Vrq"/>
