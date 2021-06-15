@@ -181,7 +181,6 @@ class FullscreenViewController: UIViewController {
                 UIView.animate(withDuration: 0.2) {
                     self.overlayViews.forEach{ $0.alpha = 1.0 }
                 }
-                self.presentingImageView.isHidden = true
                 self.collectionView.isHidden = false
                 self.configureOverlayViews(forIndexPath: IndexPath(item: self.initialIndex, section: 0))
             }
@@ -203,6 +202,7 @@ class FullscreenViewController: UIViewController {
         case .possible:
             break
         case .began:
+            presentingImageView.isHidden = true
             _ = presenter?.transitioning(to: indexPath.item)
         case .changed:
             cell.contentView.center = CGPoint(x: view.center.x + translation.x, y: view.center.y + translation.y)
