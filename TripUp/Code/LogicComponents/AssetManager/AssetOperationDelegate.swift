@@ -18,6 +18,8 @@ protocol AssetOperationDelegate: AnyObject {
 
     func requestIOSAsset(withLocalID localID: String, callbackOn dispatchQueue: DispatchQueue, callback: @escaping (PHAsset?) -> Void)
     func requestImageDataFromIOS(with iosAsset: PHAsset) -> (Data?, String?)
+    func exportVideoData(forIOSAsset iosAsset: PHAsset, toURL url: URL, callback: @escaping (Bool, AVFileType?) -> Void)
+    func compressVideo(atURL url: URL, saveTo outputURL: URL, callback: @escaping (Bool) -> Void)
     func requestImageThumbnailFromIOS(localID: String, size: CGSize, scale: CGFloat, callback: @escaping (Data?) -> Void) -> Bool
 
     func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void)
@@ -76,6 +78,76 @@ extension AssetManager: AssetOperationDelegate {
             imageUTI = uti
         }
         return (imageData, imageUTI)
+    }
+
+    func exportVideoData(forIOSAsset iosAsset: PHAsset, toURL url: URL, callback: @escaping (Bool, AVFileType?) -> Void) {
+        let requestOptions = PHVideoRequestOptions()
+        requestOptions.version = .current
+        requestOptions.deliveryMode = .highQualityFormat
+        requestOptions.isNetworkAccessAllowed = true
+
+        iosImageManager.requestExportSession(forVideo: iosAsset, options: requestOptions, exportPreset: AVAssetExportPresetPassthrough) { [weak self] (exportSession, _) in
+            guard let exportSession = exportSession else {
+                callback(false, nil)
+                return
+            }
+            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
+            let uti: AVFileType = .mp4
+            exportSession.outputURL = url
+            exportSession.outputFileType = uti
+            exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
+                if case .completed = exportSession.status {
+                    callback(true, uti)
+                } else {
+                    self?.log.error("phassetid: \(iosAsset.localIdentifier) - error: \(String(describing: exportSession.error))")
+                    callback(false, uti)
+                }
+            })
+        }
+    }
+
+    func compressVideo(atURL url: URL, saveTo outputURL: URL, callback: @escaping (Bool) -> Void) {
+        var sourceURL: URL = url
+        var symbolicLinkCreated = false
+        if sourceURL.pathExtension.isEmpty {
+            // file requires a valid extension else will fail compatibility check and fails export session
+            // using a symbolic link with an extension pointing to our original file works
+            // remove symbolic link once finished
+            sourceURL = sourceURL.appendingPathExtension("mp4")
+            try? FileManager.default.createSymbolicLink(at: sourceURL, withDestinationURL: url)
+            symbolicLinkCreated = true
+        }
+        let asset = AVAsset(url: sourceURL)
+        let preset = AVAssetExportPresetLowQuality
+        let uti: AVFileType = .mp4
+        AVAssetExportSession.determineCompatibility(ofExportPreset: preset, with: asset, outputFileType: uti) { isCompatible in
+            let resultHandler = { (_ result: Bool) in
+                if symbolicLinkCreated {
+                    try? FileManager.default.removeItem(at: sourceURL)
+                }
+                callback(result)
+            }
+            guard isCompatible else {
+                self.log.error("export session incompatible - sourceURL: \(String(describing: sourceURL)), preset: \(preset), uti: \(String(describing: uti))")
+                resultHandler(false)
+                return
+            }
+            guard let exportSession = AVAssetExportSession(asset: asset, presetName: preset) else {
+                resultHandler(false)
+                return
+            }
+            try? FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
+            exportSession.outputURL = outputURL
+            exportSession.outputFileType = uti
+            exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
+                if case .completed = exportSession.status {
+                    resultHandler(true)
+                } else {
+                    self.log.error("sourceURL: \(String(describing: sourceURL)), outputURL: \(String(describing: outputURL)) - error: \(String(describing: exportSession.error))")
+                    resultHandler(true)
+                }
+            })
+        }
     }
 
     func requestImageThumbnailFromIOS(localID: String, size: CGSize, scale: CGFloat, callback: @escaping (Data?) -> Void) -> Bool {

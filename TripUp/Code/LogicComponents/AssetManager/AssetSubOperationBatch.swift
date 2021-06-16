@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommonCrypto
 import ImageIO
 import MobileCoreServices.UTCoreTypes
 import struct AVFoundation.AVFileType
@@ -102,7 +103,7 @@ extension AssetManager {
             let dispatchGroup = DispatchGroup()
 
             for asset in assets {
-                guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) else {
+                guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) || asset.md5 == nil else {
                     continue
                 }
 
@@ -127,32 +128,57 @@ extension AssetManager {
                         return
                     }
 
-                    let (data, imageUTI) = self.delegate.requestImageDataFromIOS(with: iosAsset)
-                    guard let imageData = data else {
-                        self.log.error("\(asset.uuid.string): failed to retrieve PHAsset data from PHImageManager. Terminating.... – PHAssetID: \(localID)")
-                        error = error ?? .fatal
-                        dispatchGroup.leave()
-                        return
-                    }
-
-                    // duplicate detection, based on md5 of data
-                    let md5 = imageData.md5()
-                    self.delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
-                        if let candidateAsset = candidateAsset {
-                            self.delegate.save(localIdentifier: localID, forAsset: candidateAsset)
-                            self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(localID)")
-                            error = error ?? .fatal     // terminate this asset, as we've linked the image data to another asset
-                        } else {
-                            if self.delegate.write(imageData, to: asset.physicalAssets.original.localPath) {
-                                asset.md5 = md5
-                                if let imageUTI = imageUTI {
-                                    asset.originalUTI = AVFileType(imageUTI)
-                                }
-                            } else {
-                                error = error ?? .recoverable
-                            }
+                    switch asset.type {
+                    case .photo:
+                        let (data, imageUTI) = self.delegate.requestImageDataFromIOS(with: iosAsset)
+                        guard let imageData = data else {
+                            self.log.error("\(asset.uuid.string): failed to retrieve PHAsset data from PHImageManager. Terminating.... – PHAssetID: \(localID)")
+                            error = error ?? .fatal
+                            dispatchGroup.leave()
+                            return
                         }
-                        dispatchGroup.leave()
+
+                        // duplicate detection, based on md5 of data
+                        let md5 = imageData.md5()
+                        self.delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
+                            if let candidateAsset = candidateAsset {
+                                self.delegate.save(localIdentifier: localID, forAsset: candidateAsset)
+                                self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(localID)")
+                                error = error ?? .fatal     // terminate this asset, as we've linked the image data to another asset
+                            } else {
+                                if self.delegate.write(imageData, to: asset.physicalAssets.original.localPath) {
+                                    if let imageUTI = imageUTI {
+                                        asset.originalUTI = AVFileType(imageUTI)
+                                    }
+                                    asset.md5 = md5
+                                } else {
+                                    error = error ?? .recoverable
+                                }
+                            }
+                            dispatchGroup.leave()
+                        }
+                    case .video:
+                        self.delegate.exportVideoData(forIOSAsset: iosAsset, toURL: asset.physicalAssets.original.localPath) { [weak self] (success, uti) in
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            guard success else {
+                                self?.log.error("\(asset.uuid.string): error exporting video data")
+                                error = error ?? .recoverable
+                                return
+                            }
+                            guard let md5 = self?.md5(ofFileAtURL: asset.physicalAssets.original.localPath) else {
+                                self?.log.error("\(asset.uuid.string): error calculating md5 for video data")
+                                error = error ?? .recoverable
+                                return
+                            }
+                            if let uti = uti {
+                                asset.originalUTI = uti
+                            }
+                            asset.md5 = md5
+                        }
+                    default:
+                        fatalError()
                     }
                 }
             }
@@ -163,6 +189,44 @@ extension AssetManager {
                 } else {
                     self.finish(.success(nil))
                 }
+            }
+        }
+
+        // https://stackoverflow.com/a/42935601/2728986
+        private func md5(ofFileAtURL url: URL) -> Data? {
+            let bufferSize = 1024 * 1024
+            do {
+                // open file for reading
+                let file = try FileHandle(forReadingFrom: url)
+                defer {
+                    file.closeFile()
+                }
+
+                // create and initialize MD5 context
+                var context = CC_MD5_CTX()
+                CC_MD5_Init(&context)
+
+                // read up to `bufferSize` bytes, until EOF is reached, and update MD5 context
+                while autoreleasepool(invoking: {
+                    let data = file.readData(ofLength: bufferSize)
+                    if data.count > 0 {
+                        data.withUnsafeBytes {
+                            _ = CC_MD5_Update(&context, $0.baseAddress, numericCast(data.count))
+                        }
+                        return true // Continue
+                    } else {
+                        return false // End of file
+                    }
+                }) { }
+
+                // compute the MD5 digest
+                var digest: [UInt8] = Array(repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+                _ = CC_MD5_Final(&digest, &context)
+
+                return Data(digest)
+            } catch {
+                log.error("cannot open file: \(String(describing: error))")
+                return nil
             }
         }
     }
@@ -296,19 +360,32 @@ extension AssetManager {
 
                 dispatchGroup.enter()
                 DispatchQueue.global(qos: .utility).async {
-                    defer {
-                        dispatchGroup.leave()
-                    }
                     guard !self.isCancelled else {
                         error = error ?? .notRun
+                        dispatchGroup.leave()
                         return
                     }
 
                     let originalPath = asset.logicalAsset.physicalAssets.original.localPath
-                    if !self.downsample(imageAt: originalPath, originalSize: asset.pixelSize, toScale: 0.5, compress: true, destination: asset.localPath) {
-                        self.log.error("\(asset.uuid.string): failed to compress original data")
-                        error = error ?? .recoverable
+                    switch asset.logicalAsset.type {
+                    case .photo:
+                        if !self.downsample(imageAt: originalPath, originalSize: asset.pixelSize, toScale: 0.5, compress: true, destination: asset.localPath) {
+                            self.log.error("\(asset.uuid.string): failed to compress original data")
+                            error = error ?? .recoverable
+                        }
+                        dispatchGroup.leave()
+                    case .video:
+                        self.delegate.compressVideo(atURL: originalPath, saveTo: asset.localPath) { [weak self] (success) in
+                            if !success {
+                                self?.log.error("\(asset.uuid.string): failed to compress video data")
+                                error = error ?? .recoverable
+                            }
+                            dispatchGroup.leave()
+                        }
+                    default:
+                        fatalError()
                     }
+
                 }
             }
 
