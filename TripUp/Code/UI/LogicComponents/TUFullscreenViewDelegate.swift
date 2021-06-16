@@ -66,34 +66,37 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
         cell.originalMissingLabel.isHidden = true
         cell.activityIndicator.startAnimating()
 
-        if asset.type == .photo {
-            if let image = cache.object(forKey: asset.uuid as NSUUID) {
-                cell.imageView.image = image
+        if let image = cache.object(forKey: asset.uuid as NSUUID) {
+            cell.imageView.image = image
+            if asset.type == .photo {
                 cell.activityIndicator.stopAnimating()
-            } else {
-                let imageViewSize = cell.imageView.bounds.size
-                let widthRatio = imageViewSize.width / asset.pixelSize.width
-                let heightRatio = imageViewSize.height / asset.pixelSize.height
-                let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
-                let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
-                assetRequester?.requestImage(for: asset, format: .highQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
-                    guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
-                    if resultInfo.final {
-                        if let image = image {
-                            if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
-                                cache.setObject(image, forKey: asset.uuid as NSUUID)
-                            }
-                            cell.imageView.image = image
-                        } else {
-                            cell.originalMissingLabel.isHidden = false
+            }
+        } else {
+            let imageViewSize = cell.imageView.bounds.size
+            let widthRatio = imageViewSize.width / asset.pixelSize.width
+            let heightRatio = imageViewSize.height / asset.pixelSize.height
+            let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
+            let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
+            assetRequester?.requestImage(for: asset, format: .highQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
+                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
+                if resultInfo.final {
+                    if let image = image {
+                        if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
+                            cache.setObject(image, forKey: asset.uuid as NSUUID)
                         }
-                        cell.activityIndicator.stopAnimating()
-                    } else if cell.imageView.image == nil {
                         cell.imageView.image = image
+                    } else if asset.type == .photo {
+                        cell.originalMissingLabel.isHidden = false
                     }
+                    if asset.type == .photo {
+                        cell.activityIndicator.stopAnimating()
+                    }
+                } else if cell.imageView.image == nil {
+                    cell.imageView.image = image
                 }
             }
-        } else if asset.type == .video {
+        }
+        if asset.type == .video {
             cell.avPlayerView.player = .init()
             assetRequester?.requestAV(for: asset, format: .fast) { (avPlayerItem, _) in
                 guard cell.assetID == asset.uuid else {
