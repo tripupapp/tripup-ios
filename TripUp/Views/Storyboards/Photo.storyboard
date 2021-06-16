@@ -81,7 +81,31 @@
                                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                                                     <gestureRecognizers/>
                                                                 </imageView>
-                                                                <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f4l-Lt-BUz" customClass="UIGradientView" customModule="TripUpViews">
+                                                                <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iqL-Be-wEB" userLabel="TopGradient" customClass="UIGradientView" customModule="TripUpViews">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="100" height="30"/>
+                                                                    <userDefinedRuntimeAttributes>
+                                                                        <userDefinedRuntimeAttribute type="color" keyPath="firstColor">
+                                                                            <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                        </userDefinedRuntimeAttribute>
+                                                                        <userDefinedRuntimeAttribute type="color" keyPath="secondColor">
+                                                                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                        </userDefinedRuntimeAttribute>
+                                                                    </userDefinedRuntimeAttributes>
+                                                                </view>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1M1-Pb-4PN" userLabel="DurationLabel">
+                                                                    <rect key="frame" x="65" y="5" width="30" height="17"/>
+                                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                                <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="check-circle-filled" translatesAutoresizingMaskIntoConstraints="NO" id="VrW-yu-XCs" userLabel="checkmark">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
+                                                                    <constraints>
+                                                                        <constraint firstAttribute="width" secondItem="VrW-yu-XCs" secondAttribute="height" multiplier="1:1" id="ATM-bD-42X"/>
+                                                                        <constraint firstAttribute="width" constant="25" id="rF5-AS-tOR"/>
+                                                                    </constraints>
+                                                                </imageView>
+                                                                <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f4l-Lt-BUz" userLabel="BottomGradient" customClass="UIGradientView" customModule="TripUpViews">
                                                                     <rect key="frame" x="0.0" y="70" width="100" height="30"/>
                                                                     <userDefinedRuntimeAttributes>
                                                                         <userDefinedRuntimeAttribute type="color" keyPath="firstColor">
@@ -100,33 +124,32 @@
                                                                         <constraint firstAttribute="width" secondItem="eKz-mr-U8o" secondAttribute="height" multiplier="1:1" id="msU-XA-anL"/>
                                                                     </constraints>
                                                                 </imageView>
-                                                                <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="check-circle-filled" translatesAutoresizingMaskIntoConstraints="NO" id="VrW-yu-XCs" userLabel="checkmark">
-                                                                    <rect key="frame" x="75" y="0.0" width="25" height="25"/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="width" secondItem="VrW-yu-XCs" secondAttribute="height" multiplier="1:1" id="ATM-bD-42X"/>
-                                                                        <constraint firstAttribute="width" constant="25" id="rF5-AS-tOR"/>
-                                                                    </constraints>
-                                                                </imageView>
                                                                 <activityIndicatorView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="5Vj-Ey-ng6">
                                                                     <rect key="frame" x="40" y="40" width="20" height="20"/>
                                                                 </activityIndicatorView>
                                                             </subviews>
                                                             <color key="backgroundColor" systemColor="scrollViewTexturedBackgroundColor"/>
                                                             <constraints>
-                                                                <constraint firstItem="VrW-yu-XCs" firstAttribute="trailing" secondItem="WxS-cN-JbP" secondAttribute="trailing" id="0X9-DM-wHJ"/>
                                                                 <constraint firstAttribute="trailing" secondItem="HYa-0Y-eBt" secondAttribute="trailing" id="58A-qW-UC5"/>
+                                                                <constraint firstItem="iqL-Be-wEB" firstAttribute="width" secondItem="WxS-cN-JbP" secondAttribute="width" id="66j-cT-GIA"/>
                                                                 <constraint firstAttribute="top" secondItem="HYa-0Y-eBt" secondAttribute="top" id="8aX-v0-LQB"/>
                                                                 <constraint firstItem="5Vj-Ey-ng6" firstAttribute="centerY" secondItem="WxS-cN-JbP" secondAttribute="centerY" id="EWK-vY-iZv"/>
                                                                 <constraint firstAttribute="bottom" secondItem="HYa-0Y-eBt" secondAttribute="bottom" id="I8O-lR-MvT"/>
                                                                 <constraint firstItem="VrW-yu-XCs" firstAttribute="top" secondItem="WxS-cN-JbP" secondAttribute="top" id="LD5-b7-1Zp"/>
                                                                 <constraint firstItem="5Vj-Ey-ng6" firstAttribute="centerX" secondItem="WxS-cN-JbP" secondAttribute="centerX" id="PmJ-6I-8Jb"/>
                                                                 <constraint firstAttribute="bottom" secondItem="f4l-Lt-BUz" secondAttribute="bottom" id="PpC-5k-YuL"/>
+                                                                <constraint firstItem="1M1-Pb-4PN" firstAttribute="top" secondItem="iqL-Be-wEB" secondAttribute="top" constant="5" id="QE6-Kd-IZj"/>
                                                                 <constraint firstItem="f4l-Lt-BUz" firstAttribute="height" secondItem="WxS-cN-JbP" secondAttribute="height" multiplier="0.3" id="QPu-2h-CUS"/>
                                                                 <constraint firstAttribute="bottom" secondItem="eKz-mr-U8o" secondAttribute="bottom" constant="5" id="Raj-CH-M0G"/>
+                                                                <constraint firstItem="iqL-Be-wEB" firstAttribute="top" secondItem="WxS-cN-JbP" secondAttribute="top" id="VKL-lm-qZO"/>
                                                                 <constraint firstAttribute="trailing" secondItem="f4l-Lt-BUz" secondAttribute="trailing" id="aQD-ZR-ybd"/>
+                                                                <constraint firstItem="VrW-yu-XCs" firstAttribute="leading" secondItem="WxS-cN-JbP" secondAttribute="leading" id="gvn-CF-pu6"/>
                                                                 <constraint firstItem="f4l-Lt-BUz" firstAttribute="leading" secondItem="WxS-cN-JbP" secondAttribute="leading" id="gxt-li-Y4v"/>
+                                                                <constraint firstItem="iqL-Be-wEB" firstAttribute="centerX" secondItem="WxS-cN-JbP" secondAttribute="centerX" id="pA9-Ga-J6v"/>
                                                                 <constraint firstAttribute="leading" secondItem="HYa-0Y-eBt" secondAttribute="leading" id="wXj-cj-XE5"/>
+                                                                <constraint firstItem="iqL-Be-wEB" firstAttribute="height" secondItem="WxS-cN-JbP" secondAttribute="height" multiplier="0.3" id="zke-yf-v3q"/>
                                                                 <constraint firstItem="eKz-mr-U8o" firstAttribute="leading" secondItem="WxS-cN-JbP" secondAttribute="leading" constant="5" id="zlr-kT-Wwp"/>
+                                                                <constraint firstAttribute="trailing" secondItem="1M1-Pb-4PN" secondAttribute="trailing" constant="5" id="zrJ-ER-2lv"/>
                                                             </constraints>
                                                         </view>
                                                     </subviews>
@@ -153,13 +176,15 @@
                                             <outlet property="actionIconContents" destination="LBF-4h-rK1" id="UA1-Fy-bhc"/>
                                             <outlet property="activityIndicator" destination="5Vj-Ey-ng6" id="FKb-Xi-g89"/>
                                             <outlet property="assetContents" destination="WxS-cN-JbP" id="Vzb-bu-GX5"/>
+                                            <outlet property="bottomGradient" destination="f4l-Lt-BUz" id="tcF-Eb-Nzi"/>
                                             <outlet property="checkmarkIcon" destination="VrW-yu-XCs" id="CJA-t6-0Jx"/>
-                                            <outlet property="gradientView" destination="f4l-Lt-BUz" id="tcF-Eb-Nzi"/>
+                                            <outlet property="durationLabel" destination="1M1-Pb-4PN" id="KT7-vO-d3P"/>
                                             <outlet property="imageView" destination="HYa-0Y-eBt" id="DoC-4q-Pzw"/>
                                             <outlet property="shareActionIcon" destination="HiW-ZP-Aeb" id="Shg-4h-C4e"/>
                                             <outlet property="shareActionIconLargeConstraint" destination="rH0-1g-1JU" id="1vr-Uc-QYK"/>
                                             <outlet property="shareActionIconSmallConstraint" destination="iVL-Hk-Rgi" id="d5p-AG-hJH"/>
                                             <outlet property="shareIcon" destination="eKz-mr-U8o" id="MOX-Wg-AQO"/>
+                                            <outlet property="topGradient" destination="iqL-Be-wEB" id="kCH-w7-mT5"/>
                                             <outlet property="unshareActionIcon" destination="ATN-Pr-Ozg" id="2CD-ec-RF4"/>
                                             <outlet property="unshareActionIconLargeConstraint" destination="Pdl-km-227" id="MrA-fJ-hVT"/>
                                             <outlet property="unshareActionIconSmallConstraint" destination="w7g-YQ-lnf" id="aEN-dO-CeM"/>

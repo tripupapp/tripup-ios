@@ -93,6 +93,7 @@
 		20588AE722207B9300D88C4D /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20588AE622207B9300D88C4D /* String.swift */; };
 		205E038D238EE01300DC4D9D /* Support.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 205E038C238EE01300DC4D9D /* Support.storyboard */; };
 		205E038F238EE16300DC4D9D /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205E038E238EE16300DC4D9D /* SupportView.swift */; };
+		20662F74267A130000BBE5ED /* TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20662F73267A130000BBE5ED /* TimeInterval.swift */; };
 		2066FAF0230B52C400E414BB /* PhotoViewDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2066FAEF230B52C400E414BB /* PhotoViewDataModel.swift */; };
 		20712E10233AC9C70036C373 /* RealmDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20712E0F233AC9C70036C373 /* RealmDatabase.swift */; };
 		207150A923423B5600829C5D /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207150A823423B5600829C5D /* Array.swift */; };
@@ -356,6 +357,7 @@
 		20588AE622207B9300D88C4D /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		205E038C238EE01300DC4D9D /* Support.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Support.storyboard; sourceTree = "<group>"; };
 		205E038E238EE16300DC4D9D /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportView.swift; sourceTree = "<group>"; };
+		20662F73267A130000BBE5ED /* TimeInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeInterval.swift; sourceTree = "<group>"; };
 		2066FAEF230B52C400E414BB /* PhotoViewDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewDataModel.swift; sourceTree = "<group>"; };
 		20712E0F233AC9C70036C373 /* RealmDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDatabase.swift; sourceTree = "<group>"; };
 		207150A823423B5600829C5D /* Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
@@ -719,6 +721,7 @@
 				20E98639250F626C00A5F6EE /* Notification.swift */,
 				207150AA23423B8800829C5D /* Set.swift */,
 				20588AE622207B9300D88C4D /* String.swift */,
+				20662F73267A130000BBE5ED /* TimeInterval.swift */,
 				2055054622CE87BA00B391C1 /* TULocationExtensions.swift */,
 				20331BEC24291651009789DB /* UInt64.swift */,
 				20569A6D246C1961008998AA /* UIView.swift */,
@@ -1618,6 +1621,7 @@
 				2016881F210A553800FA5D53 /* PriorityQueue.swift in Sources */,
 				207150AD23424E9B00829C5D /* UserObject.swift in Sources */,
 				2057B78E2306149C00F41BB2 /* Logger.swift in Sources */,
+				20662F74267A130000BBE5ED /* TimeInterval.swift in Sources */,
 				20A796A12466F02300A0CB10 /* PhoneNumberUtils.swift in Sources */,
 				20331BED24291651009789DB /* UInt64.swift in Sources */,
 				20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */,

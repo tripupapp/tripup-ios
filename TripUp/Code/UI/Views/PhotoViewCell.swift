@@ -36,9 +36,11 @@ class PhotoViewCell: UICollectionViewCell {
 
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var durationLabel: UILabel!
     @IBOutlet var shareIcon: UIImageView!
     @IBOutlet var checkmarkIcon: UIImageView!
-    @IBOutlet var gradientView: UIGradientView!
+    @IBOutlet var topGradient: UIGradientView!
+    @IBOutlet var bottomGradient: UIGradientView!
     @IBOutlet var assetContents: UIView!
     @IBOutlet var shareActionIcon: UIImageView!
     @IBOutlet var unshareActionIcon: UIImageView!
@@ -61,7 +63,10 @@ class PhotoViewCell: UICollectionViewCell {
             large: unshareActionIconLargeConstraint
         )
     }()
-    var allIconsHidden: Bool {
+    var topIconsHidden: Bool {
+        return durationLabel.text?.isEmpty ?? true
+    }
+    var bottomIconsHidden: Bool {
         return shareIcon.isHidden
     }
 
