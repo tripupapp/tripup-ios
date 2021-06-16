@@ -356,6 +356,7 @@ class CameraView: UIViewController {
                 ownerID: self.ownerID,
                 creationDate: Date(),
                 location: self.locationManager.currentLocation,
+                duration: nil,
                 pixelSize: CGSize(width: originalImage.size.width * originalImage.scale, height: originalImage.size.height * originalImage.scale),
                 imported: false,    // need to verify this is correct (import component statemachine)
                 favourite: false)

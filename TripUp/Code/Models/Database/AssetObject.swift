@@ -17,6 +17,7 @@ import RealmSwift
     let latitude = RealmOptional<Double>()
     let longitude = RealmOptional<Double>()
     let altitude = RealmOptional<Double>()
+    let duration = RealmOptional<Double>()
     dynamic var pixelWidth: Int = 0
     dynamic var pixelHeight: Int = 0
     dynamic var fingerprint: String? = nil
@@ -51,6 +52,7 @@ import RealmSwift
         self.latitude.value = asset.location?.latitude
         self.longitude.value = asset.location?.longitude
         self.altitude.value = asset.location?.altitude
+        self.duration.value = asset.duration
         self.pixelWidth = Int(asset.pixelSize.width)
         self.pixelHeight = Int(asset.pixelSize.height)
         self.imported = asset.imported
@@ -91,6 +93,7 @@ extension AssetObject {
         }
         let creationDate = decryptedAssetData["createdate"] as? Date
         let location = decryptedAssetData["location"] as? TULocation
+        let duration = decryptedAssetData["duration"] as? TimeInterval
 
         self.init()
         self.uuid = id.string
@@ -100,6 +103,7 @@ extension AssetObject {
         self.latitude.value = location?.latitude
         self.longitude.value = location?.longitude
         self.altitude.value = location?.altitude
+        self.duration.value = duration
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
         self.fingerprint = assetKey.fingerprint

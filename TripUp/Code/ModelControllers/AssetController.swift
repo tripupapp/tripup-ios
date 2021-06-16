@@ -80,6 +80,7 @@ extension ModelController {
                         ownerID: self.primaryUserID,
                         creationDate: asset.creationDate,
                         location: TULocation(asset.location),
+                        duration: asset.duration == 0 ? nil : asset.duration,
                         pixelSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight),
                         imported: false
                     ), asset.localIdentifier)
@@ -192,6 +193,7 @@ extension ModelController {
                     var md5: Data!
                     var creationDate: Date?
                     var location: TULocation?
+                    var duration: TimeInterval?
                     autoreleasepool {
                         do {
                             let keyString = try decryptionKeyPair.0.decrypt(keyData, signedByOneOf: decryptionKeyPair.1).0
@@ -226,6 +228,15 @@ extension ModelController {
                                     assertionFailure()
                                 }
                             }
+                            if let durationString = assetData["duration"] as? String {
+                                let durationStringDecrypted = try assetKey.decrypt(durationString, signedBy: assetKey)
+                                if let durationInterval = TimeInterval(durationStringDecrypted) {
+                                    duration = durationInterval
+                                } else {
+                                    self.log.error("invalid duration string - assetID: \(id), durationString: \(durationStringDecrypted)")
+                                    assertionFailure()
+                                }
+                            }
                         } catch {
                             self.log.error("assetID: \(id), assetData: \(assetData), error: \(String(describing: error))")
                             assertionFailure()
@@ -238,7 +249,8 @@ extension ModelController {
                         "key": assetKey,
                         "md5": md5,
                         "createdate": creationDate,
-                        "location": location
+                        "location": location,
+                        "duration": duration
                     ]
                 }
                 assert(newAssetIDs.count == decryptedData.count)

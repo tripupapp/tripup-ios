@@ -39,6 +39,7 @@ struct Asset: Hashable {
     let ownerID: UUID
     let creationDate: Date?
     let location: TULocation?
+    let duration: TimeInterval?
     let pixelSize: CGSize
     let imported: Bool
 
@@ -93,6 +94,7 @@ extension Asset {
         self.ownerID = mutableAsset.ownerID
         self.creationDate = mutableAsset.creationDate
         self.location = mutableAsset.location
+        self.duration = mutableAsset.duration
         self.pixelSize = mutableAsset.pixelSize
         self.imported = mutableAsset.imported
         self.hidden = mutableAsset.deleted
@@ -107,6 +109,7 @@ extension Asset {
         self.ownerID = UUID(uuidString: object.ownerID)!
         self.creationDate = object.creationDate
         self.location = TULocation(from: object)
+        self.duration = object.duration.value
         self.pixelSize = CGSize(width: object.pixelWidth, height: object.pixelHeight)
         self.imported = object.imported
         self.favourite = object.favourite

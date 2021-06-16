@@ -215,6 +215,9 @@ extension AssetManager: AssetOperationDelegate {
                         if let locationString = asset.location?.serializedString {
                             json["location"] = assetKey.encrypt(locationString, signed: assetKey)
                         }
+                        if let durationString = asset.duration?.description {
+                            json["duration"] = assetKey.encrypt(durationString, signed: assetKey)
+                        }
                     }
                     jsonArray.append(json)
                 }
