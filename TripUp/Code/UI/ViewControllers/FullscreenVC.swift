@@ -369,7 +369,7 @@ class FullscreenViewController: UIViewController {
                     switch currentItem.status {
                     case .failed:
                         self?.avControlsView.isUserInteractionEnabled = false
-                        self?.view.makeToastie("failed to load video, error: \(String(describing: currentItem.error))")
+                        self?.view.makeToastie("failed to load video", duration: 7.5)   // TODO: some other way of showing video load failure
                     case .readyToPlay:
                         self?.avControlsView.isUserInteractionEnabled = true
                         self?.avControlsView.scrubber.maximumValue = Float(currentItem.duration.seconds)
