@@ -191,6 +191,12 @@ class FullscreenViewController: UIViewController {
         }
     }
 
+    deinit {
+        if let avPlayerPlaytimeObserver = avPlayerPlaytimeObserver {
+            avPlayerPlaytimeObserver.0.removeTimeObserver(avPlayerPlaytimeObserver.1)
+        }
+    }
+
     @IBAction func back(_ sender: UIButton) {
         let indexPath = collectionView.indexPathsForVisibleItems.first!
         let cell = collectionView.cellForItem(at: indexPath) as! FullscreenViewCell
