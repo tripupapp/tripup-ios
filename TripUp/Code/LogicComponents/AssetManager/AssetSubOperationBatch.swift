@@ -54,7 +54,7 @@ extension AssetManager {
         }
 
         fileprivate func tempURLForEncryptedItem(physicalAsset asset: AssetManager.MutablePhysicalAsset) -> URL {
-            let filename = "\(asset.filename)_\(String(describing: asset.quality).lowercased())"
+            let filename = "\(asset.uuid.string)_\(String(describing: asset.quality).lowercased())"
             return Globals.Directories.tmp.appendingPathComponent(filename, isDirectory: false)
         }
     }

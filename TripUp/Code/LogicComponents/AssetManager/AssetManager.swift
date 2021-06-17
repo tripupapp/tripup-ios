@@ -352,17 +352,7 @@ extension AssetManager {
                 callback(nil, uti)
                 return
             }
-            var sourceURL: URL = url
-            var symbolicLinkCreated = false
-            if sourceURL.pathExtension.isEmpty {
-                // file requires a valid extension else will fail to generate image
-                // using a symbolic link with an extension pointing to our original file works
-                // remove symbolic link once finished
-                sourceURL = sourceURL.appendingPathExtension("mp4")
-                try? FileManager.default.createSymbolicLink(at: sourceURL, withDestinationURL: url)
-                symbolicLinkCreated = true
-            }
-            let avAsset = AVAsset(url: sourceURL)
+            let avAsset = AVAsset(url: url)
             let avAssetImageGenerator = AVAssetImageGenerator(asset: avAsset)
             avAssetImageGenerator.appliesPreferredTrackTransform = true
             avAssetImageGenerator.maximumSize = maxSize
@@ -372,9 +362,6 @@ extension AssetManager {
                 } else {
                     self?.log.error(String(describing: error))
                     callback(nil, nil)
-                }
-                if symbolicLinkCreated {
-                    try? FileManager.default.removeItem(at: sourceURL)
                 }
             }
         }

@@ -107,33 +107,17 @@ extension AssetManager: AssetOperationDelegate {
     }
 
     func compressVideo(atURL url: URL, saveTo outputURL: URL, callback: @escaping (Bool) -> Void) {
-        var sourceURL: URL = url
-        var symbolicLinkCreated = false
-        if sourceURL.pathExtension.isEmpty {
-            // file requires a valid extension else will fail compatibility check and fails export session
-            // using a symbolic link with an extension pointing to our original file works
-            // remove symbolic link once finished
-            sourceURL = sourceURL.appendingPathExtension("mp4")
-            try? FileManager.default.createSymbolicLink(at: sourceURL, withDestinationURL: url)
-            symbolicLinkCreated = true
-        }
-        let asset = AVAsset(url: sourceURL)
+        let asset = AVAsset(url: url)
         let preset = AVAssetExportPresetLowQuality
         let uti: AVFileType = .mp4
         AVAssetExportSession.determineCompatibility(ofExportPreset: preset, with: asset, outputFileType: uti) { isCompatible in
-            let resultHandler = { (_ result: Bool) in
-                if symbolicLinkCreated {
-                    try? FileManager.default.removeItem(at: sourceURL)
-                }
-                callback(result)
-            }
             guard isCompatible else {
-                self.log.error("export session incompatible - sourceURL: \(String(describing: sourceURL)), preset: \(preset), uti: \(String(describing: uti))")
-                resultHandler(false)
+                self.log.error("export session incompatible - sourceURL: \(String(describing: url)), preset: \(preset), uti: \(String(describing: uti))")
+                callback(false)
                 return
             }
             guard let exportSession = AVAssetExportSession(asset: asset, presetName: preset) else {
-                resultHandler(false)
+                callback(false)
                 return
             }
             try? FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
@@ -141,10 +125,10 @@ extension AssetManager: AssetOperationDelegate {
             exportSession.outputFileType = uti
             exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
                 if case .completed = exportSession.status {
-                    resultHandler(true)
+                    callback(true)
                 } else {
-                    self.log.error("sourceURL: \(String(describing: sourceURL)), outputURL: \(String(describing: outputURL)) - error: \(String(describing: exportSession.error))")
-                    resultHandler(true)
+                    self.log.error("sourceURL: \(String(describing: url)), destinationURL: \(String(describing: outputURL)) - error: \(String(describing: exportSession.error))")
+                    callback(true)
                 }
             })
         }

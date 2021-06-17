@@ -31,11 +31,15 @@ extension AssetManager {
         var pixelSize: CGSize {
             return logicalAsset.pixelSize
         }
-        var filename: String {
-            return uuid.string
+        var filename: URL {
+            let url = URL(string: uuid.string)!
+            if logicalAsset.type == .video {
+                return url.appendingPathExtension(logicalAsset.originalUTI?.fileExtension ?? "")
+            }
+            return url
         }
         var localPath: URL {
-            let filePath = "\(logicalAsset.ownerID.string)/\(filename)"
+            let filePath = "\(logicalAsset.ownerID.string)/\(filename.absoluteString)"
             switch quality {
             case .low:
                 return Globals.Directories.assetsLow.appendingPathComponent(filePath, isDirectory: false)
