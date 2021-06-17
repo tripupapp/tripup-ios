@@ -18,25 +18,41 @@ protocol AssetImageRequester {
 extension AssetManager: AssetImageRequester {
     func requestImage(for asset: Asset, format: ImageRequestFormat, callback: @escaping (_ image: UIImage?, _ info: ResultInfo?) -> Void) {
         precondition(Thread.isMainThread)
-        guard asset.type != .unknown else {
-            fatalError()
-        }
-        guard asset.type != .audio else {
-            fatalError()
-        }
         if asset.imported {
-            requestImageData(for: asset, format: format) { (data, info) in
-                precondition(Thread.isMainThread)
-                if let data = data {
-                    DispatchQueue.global().async {
-                        let image = UIImage(data: data)
+            switch asset.type {
+            case .photo:
+                requestImageData(for: asset, format: format) { (data, info) in
+                    precondition(Thread.isMainThread)
+                    if let data = data {
+                        DispatchQueue.global().async {
+                            let image = UIImage(data: data)
+                            DispatchQueue.main.async {
+                                callback(image, info)
+                            }
+                        }
+                    } else {
+                        callback(nil, info)
+                    }
+                }
+            case .video:
+                switch format {
+                case .highQuality(let size, let scale), .lowQuality(let size, let scale):
+                    let size = CGSize(width: size.width * scale, height: size.height * scale)
+                    generateStillImage(forAsset: asset, maxSize: size) { (image, uti) in
                         DispatchQueue.main.async {
-                            callback(image, info)
+                            callback(image, ResultInfo(final: true, uti: uti))
                         }
                     }
-                } else {
-                    callback(nil, info)
+                case .best, .fast:
+                    generateStillImage(forAsset: asset) { (image, uti) in
+                        DispatchQueue.main.async {
+                            callback(image, ResultInfo(final: true, uti: uti))
+                        }
+                    }
                 }
+            default:
+                assertionFailure("unimplemented")
+                callback(nil, nil)
             }
         } else {
             assetController.assetIDlocalIDMap { [weak self] (idMap) in
@@ -91,6 +107,7 @@ extension AssetManager: AssetImageRequester {
 
     func loadDataOpportunistically(for asset: Asset, atQuality quality: Quality, size targetSize: CGSize, scale: CGFloat, callback: @escaping (_ imageData: Data?, _ info: ResultInfo?) -> Void) {
         precondition(Thread.isMainThread)
+        precondition(asset.type == .photo)
         var higherQualityLoaded = false
         loadData(for: asset, atQuality: quality) { (data, uti) in
             precondition(Thread.isMainThread)
@@ -111,6 +128,14 @@ extension AssetManager: AssetImageRequester {
     }
 
     func requestImageData(for asset: Asset, format: ImageRequestFormat, callback: @escaping (_ imageData: Data?, _ info: ResultInfo?) -> Void) {
+        guard asset.type == .photo else {
+            log.warning("\(asset.uuid): incorrect asset type used - type: \(String(describing: asset.type))")
+            assertionFailure()
+            DispatchQueue.main.async {
+                callback(nil, nil)
+            }
+            return
+        }
         if asset.imported {
             switch format {
             case .best:
@@ -129,13 +154,6 @@ extension AssetManager: AssetImageRequester {
                 }
             }
         } else {
-            guard asset.type == .photo else {
-                assertionFailure()
-                DispatchQueue.main.async {
-                    callback(nil, nil)
-                }
-                return
-            }
             assetController.assetIDlocalIDMap { [weak self] (idMap) in
                 guard let self = self, let localID = idMap[asset.uuid] else {
                     DispatchQueue.main.async {

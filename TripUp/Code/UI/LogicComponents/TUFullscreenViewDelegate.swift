@@ -78,7 +78,9 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
             let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
             let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
             assetRequester?.requestImage(for: asset, format: .highQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
-                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
+                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else {
+                    return
+                }
                 if resultInfo.final {
                     if let image = image {
                         if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
@@ -98,17 +100,22 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
         }
         if asset.type == .video {
             cell.avPlayerView.player = .init()
-            assetRequester?.requestAV(for: asset, format: .fast) { (avPlayerItem, _) in
-                guard cell.assetID == asset.uuid else {
+            assetRequester?.requestAV(for: asset, format: .opportunistic) { (avPlayerItem, resultInfo) in
+                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else {
                     return
                 }
-                if let avPlayerItem = avPlayerItem {
+                if resultInfo.final {
+                    if let avPlayerItem = avPlayerItem {
+                        cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
+                        cell.avPlayerView.player?.play()
+                    } else {
+                        cell.originalMissingLabel.isHidden = false
+                    }
+                    cell.activityIndicator.stopAnimating()
+                } else if cell.avPlayerView.player?.currentItem == nil {
                     cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
                     cell.avPlayerView.player?.play()
-                } else {
-                    cell.originalMissingLabel.isHidden = false
                 }
-                cell.activityIndicator.stopAnimating()
             }
         }
     }
