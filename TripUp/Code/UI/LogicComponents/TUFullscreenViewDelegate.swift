@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreMedia.CMTime
 import UIKit
 
 class TUFullscreenViewDelegate {
@@ -106,8 +107,15 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
                 }
                 if resultInfo.final {
                     if let avPlayerItem = avPlayerItem {
+                        cell.avPlayerView.player?.pause()
+                        var currentTime: CMTime = .zero
+                        if let progressedTime = cell.avPlayerView.player?.currentItem?.currentTime(), CMTIME_IS_VALID(progressedTime) {
+                            currentTime = progressedTime
+                        }
                         cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
-                        cell.avPlayerView.player?.play()
+                        avPlayerItem.seek(to: currentTime) { _ in
+                            cell.avPlayerView.player?.play()
+                        }
                     } else {
                         cell.originalMissingLabel.isHidden = false
                     }
