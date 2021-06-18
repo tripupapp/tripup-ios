@@ -113,8 +113,7 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
                             currentTime = progressedTime
                         }
                         cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
-                        avPlayerItem.seek(to: currentTime) { _ in
-                        }
+                        avPlayerItem.seek(to: currentTime, toleranceBefore: .zero, toleranceAfter: .zero, completionHandler: nil)
                     } else {
                         cell.originalMissingLabel.isHidden = false
                     }
