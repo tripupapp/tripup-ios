@@ -33,20 +33,27 @@ class RealmDatabase {
 extension RealmDatabase: Database {
     func configure() {
         autoreleasepool {
-            // schemaVersion: Set the new schema version. This must be greater than the previously used
-            // version (if you've never set a schema version before, the version is 0).
-            var config = Realm.Configuration(schemaVersion: 12)
+            /*
+                schemaVersion: Set the new schema version. This must be greater than the previously used
+                version (if you've never set a schema version before, the version is 0).
+
+                - 11 and lower are legacy builds (v1 on App Store, v0.1 tag on git)
+                - 12 is first major re-release (v2 on App Store, v1.0 tag on git)
+                - 13 is for video support (v2.1 on App Store, v1.1 tag on git)
+            */
+            var config = Realm.Configuration(schemaVersion: 13)
             if let realmFileURL = Realm.Configuration.defaultConfiguration.fileURL, let oldSchemaVersion = try? schemaVersionAtURL(realmFileURL), oldSchemaVersion <= 11 {
-                // if data exists from a legacy version of TripUp (<1.0), delete entire database file and start again (11 is the highest publicly released schema prior to major app rewrite)
+                // if data exists from a legacy version of TripUp, delete entire database file and start again
                 config.deleteRealmIfMigrationNeeded = true
             } else {
                 // migrationBlock: Set the block which will be called automatically when opening a Realm with
                 // a schema version lower than the one set above
                 config.migrationBlock = { migration, oldSchemaVersion in
-                    if (oldSchemaVersion < 12) {
-                        // Nothing to do!
-                        // Realm will automatically detect new properties and removed properties
-                        // And will update the schema on disk automatically
+                    if oldSchemaVersion < 13 {
+                        migration.enumerateObjects(ofType: AssetObject.className()) { (_, newObject) in
+                            newObject!["type"] = "photo"
+                            newObject!["duration"] = nil
+                        }
                     }
                 }
             }
