@@ -12,6 +12,11 @@ import Photos
 class PhotoLibary: NSObject {
     private let fetchOptions: PHFetchOptions = {
         let options = PHFetchOptions()
+        // only allow photos and videos; filter out audio and other types for now
+        options.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
+            NSPredicate(format: "%K == %d", #keyPath(PHAsset.mediaType), PHAssetMediaType.image.rawValue),
+            NSPredicate(format: "%K == %d", #keyPath(PHAsset.mediaType), PHAssetMediaType.video.rawValue)
+        ])
         options.sortDescriptors = [NSSortDescriptor(key: #keyPath(PHAsset.creationDate), ascending: true)]
         return options
     }()
