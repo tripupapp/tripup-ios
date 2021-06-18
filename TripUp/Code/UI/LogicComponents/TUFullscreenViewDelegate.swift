@@ -63,6 +63,22 @@ class TUFullscreenViewDelegate {
             fullscreenVC.present(activityController, animated: true, completion: nil)
         })
     }
+
+    fileprivate func fullscreenSaveToDevice(_ fullscreenVC: FullscreenViewController, assetManager: AssetManager?, forAsset asset: Asset) {
+        fullscreenVC.view.makeToastieActivity(true)
+        assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
+            fullscreenVC.view.makeToastieActivity(false)
+            let message: String
+            if wasAlreadySaved {
+                message = "\(asset.type.rawValue.capitalized) already saved to device photo library."
+            } else if saved {
+                message = "Saved to device photo library."
+            } else {
+                message = "Unable to save to device photo library. Check your network connection and try again."
+            }
+            fullscreenVC.view.makeToastie(message, duration: 5.0, position: .top)
+        }
+    }
 }
 
 extension TUFullscreenViewDelegate: FullscreenViewDelegate {
@@ -212,18 +228,7 @@ class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
         case bottomToolbarItems![0]: // EXPORT
             fullscreenShareSheet(fullscreenVC, forAsset: asset)
         case bottomToolbarItems![1]: // SAVE
-            assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
-                let message: String = {
-                    if wasAlreadySaved {
-                        return "Photo already saved to device photo library"
-                    } else if saved {
-                        return "Saved to device photo library"
-                    } else {
-                        return "Unable to save to device photo library. Check your network connection and try again"
-                    }
-                }()
-                fullscreenVC.view.makeToastie(message, position: .top)
-            }
+            fullscreenSaveToDevice(fullscreenVC, assetManager: assetManager, forAsset: asset)
         case bottomToolbarItems![2]: // DELETE
             let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
                 self.assetManager?.delete([asset])
@@ -295,18 +300,7 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
         case bottomToolbarItems![1]: // EXPORT
             fullscreenShareSheet(fullscreenVC, forAsset: asset)
         case bottomToolbarItems![2]: // SAVE
-            assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
-                let message: String = {
-                    if wasAlreadySaved {
-                        return "Photo already saved to device photo library"
-                    } else if saved {
-                        return "Saved to device photo library"
-                    } else {
-                        return "Unable to save to device photo library. Check your network connection and try again"
-                    }
-                }()
-                fullscreenVC.view.makeToastie(message, position: .top)
-            }
+            fullscreenSaveToDevice(fullscreenVC, assetManager: assetManager, forAsset: asset)
         case bottomToolbarItems![3]: // DELETE
             let ownedAsset = asset.ownerID == primaryUserID
             let deleteAction = UIAlertAction(title: ownedAsset ? "Delete" : "Delete for Me", style: .destructive) { _ in
