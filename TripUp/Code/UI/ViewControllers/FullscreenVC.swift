@@ -61,7 +61,6 @@ class FullscreenViewController: UIViewController {
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?
     private var avPlayerPlaytimeObserver: (AVPlayer, Any)?
     private var avPlayerStatusObserver: NSKeyValueObservation?
-    private var avPlayerItemObserver: NSKeyValueObservation?
     private var avPlayerSeeking = false
     private var avPlayerChaseTime: CMTime = .zero
     private var presenter: FullscreenViewTransitionDelegate?
@@ -339,9 +338,9 @@ class FullscreenViewController: UIViewController {
         }
         avPlayerPlaytimeObserver = nil
         avPlayerStatusObserver = nil
-        avPlayerItemObserver = nil
         avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
         avControlsView.scrubber.value = 0
+        avControlsView.scrubber.maximumValue = 0
         avControlsView.isUserInteractionEnabled = false
         if let avPlayer = cell?.avPlayerView.player {
             avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self, weak cell] (avPlayer, _) in
@@ -386,22 +385,16 @@ class FullscreenViewController: UIViewController {
                     self?.view.makeToastie("failed to load video", duration: 7.5)   // TODO: some other way of showing video load failure
                 case .readyToPlay:
                     self?.avControlsView.isUserInteractionEnabled = true
+                    if CMTIME_IS_VALID(currentItem.duration), self?.avControlsView.scrubber.maximumValue == 0 {
+                        self?.avControlsView.scrubber.maximumValue = Float(currentItem.duration.seconds)
+                        self?.avControlsView.scrubber.value = 0
+                    }
                     avPlayer.play()
                 case .unknown:
                     self?.avControlsView.isUserInteractionEnabled = false
                 @unknown default:
                     assertionFailure()
                     self?.avControlsView.isUserInteractionEnabled = false
-                }
-            }
-            avPlayerItemObserver = avPlayer.observe(\.currentItem, options: [.initial, .new, .old]) { [weak self, weak cell] (avPlayer, change) in
-                precondition(Thread.isMainThread)
-                guard avPlayer === cell?.avPlayerView.player else {
-                    return
-                }
-                if let currentItem = avPlayer.currentItem, change.oldValue == .some(.none) {    // update scrubber only if currentItem was previously nil
-                    self?.avControlsView.scrubber.maximumValue = Float(currentItem.duration.seconds)
-                    self?.avControlsView.scrubber.value = 0
                 }
             }
         }
