@@ -14,6 +14,7 @@ protocol AssetFinder {
 }
 
 protocol AssetController: AnyObject, AssetFinder {
+    func localIdentifier(forAsset asset: Asset, callback: @escaping (String?) -> Void)
     func assetIDlocalIDMap(callback: @escaping ([UUID: String]) -> Void)
     func remove<T>(assets: T) where T: Collection, T.Element == Asset
     func remove<T>(assets: T) where T: Collection, T.Element == AssetManager.MutableAsset
@@ -347,6 +348,21 @@ extension ModelController: AssetFinder {
 }
 
 extension ModelController: AssetController {
+    func localIdentifier(forAsset asset: Asset, callback: @escaping (String?) -> Void) {
+        databaseQueue.async { [weak self] in
+            var localIdentifier: String?
+            do {
+                localIdentifier = try self?.assetDatabase.localIdentifier(forAssetID: asset.uuid)
+            } catch {
+                self?.log.error(String(describing: error))
+                assertionFailure()
+            }
+            DispatchQueue.global().async {
+                callback(localIdentifier)
+            }
+        }
+    }
+
     func assetIDlocalIDMap(callback: @escaping ([UUID: String]) -> Void) {
         databaseQueue.async { [weak self] in
             let idMap = self?.assetIDlocalIDMap
