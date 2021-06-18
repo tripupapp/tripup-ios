@@ -364,7 +364,8 @@ class FullscreenViewController: UIViewController {
                 guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
                     return
                 }
-                guard let self = self, !self.avControlsView.scrubber.isTracking else {
+                // don't run if user is changing the scrubber or if playerItem is not ready to play yet
+                guard let self = self, !self.avControlsView.scrubber.isTracking, avPlayer.currentItem?.status == .some(.readyToPlay) else {
                     return
                 }
                 let value = time.seconds
