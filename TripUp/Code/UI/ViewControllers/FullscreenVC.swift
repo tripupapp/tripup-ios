@@ -344,22 +344,21 @@ class FullscreenViewController: UIViewController {
         avControlsView.scrubber.value = 0
         avControlsView.isUserInteractionEnabled = false
         if let avPlayer = cell?.avPlayerView.player {
-            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self, weak cell, weak avPlayer] _, _ in
-                DispatchQueue.main.async {
-                    guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
-                        return
-                    }
-                    var image: UIImage?
-                    switch avPlayer.timeControlStatus {
-                    case .playing:
-                        image = self?.pauseButtonImage
-                    case .paused, .waitingToPlayAtSpecifiedRate:
-                        image = self?.playButtonImage
-                    @unknown default:
-                        image = self?.pauseButtonImage
-                    }
-                    self?.avControlsView.playPauseButton.setImage(image, for: .normal)
+            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self, weak cell] (avPlayer, _) in
+                precondition(Thread.isMainThread)
+                guard avPlayer === cell?.avPlayerView.player else {
+                    return
                 }
+                var image: UIImage?
+                switch avPlayer.timeControlStatus {
+                case .playing:
+                    image = self?.pauseButtonImage
+                case .paused, .waitingToPlayAtSpecifiedRate:
+                    image = self?.playButtonImage
+                @unknown default:
+                    image = self?.pauseButtonImage
+                }
+                self?.avControlsView.playPauseButton.setImage(image, for: .normal)
             }
             let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
             avPlayerPlaytimeObserver = (avPlayer, avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self, weak cell, weak avPlayer] time in
@@ -373,23 +372,25 @@ class FullscreenViewController: UIViewController {
                 let value = time.seconds
                 self.avControlsView.scrubber.setValue(Float(value), animated: true)
             })
-            avPlayerStatusObserver = avPlayer.observe(\.currentItem?.status, options: [.initial, .new]) { [weak self, weak cell, weak avPlayer] (_, _) in
-                DispatchQueue.main.async {
-                    guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
-                        return
-                    }
-                    guard let currentItem = avPlayer.currentItem else {
-                        return
-                    }
-                    switch currentItem.status {
-                    case .failed:
-                        self?.avControlsView.isUserInteractionEnabled = false
-                        self?.view.makeToastie("failed to load video", duration: 7.5)   // TODO: some other way of showing video load failure
-                    case .readyToPlay:
-                        self?.avControlsView.isUserInteractionEnabled = true
-                    default:
-                        self?.avControlsView.isUserInteractionEnabled = false
-                    }
+            avPlayerStatusObserver = avPlayer.observe(\.currentItem?.status, options: [.initial, .new]) { [weak self, weak cell] (avPlayer, _) in
+                precondition(Thread.isMainThread)
+                guard avPlayer === cell?.avPlayerView.player else {
+                    return
+                }
+                guard let currentItem = avPlayer.currentItem else {
+                    return
+                }
+                switch currentItem.status {
+                case .failed:
+                    self?.avControlsView.isUserInteractionEnabled = false
+                    self?.view.makeToastie("failed to load video", duration: 7.5)   // TODO: some other way of showing video load failure
+                case .readyToPlay:
+                    self?.avControlsView.isUserInteractionEnabled = true
+                case .unknown:
+                    self?.avControlsView.isUserInteractionEnabled = false
+                @unknown default:
+                    assertionFailure()
+                    self?.avControlsView.isUserInteractionEnabled = false
                 }
             }
             avPlayerItemObserver = avPlayer.observe(\.currentItem, options: [.initial, .new, .old]) { [weak self, weak cell] (avPlayer, change) in
