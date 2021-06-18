@@ -44,6 +44,25 @@ class TUFullscreenViewDelegate {
     }
 
     func bottomToolbarAction(_ fullscreenVC: FullscreenViewController, button: UIBarButtonItem, itemIndex: Int) {}
+
+    fileprivate func fullscreenShareSheet(_ fullscreenVC: FullscreenViewController, forAsset asset: Asset) {
+        fullscreenVC.view.makeToastieActivity(true)
+        assetRequester?.requestOriginalFile(forAsset: asset, callback: { (url) in
+            fullscreenVC.view.makeToastieActivity(false)
+            guard let url = url else {
+                fullscreenVC.view.makeToastie("Failed to download the original asset data. Check your internet connection and try again.", duration: 7.5, position: .top)
+                return
+            }
+            let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            activityController.completionWithItemsHandler = { _, _, _, error in
+                if error != nil {
+                    Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
+                }
+            }
+            activityController.excludedActivityTypes = [.saveToCameraRoll]
+            fullscreenVC.present(activityController, animated: true, completion: nil)
+        })
+    }
 }
 
 extension TUFullscreenViewDelegate: FullscreenViewDelegate {
@@ -191,22 +210,7 @@ class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
         let asset = assets[itemIndex]
         switch button {
         case bottomToolbarItems![0]: // EXPORT
-            fullscreenVC.view.makeToastieActivity(true)
-            assetManager?.requestOriginalFile(forAsset: asset, callback: { (url) in
-                fullscreenVC.view.makeToastieActivity(false)
-                guard let url = url else {
-                    fullscreenVC.view.makeToastie("Failed to download the original asset data. Check your internet connection and try again.", duration: 10.0, position: .top)
-                    return
-                }
-                let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                activityController.completionWithItemsHandler = { _, _, _, error in
-                    if error != nil {
-                        Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
-                    }
-                }
-                activityController.excludedActivityTypes = [.saveToCameraRoll]
-                fullscreenVC.present(activityController, animated: true, completion: nil)
-            })
+            fullscreenShareSheet(fullscreenVC, forAsset: asset)
         case bottomToolbarItems![1]: // SAVE
             assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
                 let message: String = {
@@ -289,22 +293,7 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
                 }
             }
         case bottomToolbarItems![1]: // EXPORT
-            fullscreenVC.view.makeToastieActivity(true)
-            assetManager?.requestOriginalFile(forAsset: asset, callback: { (url) in
-                fullscreenVC.view.makeToastieActivity(false)
-                guard let url = url else {
-                    fullscreenVC.view.makeToastie("Failed to download the original asset data. Check your internet connection and try again.", duration: 10.0, position: .top)
-                    return
-                }
-                let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                activityController.completionWithItemsHandler = { _, _, _, error in
-                    if error != nil {
-                        Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
-                    }
-                }
-                activityController.excludedActivityTypes = [.saveToCameraRoll]
-                fullscreenVC.present(activityController, animated: true, completion: nil)
-            })
+            fullscreenShareSheet(fullscreenVC, forAsset: asset)
         case bottomToolbarItems![2]: // SAVE
             assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
                 let message: String = {
