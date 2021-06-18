@@ -332,9 +332,15 @@ class FullscreenViewController: UIViewController {
     // usually called after cell has loaded (after cellForItemAt method). Note that cell contents loaded asynchronously might not be ready yet
     private func configureOverlayViews(forIndexPath indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell
+        avPlayerPlayPauseObserver = nil
         if let avPlayerPlaytimeObserver = avPlayerPlaytimeObserver {
             avPlayerPlaytimeObserver.0.removeTimeObserver(avPlayerPlaytimeObserver.1)
         }
+        avPlayerPlaytimeObserver = nil
+        avPlayerStatusObserver = nil
+        avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
+        avControlsView.scrubber.value = 0
+        avControlsView.isUserInteractionEnabled = false
         if let avPlayer = cell?.avPlayerView.player {
             avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self, weak cell, weak avPlayer] _, _ in
                 DispatchQueue.main.async {
@@ -385,12 +391,6 @@ class FullscreenViewController: UIViewController {
                     }
                 }
             }
-        } else {
-            avPlayerPlayPauseObserver = nil
-            avPlayerPlaytimeObserver = nil
-            avPlayerStatusObserver = nil
-            avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
-            avControlsView.scrubber.value = 0
         }
         delegate.configureOverlayViews(forItemAt: indexPath.item)
     }
