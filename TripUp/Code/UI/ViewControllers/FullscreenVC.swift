@@ -386,6 +386,7 @@ class FullscreenViewController: UIViewController {
                     self?.view.makeToastie("failed to load video", duration: 7.5)   // TODO: some other way of showing video load failure
                 case .readyToPlay:
                     self?.avControlsView.isUserInteractionEnabled = true
+                    avPlayer.play()
                 case .unknown:
                     self?.avControlsView.isUserInteractionEnabled = false
                 @unknown default:

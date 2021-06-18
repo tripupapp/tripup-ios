@@ -114,7 +114,6 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
                         }
                         cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
                         avPlayerItem.seek(to: currentTime) { _ in
-                            cell.avPlayerView.player?.play()
                         }
                     } else {
                         cell.originalMissingLabel.isHidden = false
@@ -122,7 +121,6 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
                     cell.activityIndicator.stopAnimating()
                 } else if cell.avPlayerView.player?.currentItem == nil {
                     cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
-                    cell.avPlayerView.player?.play()
                 }
             }
         }
