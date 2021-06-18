@@ -71,7 +71,6 @@
 		20351D8C25E56B2400A1FE9F /* AssetSubOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20351D8B25E56B2400A1FE9F /* AssetSubOperationBatch.swift */; };
 		203A6607245488D200A3F4B4 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203A6606245488D200A3F4B4 /* Keyboard.swift */; };
 		203A66092454906900A3F4B4 /* Toastie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203A66082454906900A3F4B4 /* Toastie.swift */; };
-		203B1AB5224ABDD800D0229C /* AssetActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203B1AB4224ABDD800D0229C /* AssetActivityItemProvider.swift */; };
 		20418454203CB727007F87A8 /* info_preprocesser_generator.sh in Resources */ = {isa = PBXBuildFile; fileRef = 20418453203CB727007F87A8 /* info_preprocesser_generator.sh */; };
 		2043E9AC25D598D100BE23A9 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2043E9AB25D598D100BE23A9 /* NotificationService.swift */; };
 		2043E9B025D598D100BE23A9 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2043E9A925D598D100BE23A9 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -331,7 +330,6 @@
 		20351D8B25E56B2400A1FE9F /* AssetSubOperationBatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetSubOperationBatch.swift; sourceTree = "<group>"; };
 		203A6606245488D200A3F4B4 /* Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
 		203A66082454906900A3F4B4 /* Toastie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toastie.swift; sourceTree = "<group>"; };
-		203B1AB4224ABDD800D0229C /* AssetActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetActivityItemProvider.swift; sourceTree = "<group>"; };
 		20418453203CB727007F87A8 /* info_preprocesser_generator.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = info_preprocesser_generator.sh; sourceTree = "<group>"; };
 		2043E9A925D598D100BE23A9 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2043E9AB25D598D100BE23A9 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -561,7 +559,6 @@
 			children = (
 				2016880B210A54C300FA5D53 /* API.swift */,
 				201943E5220B7AAB0035F1AE /* APIUser.swift */,
-				203B1AB4224ABDD800D0229C /* AssetActivityItemProvider.swift */,
 				20168814210A54F100FA5D53 /* CloudStorage */,
 				20764E5222AEBE8E004BFE62 /* Crypto */,
 				20435BEA21BABC6C007E4CE8 /* Database */,
@@ -1524,7 +1521,6 @@
 				200453BD2555B9A300822AEE /* ModelController.swift in Sources */,
 				20BE88D72673590B006089DE /* AssetAVRequester.swift in Sources */,
 				2057C79024EBEC6F00718F1C /* AssetOperationDelegate.swift in Sources */,
-				203B1AB5224ABDD800D0229C /* AssetActivityItemProvider.swift in Sources */,
 				20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */,
 				20FF7C9526113A330062A7B6 /* UIViewControllerAnimatedGradient.swift in Sources */,
 				208FFC0824D0923A00329DFA /* MutablePhysicalAsset.swift in Sources */,
