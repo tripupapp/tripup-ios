@@ -305,27 +305,57 @@ extension AssetManager {
     }
 
     func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void) {
-        mutableAsset(from: asset.uuid) { [weak self] mutableAsset in
-            guard let mutableAsset = mutableAsset else { DispatchQueue.main.async { callback(false, false) }; return }
-            guard mutableAsset.localIdentifier == nil else { DispatchQueue.main.async { callback(true, true) }; return }
-            self?.loadData(for: mutableAsset, atQuality: .original) { [weak self] (data, uti) in
-                guard let self = self, let data = data else { callback(false, false); return }
+        let callbackOnMain = { (_ success: Bool, _ wasAlreadySaved: Bool) -> Void in
+            DispatchQueue.main.async {
+                callback(success, wasAlreadySaved)
+            }
+        }
+        guard asset.imported else {
+            callbackOnMain(false, true)
+            return
+        }
+        let phAssetResourceType: PHAssetResourceType
+        switch asset.type {
+        case .photo:
+            phAssetResourceType = .photo
+        case .video:
+            phAssetResourceType = .video
+        case .audio, .unknown:
+            assertionFailure()
+            callbackOnMain(false, false)
+            return
+        }
+        assetController.localIdentifier(forAsset: asset) { [weak self] (existinglocalIdentifier) in
+            guard existinglocalIdentifier == nil else {
+                callbackOnMain(false, true)
+                return
+            }
+            self?.load(asset: asset, atQuality: .original) { (url, uti) in
+                guard let url = url else {
+                    callbackOnMain(false, false)
+                    return
+                }
                 var newAssetPlaceholder: PHObjectPlaceholder?
                 PHPhotoLibrary.shared().performChanges({
                     let options = PHAssetResourceCreationOptions()
                     options.uniformTypeIdentifier = uti?.rawValue
                     let newAsset = PHAssetCreationRequest.forAsset()
                     newAssetPlaceholder = newAsset.placeholderForCreatedAsset
-                    newAsset.addResource(with: .photo, data: data, options: options)
+                    newAsset.addResource(with: phAssetResourceType, fileURL: url, options: options)
                     newAsset.creationDate = asset.creationDate
                     newAsset.location = asset.location?.coreLocation
                     newAsset.isFavorite = asset.favourite
                 }) { (successfullySavedToLibrary, _) in
-                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else { DispatchQueue.main.async { callback(false, false) }; return }
+                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else {
+                        callbackOnMain(false, false)
+                        return
+                    }
                     // write localIdentifier to local database
-                    self.assetManagerQueue.async {
-                        mutableAsset.localIdentifier = localIdentifier
-                        DispatchQueue.main.async { callback(true, false) }
+                    self?.mutableAsset(from: asset.uuid) { (mutableAsset) in
+                        if let mutableAsset = mutableAsset {
+                            mutableAsset.localIdentifier = localIdentifier
+                        }
+                        callbackOnMain(true, false)
                     }
                 }
             }
