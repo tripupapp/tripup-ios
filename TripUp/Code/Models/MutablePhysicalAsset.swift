@@ -33,7 +33,18 @@ extension AssetManager {
         }
         var filename: URL {
             let url = URL(string: uuid.string)!
-            return url.appendingPathExtension(logicalAsset.originalUTI?.fileExtension ?? "")
+            if quality == .original {
+                return url.appendingPathExtension(logicalAsset.originalUTI?.fileExtension ?? "")
+            } else {
+                switch logicalAsset.type {
+                case .photo:
+                    return url.appendingPathExtension("jpg")
+                case .video:
+                    return url.appendingPathExtension("mp4")
+                case .audio, .unknown:
+                    fatalError()
+                }
+            }
         }
         var localPath: URL {
             let filePath = "\(logicalAsset.ownerID.string)/\(filename.absoluteString)"
