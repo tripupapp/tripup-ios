@@ -118,7 +118,7 @@
 		2079D58C242E4D310050E0AF /* InAppPurchase.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2079D58B242E4D310050E0AF /* InAppPurchase.storyboard */; };
 		207CF022230CB3A600ABEA6C /* PhotoViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207CF021230CB3A600ABEA6C /* PhotoViewDelegate.swift */; };
 		208280F924699D7B00DFEF2B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 208280F824699D7800DFEF2B /* GoogleService-Info.plist */; };
-		208671AF24F53D5B002A58F2 /* PhotoLibary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208671AE24F53D5B002A58F2 /* PhotoLibary.swift */; };
+		208671AF24F53D5B002A58F2 /* PhotoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208671AE24F53D5B002A58F2 /* PhotoLibrary.swift */; };
 		208887C421CD809B00396029 /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208887C321CD809B00396029 /* URL.swift */; };
 		208C10DB223F1381003BBA09 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C10DA223F1381003BBA09 /* Data.swift */; };
 		208C2BAE229AEC0600112EDD /* quotes.plist in Resources */ = {isa = PBXBuildFile; fileRef = 208C2BAD229AEC0600112EDD /* quotes.plist */; };
@@ -144,6 +144,7 @@
 		20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20B40E0025DFE73900706811 /* TripUpViews.framework */; };
 		20B40E0825DFE73900706811 /* TripUpViews.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 20B40E0025DFE73900706811 /* TripUpViews.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		20B7F4512621FBD1004765EC /* DebugVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B7F4502621FBD1004765EC /* DebugVC.swift */; };
+		20B8A9FE2680DC170022EBA7 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B8A9FD2680DC170022EBA7 /* FileManager.swift */; };
 		20BD57BD23E99252008AC240 /* SecurityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BD57BC23E99252008AC240 /* SecurityView.swift */; };
 		20BE88CF2673588F006089DE /* AssetImageRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE88CE2673588F006089DE /* AssetImageRequester.swift */; };
 		20BE88D72673590B006089DE /* AssetAVRequester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE88D62673590B006089DE /* AssetAVRequester.swift */; };
@@ -380,7 +381,7 @@
 		2079D58B242E4D310050E0AF /* InAppPurchase.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = InAppPurchase.storyboard; sourceTree = "<group>"; };
 		207CF021230CB3A600ABEA6C /* PhotoViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewDelegate.swift; sourceTree = "<group>"; };
 		208280F824699D7800DFEF2B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		208671AE24F53D5B002A58F2 /* PhotoLibary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibary.swift; sourceTree = "<group>"; };
+		208671AE24F53D5B002A58F2 /* PhotoLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibrary.swift; sourceTree = "<group>"; };
 		208887C321CD809B00396029 /* URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
 		208C10DA223F1381003BBA09 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		208C2BAD229AEC0600112EDD /* quotes.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = quotes.plist; sourceTree = "<group>"; };
@@ -402,6 +403,7 @@
 		20B40E0225DFE73900706811 /* TripUpViews.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TripUpViews.h; sourceTree = "<group>"; };
 		20B40E0325DFE73900706811 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		20B7F4502621FBD1004765EC /* DebugVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugVC.swift; sourceTree = "<group>"; };
+		20B8A9FD2680DC170022EBA7 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		20BD57BC23E99252008AC240 /* SecurityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityView.swift; sourceTree = "<group>"; };
 		20BE88CE2673588F006089DE /* AssetImageRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetImageRequester.swift; sourceTree = "<group>"; };
 		20BE88D62673590B006089DE /* AssetAVRequester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetAVRequester.swift; sourceTree = "<group>"; };
@@ -569,7 +571,7 @@
 				20C4F60023D3701D00B041B2 /* LoginLogicController.swift */,
 				20C641892152ADCF00809173 /* NetworkMonitor.swift */,
 				20A796A02466F02300A0CB10 /* PhoneNumberUtils.swift */,
-				208671AE24F53D5B002A58F2 /* PhotoLibary.swift */,
+				208671AE24F53D5B002A58F2 /* PhotoLibrary.swift */,
 				2079D589242E010F0050E0AF /* PurchasesController.swift */,
 				20A7B0F924850319004D88F5 /* UniversalLinks.swift */,
 				20C17EE225D6F67800279AEF /* UserNotifications.swift */,
@@ -714,6 +716,7 @@
 				209D7C85234D48F5005F0AE2 /* CGSize.swift */,
 				208C10DA223F1381003BBA09 /* Data.swift */,
 				20168822210A554900FA5D53 /* Date.swift */,
+				20B8A9FD2680DC170022EBA7 /* FileManager.swift */,
 				202D5ED7239BC63100906723 /* LocalizedError.swift */,
 				20E98639250F626C00A5F6EE /* Notification.swift */,
 				207150AA23423B8800829C5D /* Set.swift */,
@@ -1524,9 +1527,10 @@
 				20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */,
 				20FF7C9526113A330062A7B6 /* UIViewControllerAnimatedGradient.swift in Sources */,
 				208FFC0824D0923A00329DFA /* MutablePhysicalAsset.swift in Sources */,
+				20B8A9FE2680DC170022EBA7 /* FileManager.swift in Sources */,
 				208887C421CD809B00396029 /* URL.swift in Sources */,
 				202D5ED8239BC63100906723 /* LocalizedError.swift in Sources */,
-				208671AF24F53D5B002A58F2 /* PhotoLibary.swift in Sources */,
+				208671AF24F53D5B002A58F2 /* PhotoLibrary.swift in Sources */,
 				20764E5422AEBEEB004BFE62 /* CryptoPublicKey+CryptoPrivateKey.swift in Sources */,
 				2016882D210A554A00FA5D53 /* Asset.swift in Sources */,
 				20E3F68D23F0390300E25E3E /* SecureEnclave.swift in Sources */,

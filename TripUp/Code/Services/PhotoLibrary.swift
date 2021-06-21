@@ -10,6 +10,8 @@ import Foundation
 import Photos
 
 class PhotoLibrary: NSObject {
+    private let log = Logger.self
+
     private let fetchOptions: PHFetchOptions = {
         let options = PHFetchOptions()
         // only allow photos and videos; filter out audio and other types for now
@@ -93,12 +95,17 @@ extension PhotoLibrary {
         let resources = PHAssetResource.assetResources(for: phAsset)
         return resources.first(where: { $0.type == resourceType })
     }
+}
 
+extension PhotoLibrary {
     func write(resource: PHAssetResource, toURL url: URL, callback: @escaping ClosureBool) {
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
+
         let options = PHAssetResourceRequestOptions()
         options.isNetworkAccessAllowed = true
         PHAssetResourceManager.default().writeData(for: resource, toFile: url, options: options) { (error) in
-            if let _ = error {
+            if let error = error {
+                self.log.error("error writing resource to disk - PHAssetID: \(resource.assetLocalIdentifier), error: \(String(describing: error))")
                 callback(false)
             } else {
                 callback(true)
@@ -106,27 +113,60 @@ extension PhotoLibrary {
         }
     }
 
-    func exportVideoData(forIOSAsset iosAsset: PHAsset, toURL url: URL, callback: @escaping (Bool, AVFileType?) -> Void) {
+    func transcodeVideoToMP4(forPHAsset phAsset: PHAsset, callback: @escaping ((URL, AVFileType)?) -> Void) {
         let requestOptions = PHVideoRequestOptions()
         requestOptions.version = .current
         requestOptions.deliveryMode = .highQualityFormat
         requestOptions.isNetworkAccessAllowed = true
-
-        iosImageManager.requestExportSession(forVideo: iosAsset, options: requestOptions, exportPreset: AVAssetExportPresetPassthrough) { [weak self] (exportSession, _) in
+        PHImageManager.default().requestExportSession(forVideo: phAsset, options: requestOptions, exportPreset: AVAssetExportPresetPassthrough) { (exportSession, _) in
             guard let exportSession = exportSession else {
-                callback(false, nil)
+                callback(nil)
                 return
             }
-            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
             let uti: AVFileType = .mp4
-            exportSession.outputURL = url
+            guard let destinationURL = FileManager.default.createUniqueTempFile(filename: phAsset.localIdentifier, fileExtension: uti.fileExtension) else {
+                callback(nil)
+                return
+            }
+            exportSession.outputURL = destinationURL
             exportSession.outputFileType = uti
             exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
                 if case .completed = exportSession.status {
-                    callback(true, uti)
+                    callback((destinationURL, uti))
                 } else {
-                    self?.log.error("phassetid: \(iosAsset.localIdentifier) - error: \(String(describing: exportSession.error))")
-                    callback(false, uti)
+                    self.log.error("error transcoding video to MP4 - PHAssetID: \(phAsset.localIdentifier), outputURL: \(String(describing: exportSession.outputURL)), error: \(String(describing: exportSession.error))")
+                    callback(nil)
+                }
+            })
+        }
+    }
+
+    func compressVideo(atURL url: URL, callback: @escaping (URL?) -> Void) {
+        let asset = AVAsset(url: url)
+        let preset = AVAssetExportPresetLowQuality
+        let uti: AVFileType = .mp4
+        AVAssetExportSession.determineCompatibility(ofExportPreset: preset, with: asset, outputFileType: uti) { isCompatible in
+            guard isCompatible else {
+                self.log.error("export session incompatible - sourceURL: \(String(describing: url)), preset: \(preset), uti: \(String(describing: uti))")
+                callback(nil)
+                return
+            }
+            guard let exportSession = AVAssetExportSession(asset: asset, presetName: preset) else {
+                callback(nil)
+                return
+            }
+            guard let destinationURL = FileManager.default.createUniqueTempFile(filename: url.deletingPathExtension().lastPathComponent, fileExtension: uti.fileExtension ?? "") else {
+                callback(nil)
+                return
+            }
+            exportSession.outputURL = destinationURL
+            exportSession.outputFileType = uti
+            exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
+                if case .completed = exportSession.status {
+                    callback(destinationURL)
+                } else {
+                    self.log.error("sourceURL: \(String(describing: url)), destinationURL: \(String(describing: destinationURL)) - error: \(String(describing: exportSession.error))")
+                    callback(nil)
                 }
             })
         }

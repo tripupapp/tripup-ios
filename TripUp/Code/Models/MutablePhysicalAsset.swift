@@ -33,10 +33,7 @@ extension AssetManager {
         }
         var filename: URL {
             let url = URL(string: uuid.string)!
-            if logicalAsset.type == .video {
-                return url.appendingPathExtension(logicalAsset.originalUTI?.fileExtension ?? "")
-            }
-            return url
+            return url.appendingPathExtension(logicalAsset.originalUTI?.fileExtension ?? "")
         }
         var localPath: URL {
             let filePath = "\(logicalAsset.ownerID.string)/\(filename.absoluteString)"

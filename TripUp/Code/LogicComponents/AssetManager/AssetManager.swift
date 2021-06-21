@@ -73,7 +73,7 @@ class AssetManager {
     unowned let keychainDelegate: KeychainDelegate
     unowned let assetController: AssetController
 
-    let photoLibrary: PhotoLibary
+    let photoLibrary: PhotoLibrary
     let iosImageManager = PHImageManager.default()
     let dataService: DataService
     let webAPI: API
@@ -103,7 +103,7 @@ class AssetManager {
     private var didBecomeActiveObserverToken: NSObjectProtocol?
     private var enterBackgroundObserverToken: NSObjectProtocol?
 
-    init(assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
+    init(assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
         self.assetController = assetController
         self.assetDatabase = assetDatabase
         self.photoLibrary = photoLibrary
