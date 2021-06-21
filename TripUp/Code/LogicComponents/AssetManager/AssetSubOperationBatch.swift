@@ -131,7 +131,7 @@ extension AssetManager {
                     }
                     let uti = AVFileType(phAssetResource.uniformTypeIdentifier)
                     if uti.isCrossCompatible {
-                        guard let tempURL = FileManager.default.createUniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
+                        guard let tempURL = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
                             error = error ?? .recoverable
                             dispatchGroup.leave()
                             return

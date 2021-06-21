@@ -144,7 +144,7 @@ extension PhotoLibrary {
                 return
             }
             let uti: AVFileType = .mp4
-            guard let destinationURL = FileManager.default.createUniqueTempFile(filename: phAsset.localIdentifier, fileExtension: uti.fileExtension) else {
+            guard let destinationURL = FileManager.default.uniqueTempFile(filename: "transcoded", fileExtension: uti.fileExtension) else {
                 callback(nil)
                 return
             }

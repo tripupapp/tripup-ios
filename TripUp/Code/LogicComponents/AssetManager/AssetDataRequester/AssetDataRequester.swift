@@ -31,7 +31,7 @@ extension AssetManager: AssetDataRequester {
                 assetToPHAsset(asset) { [photoLibrary] (phAsset) in
                     guard let phAsset = phAsset,
                           let phAssetResource = photoLibrary.resource(forPHAsset: phAsset, type: .photo),
-                          let url = FileManager.default.createUniqueTempFile(filename: asset.uuid.string, fileExtension: AVFileType(phAssetResource.uniformTypeIdentifier).fileExtension ?? "") else {
+                          let url = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: AVFileType(phAssetResource.uniformTypeIdentifier).fileExtension ?? "") else {
                         callbackOnMain(nil)
                         return
                     }

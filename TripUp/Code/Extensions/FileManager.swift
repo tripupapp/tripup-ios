@@ -20,7 +20,7 @@ extension FileManager {
         return tempDir
     }
 
-    func createUniqueTempFile(filename: String, fileExtension: String? = nil) -> URL? {
+    func uniqueTempFile(filename: String, fileExtension: String? = nil) -> URL? {
         let tempDir = createUniqueTempDir()
         return tempDir?.appendingPathComponent(filename, isDirectory: false).appendingPathExtension(fileExtension ?? "")
     }
