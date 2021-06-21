@@ -24,4 +24,13 @@ extension FileManager {
         let tempDir = createUniqueTempDir()
         return tempDir?.appendingPathComponent(filename, isDirectory: false).appendingPathExtension(fileExtension ?? "")
     }
+
+    func moveItem(at sourceURL: URL, to destinationURL: URL, createIntermediateDirectories: Bool) throws {
+        do {
+            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+        } catch let error as NSError where error.code == NSFileNoSuchFileError && createIntermediateDirectories {
+            try FileManager.default.createDirectory(at: destinationURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+        }
+    }
 }

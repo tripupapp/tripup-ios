@@ -192,11 +192,12 @@ extension AssetManager {
                     callback(.fatal)    // terminate this asset, as we've linked the image data to another asset
                 } else {
                     let url = asset.physicalAssets.original.localPath.deletingPathExtension().appendingPathExtension(uti.fileExtension ?? "")
-                    if (try? FileManager.default.moveItem(at: tempURL, to: url)) != nil {
+                    if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true)) != nil {
                         asset.originalUTI = uti
                         asset.md5 = md5
                         callback(nil)
                     } else {
+                        self.log.error("failed to move file - assetID: \(asset.uuid.string), currentURL: \(String(describing: tempURL)), destinationURL: \(String(describing: url))")
                         callback(.recoverable)
                     }
                 }
@@ -326,7 +327,7 @@ extension AssetManager {
                     case .video:
                         self.delegate.compressVideo(atURL: originalPath) { (tempURL) in
                             if let tempURL = tempURL {
-                                if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath)) == nil {
+                                if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath, createIntermediateDirectories: true)) == nil {
                                     try? FileManager.default.removeItem(at: tempURL)
                                     error = error ?? .recoverable
                                 }
