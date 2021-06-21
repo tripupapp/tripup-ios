@@ -61,7 +61,7 @@ extension AssetManager: AssetDataRequester {
         }
     }
 
-    private func assetToPHAsset(_ asset: Asset, callback: @escaping (PHAsset?) -> Void) {
+    func assetToPHAsset(_ asset: Asset, callback: @escaping (PHAsset?) -> Void) {
         assetController.localIdentifier(forAsset: asset) { [weak self] (id) in
             guard let id = id else {
                 self?.log.error("assetid: \(asset.uuid.string) - localIdentifier missing")

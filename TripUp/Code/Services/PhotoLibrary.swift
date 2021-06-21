@@ -98,6 +98,26 @@ extension PhotoLibrary {
 }
 
 extension PhotoLibrary {
+    func requestAVPlayerItem(forPHAsset phAsset: PHAsset, format: AssetManager.AVRequestFormat, callback: @escaping (AVPlayerItem?, AssetManager.ResultInfo?) -> Void) {
+        let requestOptions = PHVideoRequestOptions()
+        requestOptions.version = .current
+        requestOptions.isNetworkAccessAllowed = true
+        switch format {
+        case .best:
+            requestOptions.deliveryMode = .highQualityFormat
+        case .fast:
+            requestOptions.deliveryMode = .fastFormat
+        case .opportunistic:
+            requestOptions.deliveryMode = .automatic
+        }
+
+        PHImageManager.default().requestPlayerItem(forVideo: phAsset, options: requestOptions) { (avPlayerItem, info) in
+            callback(avPlayerItem, AssetManager.ResultInfo(final: true, uti: nil))
+        }
+    }
+}
+
+extension PhotoLibrary {
     func write(resource: PHAssetResource, toURL url: URL, callback: @escaping ClosureBool) {
         try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
 
