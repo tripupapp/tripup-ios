@@ -83,9 +83,9 @@ extension PhotoLibrary {
         let resourceType: PHAssetResourceType
         switch type {
         case .photo:
-            resourceType = .fullSizePhoto
+            resourceType = .photo
         case .video:
-            resourceType = .fullSizeVideo
+            resourceType = .video
         case .audio:
             resourceType = .audio
         case .unknown:
