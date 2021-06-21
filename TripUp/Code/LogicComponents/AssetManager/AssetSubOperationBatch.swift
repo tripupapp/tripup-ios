@@ -324,7 +324,7 @@ extension AssetManager {
                         }
                         dispatchGroup.leave()
                     case .video:
-                        self.delegate.photoLibrary.compressVideo(atURL: originalPath) { (tempURL) in
+                        self.delegate.compressVideo(atURL: originalPath) { (tempURL) in
                             if let tempURL = tempURL {
                                 if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath)) == nil {
                                     try? FileManager.default.removeItem(at: tempURL)

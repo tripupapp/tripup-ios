@@ -7,11 +7,9 @@
 //
 
 import Foundation
+import AVFoundation
 import CommonCrypto
-import ImageIO
 import MobileCoreServices.UTCoreTypes
-import struct CoreGraphics.CGSize
-import struct CoreGraphics.CGFloat
 
 protocol AssetOperationDelegate: AnyObject {
     var keychainQueue: DispatchQueue { get }
@@ -29,6 +27,7 @@ protocol AssetOperationDelegate: AnyObject {
     @discardableResult func delete(resourceAt url: URL) -> Bool
     func md5(ofFileAtURL url: URL) -> Data?
     func downsample(imageAt imageSourceURL: URL, originalSize size: CGSize, toScale scale: CGFloat, compress: Bool, destination imageDestinationURL: URL) -> Bool
+    func compressVideo(atURL url: URL, callback: @escaping (URL?) -> Void)
 
     func upload(fileAtURL localURL: URL, transferPriority: DataManager.Priority, callback: @escaping (URL?) -> Void)
     func downloadFile(at source: URL, to destination: URL, priority: DataManager.Priority, callback: @escaping ClosureBool)
@@ -200,6 +199,37 @@ extension AssetManager: AssetOperationDelegate {
         CGImageDestinationAddImage(imageDestination, scaledImage, imageDestinationOptions)
 
         return CGImageDestinationFinalize(imageDestination)
+    }
+
+    func compressVideo(atURL url: URL, callback: @escaping (URL?) -> Void) {
+        let asset = AVAsset(url: url)
+        let preset = AVAssetExportPresetLowQuality
+        let uti: AVFileType = .mp4
+        AVAssetExportSession.determineCompatibility(ofExportPreset: preset, with: asset, outputFileType: uti) { isCompatible in
+            guard isCompatible else {
+                self.log.error("export session incompatible - sourceURL: \(String(describing: url)), preset: \(preset), uti: \(String(describing: uti))")
+                callback(nil)
+                return
+            }
+            guard let exportSession = AVAssetExportSession(asset: asset, presetName: preset) else {
+                callback(nil)
+                return
+            }
+            guard let destinationURL = FileManager.default.uniqueTempFile(filename: url.deletingPathExtension().lastPathComponent, fileExtension: uti.fileExtension ?? "") else {
+                callback(nil)
+                return
+            }
+            exportSession.outputURL = destinationURL
+            exportSession.outputFileType = uti
+            exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
+                if case .completed = exportSession.status {
+                    callback(destinationURL)
+                } else {
+                    self.log.error("sourceURL: \(String(describing: url)), destinationURL: \(String(describing: destinationURL)) - error: \(String(describing: exportSession.error))")
+                    callback(nil)
+                }
+            })
+        }
     }
 
     // MARK: cloud functions

@@ -160,37 +160,6 @@ extension PhotoLibrary {
             })
         }
     }
-
-    func compressVideo(atURL url: URL, callback: @escaping (URL?) -> Void) {
-        let asset = AVAsset(url: url)
-        let preset = AVAssetExportPresetLowQuality
-        let uti: AVFileType = .mp4
-        AVAssetExportSession.determineCompatibility(ofExportPreset: preset, with: asset, outputFileType: uti) { isCompatible in
-            guard isCompatible else {
-                self.log.error("export session incompatible - sourceURL: \(String(describing: url)), preset: \(preset), uti: \(String(describing: uti))")
-                callback(nil)
-                return
-            }
-            guard let exportSession = AVAssetExportSession(asset: asset, presetName: preset) else {
-                callback(nil)
-                return
-            }
-            guard let destinationURL = FileManager.default.createUniqueTempFile(filename: url.deletingPathExtension().lastPathComponent, fileExtension: uti.fileExtension ?? "") else {
-                callback(nil)
-                return
-            }
-            exportSession.outputURL = destinationURL
-            exportSession.outputFileType = uti
-            exportSession.exportAsynchronously(completionHandler: { [unowned exportSession] in
-                if case .completed = exportSession.status {
-                    callback(destinationURL)
-                } else {
-                    self.log.error("sourceURL: \(String(describing: url)), destinationURL: \(String(describing: destinationURL)) - error: \(String(describing: exportSession.error))")
-                    callback(nil)
-                }
-            })
-        }
-    }
 }
 
 //extension PhotoLibary: PHPhotoLibraryChangeObserver {
