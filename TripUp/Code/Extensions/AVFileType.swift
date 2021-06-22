@@ -28,7 +28,7 @@ extension AVFileType {
     // https://developer.android.com/guide/topics/media/media-formats
     var isCrossCompatible: Bool {
         switch self {
-        case .jpg, .heic, .heif:
+        case .jpg, .heic, .heif, .init("public.png"):
             return true
         case .tif, .dng, .avci:
             return false
