@@ -79,13 +79,18 @@ extension CryptoPublicKey: AsymmetricPublicKey {
     }
 
     func encrypt(_ binary: Data) -> Data {
-        var error: NSError?
-        guard let encryptedData = HelperEncryptAttachment(binary, nil, publicKeyRing, &error) else { fatalError(String(describing: error)) }
-        let encryptedDataOutput = PGPData.with {
-            $0.keyPacket = encryptedData.keyPacket!
-            $0.dataPacket = encryptedData.dataPacket!
+        do {
+            let attachmentProcessor = try publicKeyRing.newLowMemoryAttachmentProcessor(binary.count, filename: nil)
+            attachmentProcessor.process(binary)
+            let encryptedData = try attachmentProcessor.finish()
+            let encryptedDataOutput = PGPData.with {
+                $0.keyPacket = encryptedData.keyPacket!
+                $0.dataPacket = encryptedData.dataPacket!
+            }
+            return try encryptedDataOutput.serializedData()
+        } catch {
+            fatalError(String(describing: error))
         }
-        return try! encryptedDataOutput.serializedData()
     }
 }
 
