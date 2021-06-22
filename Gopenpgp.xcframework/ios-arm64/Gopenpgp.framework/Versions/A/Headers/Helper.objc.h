@@ -15,6 +15,17 @@
 @class HelperEncryptSignArmoredDetachedMobileResult;
 @class HelperEncryptSignBinaryDetachedMobileResult;
 @class HelperExplicitVerifyMessage;
+@class HelperGo2MobileReader;
+@class HelperMobile2GoReader;
+@class HelperMobile2GoWriter;
+@class HelperMobile2GoWriterWithSHA256;
+@class HelperMobileReadResult;
+@protocol HelperMobileReader;
+@class HelperMobileReader;
+
+@protocol HelperMobileReader <NSObject>
+- (HelperMobileReadResult* _Nullable)read:(long)max error:(NSError* _Nullable* _Nullable)error;
+@end
 
 @interface HelperEncryptSignArmoredDetachedMobileResult : NSObject <goSeqRefInterface> {
 }
@@ -47,6 +58,112 @@
 @end
 
 /**
+ * Go2MobileReader is used to wrap a native golang Reader in the golang runtime,
+to be usable in the mobile app runtime (via gomobile) as a MobileReader.
+ */
+@interface HelperGo2MobileReader : NSObject <goSeqRefInterface, HelperMobileReader> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+/**
+ * NewGo2MobileReader wraps a native golang Reader to be usable in the mobile app runtime (via gomobile).
+ */
+- (nullable instancetype)init:(id<CryptoReader> _Nullable)reader;
+/**
+ * Read reads at most <max> bytes from the wrapped Reader and returns the read data as a MobileReadResult.
+ */
+- (HelperMobileReadResult* _Nullable)read:(long)max error:(NSError* _Nullable* _Nullable)error;
+@end
+
+/**
+ * Mobile2GoReader is used to wrap a MobileReader in the mobile app runtime,
+to be usable in the golang runtime (via gomobile) as a native Reader.
+ */
+@interface HelperMobile2GoReader : NSObject <goSeqRefInterface, CryptoReader> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+/**
+ * NewMobile2GoReader wraps a MobileReader to be usable in the golang runtime (via gomobile).
+ */
+- (nullable instancetype)init:(id<HelperMobileReader> _Nullable)reader;
+/**
+ * Read reads data from the wrapped MobileReader and copies the read data in the provided buffer.
+It also handles the conversion of EOF to an error.
+ */
+- (BOOL)read:(NSData* _Nullable)b n:(long* _Nullable)n error:(NSError* _Nullable* _Nullable)error;
+@end
+
+/**
+ * Mobile2GoWriter is used to wrap a writer in the mobile app runtime,
+to be usable in the golang runtime (via gomobile).
+ */
+@interface HelperMobile2GoWriter : NSObject <goSeqRefInterface, CryptoWriter> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+/**
+ * NewMobile2GoWriter wraps a writer to be usable in the golang runtime (via gomobile).
+ */
+- (nullable instancetype)init:(id<CryptoWriter> _Nullable)writer;
+/**
+ * Write writes the data in the provided buffer in the wrapped writer.
+It clones the provided data to prevent errors with garbage collectors.
+ */
+- (BOOL)write:(NSData* _Nullable)b n:(long* _Nullable)n error:(NSError* _Nullable* _Nullable)error;
+@end
+
+/**
+ * Mobile2GoWriterWithSHA256 is used to wrap a writer in the mobile app runtime,
+to be usable in the golang runtime (via gomobile).
+It also computes the SHA256 hash of the data being written on the fly.
+ */
+@interface HelperMobile2GoWriterWithSHA256 : NSObject <goSeqRefInterface, CryptoWriter> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+/**
+ * NewMobile2GoWriterWithSHA256 wraps a writer to be usable in the golang runtime (via gomobile).
+The wrapper also computes the SHA256 hash of the data being written on the fly.
+ */
+- (nullable instancetype)init:(id<CryptoWriter> _Nullable)writer;
+/**
+ * GetSHA256 returns the SHA256 hash of the data that's been written so far.
+ */
+- (NSData* _Nullable)getSHA256;
+/**
+ * Write writes the data in the provided buffer in the wrapped writer.
+It clones the provided data to prevent errors with garbage collectors.
+It also computes the SHA256 hash of the data being written on the fly.
+ */
+- (BOOL)write:(NSData* _Nullable)b n:(long* _Nullable)n error:(NSError* _Nullable* _Nullable)error;
+@end
+
+/**
+ * MobileReadResult is what needs to be returned by MobileReader.Read.
+The read data is passed as a return value rather than passed as an argument to the reader.
+This avoids problems introduced by gomobile that prevent the use of native golang readers.
+ */
+@interface HelperMobileReadResult : NSObject <goSeqRefInterface> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+/**
+ * NewMobileReadResult initialize a MobileReadResult with the correct values.
+It clones the data to avoid the garbage collector freeing the data too early.
+ */
+- (nullable instancetype)init:(long)n eof:(BOOL)eof data:(NSData* _Nullable)data;
+@property (nonatomic) long n;
+@property (nonatomic) BOOL isEOF;
+@property (nonatomic) NSData* _Nullable data;
+@end
+
+/**
  * DecryptAttachment takes a keypacket and datpacket
 and returns a decrypted PlainMessage
 Specifically designed for attachments rather than text messages.
@@ -66,9 +183,9 @@ and its passphrase.
 FOUNDATION_EXPORT NSData* _Nullable HelperDecryptBinaryMessageArmored(NSString* _Nullable privateKey, NSData* _Nullable passphrase, NSString* _Nullable ciphertext, NSError* _Nullable* _Nullable error);
 
 /**
- * DecryptExplicitVerify decrypts an armored PGP message given a private key
-and its passphrase and verifies the embedded signature. Returns the plain
-data or an error on signature verification failure.
+ * DecryptExplicitVerify decrypts a PGP message given a private keyring
+and a public keyring to verify the embedded signature. Returns the plain
+data and an error on signature verification failure.
  */
 FOUNDATION_EXPORT HelperExplicitVerifyMessage* _Nullable HelperDecryptExplicitVerify(CryptoPGPMessage* _Nullable pgpMessage, CryptoKeyRing* _Nullable privateKeyRing, CryptoKeyRing* _Nullable publicKeyRing, int64_t verifyTime, NSError* _Nullable* _Nullable error);
 
@@ -90,6 +207,13 @@ using a given armored private key
 and its passphrase.
  */
 FOUNDATION_EXPORT CryptoSessionKey* _Nullable HelperDecryptSessionKey(NSString* _Nullable privateKey, NSData* _Nullable passphrase, NSData* _Nullable encryptedSessionKey, NSError* _Nullable* _Nullable error);
+
+/**
+ * DecryptSessionKeyExplicitVerify decrypts a PGP data packet given a session key
+and a public keyring to verify the embedded signature. Returns the plain data and
+an error on signature verification failure.
+ */
+FOUNDATION_EXPORT HelperExplicitVerifyMessage* _Nullable HelperDecryptSessionKeyExplicitVerify(NSData* _Nullable dataPacket, CryptoSessionKey* _Nullable sessionKey, CryptoKeyRing* _Nullable publicKeyRing, int64_t verifyTime, NSError* _Nullable* _Nullable error);
 
 /**
  * DecryptVerifyArmoredDetached decrypts an armored pgp message
@@ -180,6 +304,13 @@ plaintext and an armored public key a private key and its passphrase.
 FOUNDATION_EXPORT NSString* _Nonnull HelperEncryptSignMessageArmored(NSString* _Nullable publicKey, NSString* _Nullable privateKey, NSData* _Nullable passphrase, NSString* _Nullable plaintext, NSError* _Nullable* _Nullable error);
 
 /**
+ * FreeOSMemory can be used to explicitly
+call the garbage collector and
+return the unused memory to the OS.
+ */
+FOUNDATION_EXPORT void HelperFreeOSMemory(void);
+
+/**
  * GenerateKey generates a key of the given keyType ("rsa" or "x25519"), encrypts it, and returns an armored string.
 If keyType is "rsa", bits is the RSA bitsize of the key.
 If keyType is "x25519" bits is unused.
@@ -194,6 +325,33 @@ FOUNDATION_EXPORT NSData* _Nullable HelperGetJsonSHA256Fingerprints(NSString* _N
 
 // skipped function GetSHA256Fingerprints with unsupported parameter or return types
 
+
+/**
+ * NewGo2MobileReader wraps a native golang Reader to be usable in the mobile app runtime (via gomobile).
+ */
+FOUNDATION_EXPORT HelperGo2MobileReader* _Nullable HelperNewGo2MobileReader(id<CryptoReader> _Nullable reader);
+
+/**
+ * NewMobile2GoReader wraps a MobileReader to be usable in the golang runtime (via gomobile).
+ */
+FOUNDATION_EXPORT HelperMobile2GoReader* _Nullable HelperNewMobile2GoReader(id<HelperMobileReader> _Nullable reader);
+
+/**
+ * NewMobile2GoWriter wraps a writer to be usable in the golang runtime (via gomobile).
+ */
+FOUNDATION_EXPORT HelperMobile2GoWriter* _Nullable HelperNewMobile2GoWriter(id<CryptoWriter> _Nullable writer);
+
+/**
+ * NewMobile2GoWriterWithSHA256 wraps a writer to be usable in the golang runtime (via gomobile).
+The wrapper also computes the SHA256 hash of the data being written on the fly.
+ */
+FOUNDATION_EXPORT HelperMobile2GoWriterWithSHA256* _Nullable HelperNewMobile2GoWriterWithSHA256(id<CryptoWriter> _Nullable writer);
+
+/**
+ * NewMobileReadResult initialize a MobileReadResult with the correct values.
+It clones the data to avoid the garbage collector freeing the data too early.
+ */
+FOUNDATION_EXPORT HelperMobileReadResult* _Nullable HelperNewMobileReadResult(long n, BOOL eof, NSData* _Nullable data);
 
 /**
  * SignCleartextMessage signs text given a private keyring, canonicalizes and
@@ -227,5 +385,19 @@ text given the public key and returns the text or err if the verification
 fails.
  */
 FOUNDATION_EXPORT NSString* _Nonnull HelperVerifyCleartextMessageArmored(NSString* _Nullable publicKey, NSString* _Nullable armored, int64_t verifyTime, NSError* _Nullable* _Nullable error);
+
+@class HelperMobileReader;
+
+/**
+ * MobileReader is the interface that readers in the mobile runtime must use and implement.
+This is a workaround to some of the gomobile limitations.
+ */
+@interface HelperMobileReader : NSObject <goSeqRefInterface, HelperMobileReader> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+- (HelperMobileReadResult* _Nullable)read:(long)max error:(NSError* _Nullable* _Nullable)error;
+@end
 
 #endif

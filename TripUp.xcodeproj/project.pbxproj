@@ -50,6 +50,7 @@
 		201C0A9F2437842D00F57C04 /* Policy.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 201C0A9E2437842D00F57C04 /* Policy.storyboard */; };
 		201C0AA12437886800F57C04 /* PolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C0AA02437886800F57C04 /* PolicyView.swift */; };
 		201C251C253A0190009D95CE /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C251B253A0190009D95CE /* Album.swift */; };
+		201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201F760D26826F58007D7A21 /* Gopenpgp.xcframework */; };
 		201FAF4125E02D5400AFABEA /* CloudProgressSync.xib in Resources */ = {isa = PBXBuildFile; fileRef = 207985E424056EB70003BB97 /* CloudProgressSync.xib */; };
 		201FEDD62438C29700013D18 /* WebDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201FEDD52438C29700013D18 /* WebDocumentLoader.swift */; };
 		202335FA25E189C3004823B4 /* Background.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202335F925E189C3004823B4 /* Background.swift */; };
@@ -160,7 +161,6 @@
 		20CE35AB265C2F4700683AD6 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 20CE35AA265C2F4700683AD6 /* Realm */; };
 		20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 20CE35AC265C2F4700683AD6 /* RealmSwift */; };
 		20D75169229C39FF00F1D37D /* FullscreenVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D75168229C39FF00F1D37D /* FullscreenVC.swift */; };
-		20DFE4C82562FC720092551C /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20DFE4C72562FC710092551C /* Gopenpgp.xcframework */; };
 		20E3F68D23F0390300E25E3E /* SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3F68C23F0390300E25E3E /* SecureEnclave.swift */; };
 		20E7743A2327178700F2AB0C /* PhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E774392327178700F2AB0C /* PhotoViewCell.swift */; };
 		20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E8396022B92BA10098F45C /* PGPData.pb.swift */; };
@@ -308,6 +308,7 @@
 		201C0A9E2437842D00F57C04 /* Policy.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Policy.storyboard; sourceTree = "<group>"; };
 		201C0AA02437886800F57C04 /* PolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolicyView.swift; sourceTree = "<group>"; };
 		201C251B253A0190009D95CE /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
+		201F760D26826F58007D7A21 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		201FEDD52438C29700013D18 /* WebDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDocumentLoader.swift; sourceTree = "<group>"; };
 		202335F925E189C3004823B4 /* Background.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Background.swift; sourceTree = "<group>"; };
 		2024103E22B434D400FBACC5 /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
@@ -418,7 +419,6 @@
 		20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsynchronousOperation.swift; sourceTree = "<group>"; };
 		20D56E532395298C0058FC4A /* UILabelIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelIcon.swift; sourceTree = "<group>"; };
 		20D75168229C39FF00F1D37D /* FullscreenVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenVC.swift; sourceTree = "<group>"; };
-		20DFE4C72562FC710092551C /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		20E3F68C23F0390300E25E3E /* SecureEnclave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclave.swift; sourceTree = "<group>"; };
 		20E774392327178700F2AB0C /* PhotoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewCell.swift; sourceTree = "<group>"; };
 		20E8396022B92BA10098F45C /* PGPData.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PGPData.pb.swift; sourceTree = "<group>"; };
@@ -477,10 +477,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */,
+				201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
 				D070206669B8081E17C79C8E /* Pods_TripUp.framework in Frameworks */,
 				2071671125DEE69A00F281B2 /* TripUpShared.framework in Frameworks */,
-				20DFE4C82562FC720092551C /* Gopenpgp.xcframework in Frameworks */,
 				20CE35AB265C2F4700683AD6 /* Realm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -891,7 +891,7 @@
 		2071F4F21E7AEE3800E2CE4F = {
 			isa = PBXGroup;
 			children = (
-				20DFE4C72562FC710092551C /* Gopenpgp.xcframework */,
+				201F760D26826F58007D7A21 /* Gopenpgp.xcframework */,
 				2071F4FD1E7AEE3800E2CE4F /* TripUp */,
 				20F5E8D222B001E900893527 /* TripUpTests */,
 				20FDD044241A9BE300F3B41A /* TripUpUITests */,
