@@ -181,6 +181,7 @@ extension AssetManager {
 
         private func join(asset: MutableAsset, toTempURL tempURL: URL, uti: AVFileType, callback: @escaping (AssetSubOperationError?) -> Void) {
             guard let md5 = delegate.md5(ofFileAtURL: tempURL) else {
+                log.error("error calculating md5 - assetID: \(asset.uuid.string), inputURL: \(String(describing: tempURL))")
                 callback(.recoverable)
                 return
             }
