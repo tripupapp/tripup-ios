@@ -29,9 +29,11 @@ extension AssetManager {
         var physicalAssets: PhysicalAssets!
 
         let uuid: UUID
+        let type: AssetType
         let ownerID: UUID
         let creationDate: Date?
         let location: TULocation?
+        let duration: TimeInterval?
         let pixelSize: CGSize
 
         var fingerprint: String? {
@@ -113,20 +115,24 @@ extension AssetManager {
             }
         }
 
-        private init(uuid: UUID, ownerID: UUID, creationDate: Date?, location: TULocation?, pixelSize: CGSize) {
+        private init(uuid: UUID, type: AssetType, ownerID: UUID, creationDate: Date?, location: TULocation?, duration: TimeInterval?, pixelSize: CGSize) {
             self.uuid = uuid
+            self.type = type
             self.ownerID = ownerID
             self.creationDate = creationDate
             self.location = location
+            self.duration = duration
             self.pixelSize = pixelSize
         }
 
         convenience init(from object: AssetObject) {
             self.init(
                 uuid: UUID(uuidString: object.uuid)!,
+                type: AssetType(rawValue: object.type) ?? .unknown,
                 ownerID: UUID(uuidString: object.ownerID)!,
                 creationDate: object.creationDate,
                 location: TULocation(from: object),
+                duration: object.duration.value,
                 pixelSize: CGSize(width: object.pixelWidth, height: object.pixelHeight)
             )
             self.physicalAssets = PhysicalAssets(

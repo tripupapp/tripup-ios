@@ -31,11 +31,23 @@ extension AssetManager {
         var pixelSize: CGSize {
             return logicalAsset.pixelSize
         }
-        var filename: String {
-            return uuid.string
+        var filename: URL {
+            let url = URL(string: uuid.string)!
+            if quality == .original {
+                return url.appendingPathExtension(logicalAsset.originalUTI?.fileExtension ?? "")
+            } else {
+                switch logicalAsset.type {
+                case .photo:
+                    return url.appendingPathExtension("jpg")
+                case .video:
+                    return url.appendingPathExtension("mp4")
+                case .audio, .unknown:
+                    fatalError()
+                }
+            }
         }
         var localPath: URL {
-            let filePath = "\(logicalAsset.ownerID.string)/\(filename)"
+            let filePath = "\(logicalAsset.ownerID.string)/\(filename.absoluteString)"
             switch quality {
             case .low:
                 return Globals.Directories.assetsLow.appendingPathComponent(filePath, isDirectory: false)

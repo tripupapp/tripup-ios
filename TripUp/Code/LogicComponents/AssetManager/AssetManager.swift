@@ -52,10 +52,16 @@ class AssetManager {
         case low
     }
 
-    enum RequestFormat {
+    enum ImageRequestFormat {
         case best
         case highQuality(CGSize, CGFloat)
         case lowQuality(CGSize, CGFloat)
+        case fast
+    }
+
+    enum AVRequestFormat {
+        case best
+        case opportunistic
         case fast
     }
 
@@ -67,7 +73,7 @@ class AssetManager {
     unowned let keychainDelegate: KeychainDelegate
     unowned let assetController: AssetController
 
-    let photoLibrary: PhotoLibary
+    let photoLibrary: PhotoLibrary
     let iosImageManager = PHImageManager.default()
     let dataService: DataService
     let webAPI: API
@@ -97,7 +103,7 @@ class AssetManager {
     private var didBecomeActiveObserverToken: NSObjectProtocol?
     private var enterBackgroundObserverToken: NSObjectProtocol?
 
-    init(assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
+    init(assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
         self.assetController = assetController
         self.assetDatabase = assetDatabase
         self.photoLibrary = photoLibrary
@@ -299,27 +305,57 @@ extension AssetManager {
     }
 
     func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void) {
-        mutableAsset(from: asset.uuid) { [weak self] mutableAsset in
-            guard let mutableAsset = mutableAsset else { DispatchQueue.main.async { callback(false, false) }; return }
-            guard mutableAsset.localIdentifier == nil else { DispatchQueue.main.async { callback(true, true) }; return }
-            self?.loadData(for: mutableAsset, atQuality: .original) { [weak self] (data, uti) in
-                guard let self = self, let data = data else { callback(false, false); return }
+        let callbackOnMain = { (_ success: Bool, _ wasAlreadySaved: Bool) -> Void in
+            DispatchQueue.main.async {
+                callback(success, wasAlreadySaved)
+            }
+        }
+        guard asset.imported else {
+            callbackOnMain(false, true)
+            return
+        }
+        let phAssetResourceType: PHAssetResourceType
+        switch asset.type {
+        case .photo:
+            phAssetResourceType = .photo
+        case .video:
+            phAssetResourceType = .video
+        case .audio, .unknown:
+            assertionFailure()
+            callbackOnMain(false, false)
+            return
+        }
+        assetController.localIdentifier(forAsset: asset) { [weak self] (existinglocalIdentifier) in
+            guard existinglocalIdentifier == nil else {
+                callbackOnMain(false, true)
+                return
+            }
+            self?.load(asset: asset, atQuality: .original) { (url, uti) in
+                guard let url = url else {
+                    callbackOnMain(false, false)
+                    return
+                }
                 var newAssetPlaceholder: PHObjectPlaceholder?
                 PHPhotoLibrary.shared().performChanges({
                     let options = PHAssetResourceCreationOptions()
                     options.uniformTypeIdentifier = uti?.rawValue
                     let newAsset = PHAssetCreationRequest.forAsset()
                     newAssetPlaceholder = newAsset.placeholderForCreatedAsset
-                    newAsset.addResource(with: .photo, data: data, options: options)
+                    newAsset.addResource(with: phAssetResourceType, fileURL: url, options: options)
                     newAsset.creationDate = asset.creationDate
                     newAsset.location = asset.location?.coreLocation
                     newAsset.isFavorite = asset.favourite
                 }) { (successfullySavedToLibrary, _) in
-                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else { DispatchQueue.main.async { callback(false, false) }; return }
+                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else {
+                        callbackOnMain(false, false)
+                        return
+                    }
                     // write localIdentifier to local database
-                    self.assetManagerQueue.async {
-                        mutableAsset.localIdentifier = localIdentifier
-                        DispatchQueue.main.async { callback(true, false) }
+                    self?.mutableAsset(from: asset.uuid) { (mutableAsset) in
+                        if let mutableAsset = mutableAsset {
+                            mutableAsset.localIdentifier = localIdentifier
+                        }
+                        callbackOnMain(true, false)
                     }
                 }
             }
@@ -330,10 +366,56 @@ extension AssetManager {
 // MARK: AssetManager internal functions
 extension AssetManager {
     func loadData(for asset: Asset, atQuality quality: Quality, callback: @escaping (Data?, AVFileType?) -> Void) {
+        precondition(asset.type == .photo)
         mutableAsset(from: asset.uuid) { [weak self] mutableAsset in     // load mutable asset from live asset cache or database
             guard let self = self, let mutableAsset = mutableAsset else { DispatchQueue.main.async { callback(nil, nil) }; return }
             precondition(.on(self.assetManagerQueue))
             self.loadData(for: mutableAsset, atQuality: quality, callback: callback)
+        }
+    }
+
+    func generateStillImage(forAsset asset: Asset, maxSize: CGSize = .zero, callback: @escaping (UIImage?, AVFileType?) -> Void) {
+        precondition(asset.type == .video)
+        load(asset: asset, atQuality: .low) { [weak self] (url, uti) in
+            guard let url = url else {
+                self?.log.error("\(asset.uuid): unable to fetch resource - quality: low")
+                callback(nil, uti)
+                return
+            }
+            let avAsset = AVAsset(url: url)
+            let avAssetImageGenerator = AVAssetImageGenerator(asset: avAsset)
+            avAssetImageGenerator.appliesPreferredTrackTransform = true
+            avAssetImageGenerator.maximumSize = maxSize
+            avAssetImageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: .zero)]) { (_, cgImage, _, _, error) in
+                if let cgImage = cgImage {
+                    callback(UIImage(cgImage: cgImage), AVFileType(cgImage.utType as String?))
+                } else {
+                    self?.log.error(String(describing: error))
+                    callback(nil, nil)
+                }
+            }
+        }
+    }
+
+    func load(asset: Asset, atQuality quality: Quality, callback: @escaping (URL?, AVFileType?) -> Void) {
+        mutableAsset(from: asset.uuid) { [weak self] (mutableAsset) in
+            guard let self = self else {
+                callback(nil, nil)
+                return
+            }
+            guard let mutableAsset = mutableAsset else {
+                self.log.verbose("\(asset.uuid): mutableAsset not found")
+                callback(nil, nil)
+                return
+            }
+            self.fetchResource(forPhysicalAsset: mutableAsset.physicalAssets[quality]) { [weak self] (success) in
+                if success {
+                    callback(mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
+                } else {
+                    self?.log.verbose("\(asset.uuid): failed to fetch resource - quality: \(String(describing: quality))")
+                    callback(nil, nil)
+                }
+            }
         }
     }
 
@@ -413,6 +495,20 @@ private extension AssetManager {
             self.assetManagerQueue.async {
                 callback(data)
             }
+        }
+    }
+
+    private func fetchResource(forPhysicalAsset physicalAsset: MutablePhysicalAsset, callback: @escaping (Bool) -> Void) {
+        if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
+            callback(true)
+        } else {
+            // not found on disk, so schedule request for later and create a download operation
+            guard !downloadQueue.isSuspended else {
+                callback(false)
+                return
+            }
+            schedule(callback: callback, for: AssetDownloadOperation.lookupKey, onAssetID: physicalAsset.uuid)
+            queueNewDownloadOperation(for: [physicalAsset])
         }
     }
 

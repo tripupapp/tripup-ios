@@ -54,7 +54,31 @@
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oZK-qI-dIq">
                                                             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                                         </imageView>
-                                                        <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e32-67-deF" customClass="UIGradientView" customModule="TripUpViews">
+                                                        <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gJJ-aN-Gdo" userLabel="TopGradient" customClass="UIGradientView" customModule="TripUpViews">
+                                                            <rect key="frame" x="0.0" y="0.0" width="100" height="30"/>
+                                                            <userDefinedRuntimeAttributes>
+                                                                <userDefinedRuntimeAttribute type="color" keyPath="firstColor">
+                                                                    <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                </userDefinedRuntimeAttribute>
+                                                                <userDefinedRuntimeAttribute type="color" keyPath="secondColor">
+                                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                </userDefinedRuntimeAttribute>
+                                                            </userDefinedRuntimeAttributes>
+                                                        </view>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dc9-UF-5EU" userLabel="DurationLabel">
+                                                            <rect key="frame" x="65" y="5" width="30" height="17"/>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="check-circle-filled" translatesAutoresizingMaskIntoConstraints="NO" id="Y80-bf-3w4" userLabel="checkmark">
+                                                            <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" secondItem="Y80-bf-3w4" secondAttribute="height" multiplier="1:1" id="5JT-Sj-Ckv"/>
+                                                                <constraint firstAttribute="width" constant="25" id="Rnc-Zl-qGj"/>
+                                                            </constraints>
+                                                        </imageView>
+                                                        <view opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e32-67-deF" userLabel="BottomGradient" customClass="UIGradientView" customModule="TripUpViews">
                                                             <rect key="frame" x="0.0" y="70" width="100" height="30"/>
                                                             <userDefinedRuntimeAttributes>
                                                                 <userDefinedRuntimeAttribute type="color" keyPath="firstColor">
@@ -65,9 +89,6 @@
                                                                 </userDefinedRuntimeAttribute>
                                                             </userDefinedRuntimeAttributes>
                                                         </view>
-                                                        <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="4n1-p7-k5u">
-                                                            <rect key="frame" x="40" y="40" width="20" height="20"/>
-                                                        </activityIndicatorView>
                                                         <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloudy-outline" translatesAutoresizingMaskIntoConstraints="NO" id="Yd4-Ix-PF9">
                                                             <rect key="frame" x="75" y="75" width="20" height="20"/>
                                                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -82,13 +103,6 @@
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="20" id="sSc-9Z-SWb"/>
                                                                 <constraint firstAttribute="width" secondItem="8Ma-Ot-Nfb" secondAttribute="height" multiplier="1:1" id="vGV-eO-mS9"/>
-                                                            </constraints>
-                                                        </imageView>
-                                                        <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="check-circle-filled" translatesAutoresizingMaskIntoConstraints="NO" id="Y80-bf-3w4" userLabel="checkmark">
-                                                            <rect key="frame" x="75" y="0.0" width="25" height="25"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="width" secondItem="Y80-bf-3w4" secondAttribute="height" multiplier="1:1" id="5JT-Sj-Ckv"/>
-                                                                <constraint firstAttribute="width" constant="25" id="Rnc-Zl-qGj"/>
                                                             </constraints>
                                                         </imageView>
                                                         <view hidden="YES" alpha="0.65000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dou-9H-eem">
@@ -108,8 +122,12 @@
                                                                 <constraint firstItem="3zs-nW-vPi" firstAttribute="centerX" secondItem="Dou-9H-eem" secondAttribute="centerX" id="zeW-u9-C7N"/>
                                                             </constraints>
                                                         </view>
+                                                        <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="4n1-p7-k5u">
+                                                            <rect key="frame" x="40" y="40" width="20" height="20"/>
+                                                        </activityIndicatorView>
                                                     </subviews>
                                                     <constraints>
+                                                        <constraint firstItem="gJJ-aN-Gdo" firstAttribute="width" secondItem="Fhf-ob-zaA" secondAttribute="width" id="06R-7R-TQN"/>
                                                         <constraint firstItem="Dou-9H-eem" firstAttribute="leading" secondItem="Fhf-ob-zaA" secondAttribute="leading" id="6NZ-Kp-W3a"/>
                                                         <constraint firstItem="e32-67-deF" firstAttribute="centerX" secondItem="Fhf-ob-zaA" secondAttribute="centerX" id="7BL-EJ-UsA"/>
                                                         <constraint firstAttribute="bottom" secondItem="8Ma-Ot-Nfb" secondAttribute="bottom" constant="5" id="7dm-Kk-ckn"/>
@@ -122,26 +140,33 @@
                                                         <constraint firstItem="oZK-qI-dIq" firstAttribute="leading" secondItem="Fhf-ob-zaA" secondAttribute="leading" id="OFm-ic-Yce"/>
                                                         <constraint firstItem="Y80-bf-3w4" firstAttribute="width" secondItem="Y80-bf-3w4" secondAttribute="height" multiplier="1:1" id="R2D-DG-v2X"/>
                                                         <constraint firstAttribute="bottom" secondItem="Dou-9H-eem" secondAttribute="bottom" id="Xhy-cz-lKB"/>
-                                                        <constraint firstAttribute="trailing" secondItem="Y80-bf-3w4" secondAttribute="trailing" id="cFz-Um-dty"/>
+                                                        <constraint firstAttribute="leading" secondItem="Y80-bf-3w4" secondAttribute="leading" id="cFz-Um-dty"/>
                                                         <constraint firstItem="e32-67-deF" firstAttribute="width" secondItem="Fhf-ob-zaA" secondAttribute="width" id="cM2-v4-nhd"/>
+                                                        <constraint firstItem="gJJ-aN-Gdo" firstAttribute="top" secondItem="Fhf-ob-zaA" secondAttribute="top" id="coc-Ez-q6v"/>
                                                         <constraint firstAttribute="trailing" secondItem="Dou-9H-eem" secondAttribute="trailing" id="dn3-2E-X2z"/>
+                                                        <constraint firstItem="gJJ-aN-Gdo" firstAttribute="centerX" secondItem="Fhf-ob-zaA" secondAttribute="centerX" id="gFs-C2-Xab"/>
+                                                        <constraint firstItem="Dc9-UF-5EU" firstAttribute="top" secondItem="Fhf-ob-zaA" secondAttribute="top" constant="5" id="hjo-2q-04C"/>
                                                         <constraint firstAttribute="bottom" secondItem="oZK-qI-dIq" secondAttribute="bottom" id="ikA-cb-dn6"/>
+                                                        <constraint firstAttribute="trailing" secondItem="Dc9-UF-5EU" secondAttribute="trailing" constant="5" id="j1E-7F-Cxb"/>
                                                         <constraint firstAttribute="bottom" secondItem="e32-67-deF" secondAttribute="bottom" id="l7T-dd-d16"/>
                                                         <constraint firstAttribute="bottom" secondItem="Yd4-Ix-PF9" secondAttribute="bottom" constant="5" id="mp9-ZZ-cPG"/>
                                                         <constraint firstItem="e32-67-deF" firstAttribute="height" secondItem="Fhf-ob-zaA" secondAttribute="height" multiplier="0.3" id="nDX-iA-1Bf"/>
+                                                        <constraint firstItem="gJJ-aN-Gdo" firstAttribute="height" secondItem="Fhf-ob-zaA" secondAttribute="height" multiplier="0.3" id="oGv-Pb-atL"/>
                                                         <constraint firstAttribute="trailing" secondItem="8Ma-Ot-Nfb" secondAttribute="trailing" constant="5" id="tpf-67-8lt"/>
                                                         <constraint firstAttribute="trailing" secondItem="oZK-qI-dIq" secondAttribute="trailing" id="z8F-Kj-uxl"/>
                                                     </constraints>
                                                 </collectionViewCellContentView>
                                                 <connections>
                                                     <outlet property="activityIndicator" destination="4n1-p7-k5u" id="iNb-qT-wqO"/>
+                                                    <outlet property="bottomGradient" destination="e32-67-deF" id="lU0-Dg-6pI"/>
                                                     <outlet property="checkmarkView" destination="Y80-bf-3w4" id="0Rk-eH-lxs"/>
-                                                    <outlet property="gradientView" destination="e32-67-deF" id="lU0-Dg-6pI"/>
+                                                    <outlet property="durationLabel" destination="Dc9-UF-5EU" id="hOc-ax-C8p"/>
                                                     <outlet property="imageView" destination="oZK-qI-dIq" id="VDW-7s-LLi"/>
                                                     <outlet property="importedIcon" destination="Yd4-Ix-PF9" id="T4f-Mq-xbR"/>
                                                     <outlet property="importingIcon" destination="8Ma-Ot-Nfb" id="8T1-ER-VjO"/>
                                                     <outlet property="lockIcon" destination="3zs-nW-vPi" id="yaN-Xn-VYq"/>
                                                     <outlet property="lockView" destination="Dou-9H-eem" id="lSs-dL-Aak"/>
+                                                    <outlet property="topGradient" destination="gJJ-aN-Gdo" id="SVI-aw-b3q"/>
                                                 </connections>
                                             </collectionViewCell>
                                         </cells>

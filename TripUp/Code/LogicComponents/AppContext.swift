@@ -201,7 +201,7 @@ class AppContext {
     private let purchasesController: PurchasesController
 
     private let keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>
-    private let photoLibrary = PhotoLibary()
+    private let photoLibrary = PhotoLibrary()
 
     private var contextObservers = [ObjectIdentifier: AppContextObserverWrapper]()
     private var cloudReloadInProgress: Bool = false

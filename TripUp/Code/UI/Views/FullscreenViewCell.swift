@@ -12,8 +12,9 @@ import UIKit
 class FullscreenViewCell: UICollectionViewCell {
     static let reuseIdentifier = "AssetFullCell"
 
-    @IBOutlet var scrollView: UIScrollView!
     @IBOutlet var imageView: UIImageView!
+    @IBOutlet var avPlayerView: AVPlayerView!
+    @IBOutlet var scrollView: UIScrollView!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var originalMissingLabel: UILabel!
 
@@ -23,7 +24,13 @@ class FullscreenViewCell: UICollectionViewCell {
 
 extension FullscreenViewCell: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
+        if imageView.image != nil {
+            return imageView
+        }
+        if avPlayerView.player != nil {
+            return avPlayerView
+        }
+        return nil
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {

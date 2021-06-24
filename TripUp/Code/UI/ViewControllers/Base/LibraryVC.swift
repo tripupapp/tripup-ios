@@ -404,9 +404,11 @@ extension LibraryVC.CollectionViewDelegate: UICollectionViewDataSource {
 
         let asset = dataModel.item(at: indexPath)
         cell.assetID = asset.uuid
+        cell.durationLabel.text = asset.duration?.formattedString
         cell.importedIcon.isHidden = !asset.imported
         cell.importingIcon.isHidden = !cell.importedIcon.isHidden || !UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue)
-        cell.gradientView.isHidden = cell.allIconsHidden
+        cell.topGradient.isHidden = cell.topIconsHidden
+        cell.bottomGradient.isHidden = cell.bottomIconsHidden
         cell.lockView.isHidden = isSelectable?(asset) ?? true
 
         if #available(iOS 13.0, *) {
@@ -489,17 +491,22 @@ class LibraryCollectionViewCell: UICollectionViewCell {
 
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var gradientView: UIGradientView!
+    @IBOutlet var topGradient: UIGradientView!
+    @IBOutlet var bottomGradient: UIGradientView!
     @IBOutlet var checkmarkView: UIImageView!
     @IBOutlet var lockView: UIView!
     @IBOutlet var lockIcon: UIImageView!
 
+    @IBOutlet var durationLabel: UILabel!
     // use 2 separate icons for this, because we use System Symbols in iOS 13+, which don't behave well when switching image with different aspect ratio
     @IBOutlet var importedIcon: UIImageView!
     @IBOutlet var importingIcon: UIImageView!
 
     var assetID: UUID!
-    var allIconsHidden: Bool {
+    var topIconsHidden: Bool {
+        return durationLabel.text?.isEmpty ?? true
+    }
+    var bottomIconsHidden: Bool {
         return importedIcon.isHidden && importingIcon.isHidden
     }
 

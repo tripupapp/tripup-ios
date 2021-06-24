@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import CoreMedia.CMTime
 import UIKit
 
 class TUFullscreenViewDelegate {
+    weak var fullscreenViewController: FullscreenViewController?
     let bottomToolbarItems: [UIBarButtonItem]?  // use item references from here, as the actual UIToolbar items array may contain spacers
-    weak var ownerLabel: UILabel?
 
     fileprivate let primaryUserID: UUID
     fileprivate var assets: [Asset] {
@@ -35,13 +36,49 @@ class TUFullscreenViewDelegate {
     func configureOverlayViews(forItemAt index: Int) {
         let asset = assets[index]
         if asset.ownerID == primaryUserID {
-            ownerLabel?.text = ""
+            fullscreenViewController?.ownerLabel.text = ""
         } else {
-            ownerLabel?.text = " 📸 \(userFinder?.user(for: asset.ownerID)?.localContact?.name ?? "Tripper") "
+            fullscreenViewController?.ownerLabel.text = " 📸 \(userFinder?.user(for: asset.ownerID)?.localContact?.name ?? "Tripper") "
         }
+        fullscreenViewController?.avControlsView.isHidden = (asset.type == .photo) || (asset.type == .unknown)
     }
 
     func bottomToolbarAction(_ fullscreenVC: FullscreenViewController, button: UIBarButtonItem, itemIndex: Int) {}
+
+    fileprivate func fullscreenShareSheet(_ fullscreenVC: FullscreenViewController, forAsset asset: Asset) {
+        fullscreenVC.view.makeToastieActivity(true)
+        assetRequester?.requestOriginalFile(forAsset: asset, callback: { (url) in
+            fullscreenVC.view.makeToastieActivity(false)
+            guard let url = url else {
+                fullscreenVC.view.makeToastie("Failed to download the original asset data. Check your internet connection and try again.", duration: 7.5, position: .top)
+                return
+            }
+            let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            activityController.completionWithItemsHandler = { _, _, _, error in
+                if error != nil {
+                    Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
+                }
+            }
+            activityController.excludedActivityTypes = [.saveToCameraRoll]
+            fullscreenVC.present(activityController, animated: true, completion: nil)
+        })
+    }
+
+    fileprivate func fullscreenSaveToDevice(_ fullscreenVC: FullscreenViewController, assetManager: AssetManager?, forAsset asset: Asset) {
+        fullscreenVC.view.makeToastieActivity(true)
+        assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
+            fullscreenVC.view.makeToastieActivity(false)
+            let message: String
+            if wasAlreadySaved {
+                message = "\(asset.type.rawValue.capitalized) already saved to device photo library."
+            } else if saved {
+                message = "Saved to device photo library."
+            } else {
+                message = "Unable to save to device photo library. Check your network connection and try again."
+            }
+            fullscreenVC.view.makeToastie(message, duration: 5.0, position: .top)
+        }
+    }
 }
 
 extension TUFullscreenViewDelegate: FullscreenViewDelegate {
@@ -59,15 +96,17 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
 
     func configure(cell: FullscreenViewCell, forItemAt index: Int) {
         let asset = assets[index]
-
         cell.assetID = asset.uuid
         cell.imageView.image = nil
+        cell.avPlayerView.player = nil
         cell.originalMissingLabel.isHidden = true
         cell.activityIndicator.startAnimating()
 
         if let image = cache.object(forKey: asset.uuid as NSUUID) {
             cell.imageView.image = image
-            cell.activityIndicator.stopAnimating()
+            if asset.type == .photo {
+                cell.activityIndicator.stopAnimating()
+            }
         } else {
             let imageViewSize = cell.imageView.bounds.size
             let widthRatio = imageViewSize.width / asset.pixelSize.width
@@ -75,20 +114,52 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
             let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
             let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
             assetRequester?.requestImage(for: asset, format: .highQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
-                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
+                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else {
+                    return
+                }
+                guard cell.avPlayerView.player?.currentItem == nil else {
+                    return  // don't load image when a video (AVPlayerItem) has already loaded
+                }
                 if resultInfo.final {
                     if let image = image {
                         if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
                             cache.setObject(image, forKey: asset.uuid as NSUUID)
                         }
                         cell.imageView.image = image
+                    } else if asset.type == .photo {
+                        cell.originalMissingLabel.isHidden = false
+                    }
+                    if asset.type == .photo {
+                        cell.activityIndicator.stopAnimating()
+                    }
+                } else if cell.imageView.image == nil {
+                    cell.imageView.image = image
+                }
+            }
+        }
+        if asset.type == .video {
+            cell.avPlayerView.player = .init()
+            assetRequester?.requestAV(for: asset, format: .opportunistic) { (avPlayerItem, resultInfo) in
+                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else {
+                    return
+                }
+                if resultInfo.final {
+                    if let avPlayerItem = avPlayerItem {
+                        cell.avPlayerView.player?.pause()
+                        var currentTime: CMTime = .zero
+                        if let progressedTime = cell.avPlayerView.player?.currentItem?.currentTime(), CMTIME_IS_VALID(progressedTime) {
+                            currentTime = progressedTime
+                        }
+                        cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
+                        avPlayerItem.seek(to: currentTime, toleranceBefore: .zero, toleranceAfter: .zero, completionHandler: nil)
                     } else {
                         cell.originalMissingLabel.isHidden = false
                     }
                     cell.activityIndicator.stopAnimating()
-                } else if cell.imageView.image == nil {
-                    cell.imageView.image = image
+                } else if cell.avPlayerView.player?.currentItem == nil {
+                    cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
                 }
+                cell.imageView.image = nil
             }
         }
     }
@@ -159,28 +230,9 @@ class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
         let asset = assets[itemIndex]
         switch button {
         case bottomToolbarItems![0]: // EXPORT
-            let item = AssetActivityItemProvider(asset: asset, assetDataRequester: assetManager!)
-            let activityController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
-            activityController.completionWithItemsHandler = { _, _, _, error in
-                if error != nil {
-                    fullscreenVC.view.makeToastie("Unable to retrieve the full quality for this photo. Check your internet connection and try again.", position: .top)
-                }
-            }
-            activityController.excludedActivityTypes = [.saveToCameraRoll]
-            fullscreenVC.present(activityController, animated: true, completion: nil)
+            fullscreenShareSheet(fullscreenVC, forAsset: asset)
         case bottomToolbarItems![1]: // SAVE
-            assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
-                let message: String = {
-                    if wasAlreadySaved {
-                        return "Photo already saved to device photo library"
-                    } else if saved {
-                        return "Saved to device photo library"
-                    } else {
-                        return "Unable to save to device photo library. Check your network connection and try again"
-                    }
-                }()
-                fullscreenVC.view.makeToastie(message, position: .top)
-            }
+            fullscreenSaveToDevice(fullscreenVC, assetManager: assetManager, forAsset: asset)
         case bottomToolbarItems![2]: // DELETE
             let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
                 self.assetManager?.delete([asset])
@@ -250,28 +302,9 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
                 }
             }
         case bottomToolbarItems![1]: // EXPORT
-            let item = AssetActivityItemProvider(asset: asset, assetDataRequester: assetManager!)
-            let activityController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
-            activityController.completionWithItemsHandler = { _, _, _, error in
-                if error != nil {
-                    fullscreenVC.view.makeToastie("Unable to retrieve the full quality for this photo. Check your internet connection and try again.", position: .top)
-                }
-            }
-            activityController.excludedActivityTypes = [.saveToCameraRoll]
-            fullscreenVC.present(activityController, animated: true, completion: nil)
+            fullscreenShareSheet(fullscreenVC, forAsset: asset)
         case bottomToolbarItems![2]: // SAVE
-            assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
-                let message: String = {
-                    if wasAlreadySaved {
-                        return "Photo already saved to device photo library"
-                    } else if saved {
-                        return "Saved to device photo library"
-                    } else {
-                        return "Unable to save to device photo library. Check your network connection and try again"
-                    }
-                }()
-                fullscreenVC.view.makeToastie(message, position: .top)
-            }
+            fullscreenSaveToDevice(fullscreenVC, assetManager: assetManager, forAsset: asset)
         case bottomToolbarItems![3]: // DELETE
             let ownedAsset = asset.ownerID == primaryUserID
             let deleteAction = UIAlertAction(title: ownedAsset ? "Delete" : "Delete for Me", style: .destructive) { _ in

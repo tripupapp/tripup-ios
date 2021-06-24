@@ -27,7 +27,8 @@ extension Data {
             kCGImageSourceShouldCacheImmediately: true      // when creating thumbnail, at that exact moment, create the decoded image buffer
         ] as CFDictionary
         guard let scaledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, thumbnailOptions as CFDictionary) else {
-            fatalError("unable to create thumbnail image")
+            assertionFailure("unable to create thumbnail image")
+            return nil
         }
 
         let data = NSMutableData()

@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import ImageIO
-import MobileCoreServices.UTCoreTypes
 import struct AVFoundation.AVFileType
 
 protocol AssetOperationResult {
@@ -53,7 +51,7 @@ extension AssetManager {
         }
 
         fileprivate func tempURLForEncryptedItem(physicalAsset asset: AssetManager.MutablePhysicalAsset) -> URL {
-            let filename = "\(asset.filename)_\(String(describing: asset.quality).lowercased())"
+            let filename = "\(asset.uuid.string)_\(String(describing: asset.quality).lowercased())"
             return Globals.Directories.tmp.appendingPathComponent(filename, isDirectory: false)
         }
     }
@@ -102,57 +100,72 @@ extension AssetManager {
             let dispatchGroup = DispatchGroup()
 
             for asset in assets {
-                guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) else {
+                guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) || asset.md5 == nil else {
                     continue
                 }
 
-                guard let localID = asset.localIdentifier else {
+                guard let localIdentifier = asset.localIdentifier else {
                     log.error("\(asset.uuid.string): no localIdentifier found. Terminating...")
                     error = error ?? .fatal
-                    break
+                    return
                 }
 
                 dispatchGroup.enter()
-                delegate.requestIOSAsset(withLocalID: localID, callbackOn: .global(qos: .utility)) { (iosAsset) in
-                    guard let iosAsset = iosAsset else {
-                        self.log.error("\(asset.uuid.string): unable to find PHAsset! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
-                        error = error ?? .fatal
-                        dispatchGroup.leave()
-                        return
-                    }
-
+                delegate.photoLibrary.fetchAsset(withLocalIdentifier: localIdentifier, callbackOn: .global(qos: .utility)) { phAsset in
                     guard !self.isCancelled else {
                         error = error ?? .notRun
                         dispatchGroup.leave()
                         return
                     }
-
-                    let (data, imageUTI) = self.delegate.requestImageDataFromIOS(with: iosAsset)
-                    guard let imageData = data else {
-                        self.log.error("\(asset.uuid.string): failed to retrieve PHAsset data from PHImageManager. Terminating.... – PHAssetID: \(localID)")
+                    guard let phAsset = phAsset else {
+                        self.log.error("\(asset.uuid.string): unable to find PHAsset! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
                         error = error ?? .fatal
                         dispatchGroup.leave()
                         return
                     }
-
-                    // duplicate detection, based on md5 of data
-                    let md5 = imageData.md5()
-                    self.delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
-                        if let candidateAsset = candidateAsset {
-                            self.delegate.save(localIdentifier: localID, forAsset: candidateAsset)
-                            self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(localID)")
-                            error = error ?? .fatal     // terminate this asset, as we've linked the image data to another asset
-                        } else {
-                            if self.delegate.write(imageData, to: asset.physicalAssets.original.localPath) {
-                                asset.md5 = md5
-                                if let imageUTI = imageUTI {
-                                    asset.originalUTI = AVFileType(imageUTI)
-                                }
-                            } else {
+                    guard let phAssetResource = self.delegate.photoLibrary.resource(forPHAsset: phAsset, type: asset.type) else {
+                        self.log.error("\(asset.uuid.string): unable to find PHAssetResource! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
+                        error = error ?? .fatal
+                        dispatchGroup.leave()
+                        return
+                    }
+                    let uti = AVFileType(phAssetResource.uniformTypeIdentifier)
+                    if uti.isCrossCompatible {
+                        guard let tempURL = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
+                            error = error ?? .recoverable
+                            dispatchGroup.leave()
+                            return
+                        }
+                        self.delegate.photoLibrary.write(resource: phAssetResource, toURL: tempURL) { (success) in
+                            guard success else {
                                 error = error ?? .recoverable
+                                dispatchGroup.leave()
+                                return
+                            }
+                            self.join(asset: asset, toTempURL: tempURL, uti: uti) { (returnedError) in
+                                error = error ?? returnedError
+                                dispatchGroup.leave()
                             }
                         }
-                        dispatchGroup.leave()
+                    } else {
+                        switch asset.type {
+                        case .photo:
+                            fatalError(asset.type.rawValue)  // TODO
+                        case .video:
+                            self.delegate.photoLibrary.transcodeVideoToMP4(forPHAsset: phAsset) { (output) in
+                                guard let tempURL = output?.0, let uti = output?.1 else {
+                                    error = error ?? .recoverable
+                                    dispatchGroup.leave()
+                                    return
+                                }
+                                self.join(asset: asset, toTempURL: tempURL, uti: uti) { (returnedError) in
+                                    error = error ?? returnedError
+                                    dispatchGroup.leave()
+                                }
+                            }
+                        case .audio, .unknown:
+                            fatalError()
+                        }
                     }
                 }
             }
@@ -162,6 +175,32 @@ extension AssetManager {
                     self.finish(.failure(error))
                 } else {
                     self.finish(.success(nil))
+                }
+            }
+        }
+
+        private func join(asset: MutableAsset, toTempURL tempURL: URL, uti: AVFileType, callback: @escaping (AssetSubOperationError?) -> Void) {
+            guard let md5 = delegate.md5(ofFileAtURL: tempURL) else {
+                log.error("error calculating md5 - assetID: \(asset.uuid.string), inputURL: \(String(describing: tempURL))")
+                callback(.recoverable)
+                return
+            }
+            delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
+                if let candidateAsset = candidateAsset {
+                    self.delegate.save(localIdentifier: asset.localIdentifier, forAsset: candidateAsset)
+                    self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
+                    try? FileManager.default.removeItem(at: tempURL)
+                    callback(.fatal)    // terminate this asset, as we've linked the image data to another asset
+                } else {
+                    let url = asset.physicalAssets.original.localPath.deletingPathExtension().appendingPathExtension(uti.fileExtension ?? "")
+                    if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true)) != nil {
+                        asset.originalUTI = uti
+                        asset.md5 = md5
+                        callback(nil)
+                    } else {
+                        self.log.error("failed to move file - assetID: \(asset.uuid.string), currentURL: \(String(describing: tempURL)), destinationURL: \(String(describing: url))")
+                        callback(.recoverable)
+                    }
                 }
             }
         }
@@ -269,46 +308,40 @@ extension AssetManager {
                 guard !delegate.fileExists(at: asset.localPath) else {
                     continue
                 }
-//                NOTE: using ios for low quality image generation seems faster, but less "correct" – an image can be deleted from user library after import has started
-//                delegate.requestImageThumbnailFromIOS(assetID: asset.logicalAsset.iosAssetID!, size: asset.pixelSize, scale: 0.5) { [weak self, unowned asset = asset] (compressedData) in
-//                    guard let self = self, let delegate = self.delegate else { return }
-//                    if let compressedData = compressedData {
-//                        if delegate.write(compressedData, to: asset.localPath) {
-//                            delegate.assetManagerQueue.async { [weak self] in
-//                                guard let self = self else { return }
-//                                self.stateMachine?.enter(EncryptingData.self)
-//                                self.delegate?.notify(of: .diskWriteDone(self.asset))
-//                            }
-//                        } else {
-//                            delegate.assetManagerQueue.async { [weak self] in
-//                                guard let self = self else { return }
-//                                self.stateMachine?.enter(RecoverableError<AssetManager.MutablePhysicalAsset>.self)
-//                                self.delegate?.notify(of: .diskWriteError(self.asset))
-//                            }
-//                        }
-//                    } else {
-//                        self.log.error("\(asset.uuid.string): failed to compress original data")
-//                        delegate.assetManagerQueue.async { [weak self] in
-//                            self?.stateMachine?.enter(RecoverableError<AssetManager.MutablePhysicalAsset>.self)
-//                        }
-//                    }
-//                }
 
                 dispatchGroup.enter()
                 DispatchQueue.global(qos: .utility).async {
-                    defer {
-                        dispatchGroup.leave()
-                    }
                     guard !self.isCancelled else {
                         error = error ?? .notRun
+                        dispatchGroup.leave()
                         return
                     }
 
                     let originalPath = asset.logicalAsset.physicalAssets.original.localPath
-                    if !self.downsample(imageAt: originalPath, originalSize: asset.pixelSize, toScale: 0.5, compress: true, destination: asset.localPath) {
-                        self.log.error("\(asset.uuid.string): failed to compress original data")
-                        error = error ?? .recoverable
+                    switch asset.logicalAsset.type {
+                    case .photo:
+                        if !self.delegate.downsample(imageAt: originalPath, originalSize: asset.pixelSize, toScale: 0.5, compress: true, destination: asset.localPath) {
+                            self.log.error("\(asset.uuid.string): failed to compress original data")
+                            error = error ?? .recoverable
+                        }
+                        dispatchGroup.leave()
+                    case .video:
+                        self.delegate.compressVideo(atURL: originalPath) { (tempURL) in
+                            if let tempURL = tempURL {
+                                if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath, createIntermediateDirectories: true)) == nil {
+                                    try? FileManager.default.removeItem(at: tempURL)
+                                    error = error ?? .recoverable
+                                }
+                            } else {
+                                self.log.error("\(asset.uuid.string): failed to compress video data")
+                                error = error ?? .recoverable
+                            }
+                            dispatchGroup.leave()
+                        }
+                    case .audio, .unknown:
+                        fatalError()
                     }
+
                 }
             }
 
@@ -319,49 +352,6 @@ extension AssetManager {
                     self.finish(.success(nil))
                 }
             }
-        }
-
-        /*
-            https://nshipster.com/image-resizing/#cgimagesourcecreatethumbnailatindex
-            https://developer.apple.com/videos/play/wwdc2018/219/
-         */
-        private func downsample(imageAt imageSourceURL: URL, originalSize size: CGSize, toScale scale: CGFloat, compress: Bool, destination imageDestinationURL: URL) -> Bool {
-            let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary     // don't decode source image, just create CGImageSource that represents the data
-            guard let imageSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, imageSourceOptions) else {
-                assertionFailure()
-                return false
-            }
-
-            let thumbnailOptions = [
-                kCGImageSourceThumbnailMaxPixelSize: Swift.max(size.width, size.height) * scale,
-                kCGImageSourceCreateThumbnailFromImageAlways: true,
-                kCGImageSourceCreateThumbnailWithTransform: true,
-                kCGImageSourceShouldCacheImmediately: false      // don't decode destination thumbnail image – no need as we're writing it to disk
-            ] as CFDictionary
-            guard let scaledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, thumbnailOptions as CFDictionary) else {
-                assertionFailure("unable to create thumbnail image")
-                return false
-            }
-
-            let imageDestinationAttempt = CGImageDestinationCreateWithURL(imageDestinationURL as CFURL, kUTTypeJPEG, 1, nil)
-            if imageDestinationAttempt == nil {
-                log.verbose("create parent directory and try again")    // e.g. asset ownerid folder
-                do {
-                    try FileManager.default.createDirectory(at: imageDestinationURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
-                } catch {
-                    log.error("error creating parent directory – directory: \(imageDestinationURL.deletingLastPathComponent()), error: \(String(describing: error))")
-                    return false
-                }
-            }
-            guard let imageDestination = imageDestinationAttempt ?? CGImageDestinationCreateWithURL(imageDestinationURL as CFURL, kUTTypeJPEG, 1, nil) else {
-                log.error("unable to create image destination - sourceURL: \(imageSourceURL), destinationURL: \(imageDestinationURL)")
-                assertionFailure()
-                return false
-            }
-            let imageDestinationOptions = compress ? [kCGImageDestinationLossyCompressionQuality as String: 0.0] as CFDictionary : nil  // maximum compression, if compression is used
-            CGImageDestinationAddImage(imageDestination, scaledImage, imageDestinationOptions)
-
-            return CGImageDestinationFinalize(imageDestination)
         }
     }
 
@@ -380,37 +370,21 @@ extension AssetManager {
                 guard asset.remotePath == nil else {
                     continue
                 }
-                guard let data = delegate.load(asset.localPath) else {
-                    error = error ?? .recoverable
-                    break
-                }
 
                 dispatchGroup.enter()
-                delegate.keychainQueue.async {
-                    guard let assetKey = self.delegate.key(for: asset.logicalAsset) else {
-                        error = error ?? .recoverable
+                switch asset.logicalAsset.type {
+                case .photo:
+                    encryptPhoto(asset: asset) { (returnedError) in
+                        error = error ?? returnedError
                         dispatchGroup.leave()
-                        return
                     }
-                    DispatchQueue.global(qos: .utility).async {
-                        // must drain autoreleasepool after each encrypt/decrypt, because Crypto PGP framework uses NSData. Without this, memory usage will accumulate over time (memory leak)
-                        autoreleasepool {
-                            defer {
-                                dispatchGroup.leave()
-                            }
-                            guard !self.isCancelled else {
-                                error = error ?? .notRun
-                                return
-                            }
-
-                            let encryptedData = assetKey.encrypt(data)
-
-                            if !self.delegate.write(encryptedData, to: self.tempURLForEncryptedItem(physicalAsset: asset)) {
-                                self.log.error("\(asset.uuid.string): failed to write encrypted data")
-                                error = error ?? .recoverable
-                            }
-                        }
+                case .video:
+                    encryptVideo(asset: asset) { (returnedError) in
+                        error = error ?? returnedError
+                        dispatchGroup.leave()
                     }
+                case .audio, .unknown:
+                    fatalError()
                 }
             }
 
@@ -419,6 +393,63 @@ extension AssetManager {
                     self.finish(.failure(error))
                 } else {
                     self.finish(.success(nil))
+                }
+            }
+        }
+
+        // TODO: make default way for all types
+        private func encryptVideo(asset: MutablePhysicalAsset, callback: @escaping (AssetSubOperationError?) -> Void) {
+            delegate.keychainQueue.async { [weak self] in
+                guard let self = self, let assetKey = self.delegate.key(for: asset.logicalAsset) else {
+                    callback(.recoverable)
+                    return
+                }
+                DispatchQueue.global(qos: .utility).async {
+                    // 500 KB chunk size for videos
+                    guard let encryptedURL = assetKey.encrypt(fileAtURL: asset.localPath, chunkSize: 500000, outputFilename: asset.uuid.string) else {
+                        callback(.recoverable)
+                        return
+                    }
+                    do {
+                        try FileManager.default.moveItem(at: encryptedURL, to: self.tempURLForEncryptedItem(physicalAsset: asset), createIntermediateDirectories: true)
+                        callback(nil)
+                    } catch {
+                        self.log.error(String(describing: error))
+                        assertionFailure()
+                        try? FileManager.default.removeItem(at: encryptedURL)
+                        callback(.recoverable)
+                    }
+                }
+            }
+        }
+
+        private func encryptPhoto(asset: MutablePhysicalAsset, callback: @escaping (AssetSubOperationError?) -> Void) {
+            guard let data = delegate.load(asset.localPath) else {
+                callback(.recoverable)
+                return
+            }
+            delegate.keychainQueue.async {
+                guard let assetKey = self.delegate.key(for: asset.logicalAsset) else {
+                    callback(.recoverable)
+                    return
+                }
+                DispatchQueue.global(qos: .utility).async {
+                    // must drain autoreleasepool after each encrypt/decrypt, because Crypto PGP framework uses NSData. Without this, memory usage will accumulate over time (memory leak)
+                    autoreleasepool {
+                        guard !self.isCancelled else {
+                            callback(.notRun)
+                            return
+                        }
+
+                        let encryptedData = assetKey.encrypt(data)
+
+                        if !self.delegate.write(encryptedData, to: self.tempURLForEncryptedItem(physicalAsset: asset)) {
+                            self.log.error("\(asset.uuid.string): failed to write encrypted data")
+                            callback(.recoverable)
+                        } else {
+                            callback(nil)
+                        }
+                    }
                 }
             }
         }
@@ -538,31 +569,22 @@ extension AssetManager {
                 }
 
                 let fileSource = tempURLForEncryptedItem(physicalAsset: asset)
-                guard let encryptedData = delegate.load(fileSource), let assetKey = delegate.key(for: asset.logicalAsset) else {
-                    log.error("\(asset.uuid.string): preconditions failed")
-                    error = error ?? .recoverable
-                    break
-                }
-
                 dispatchGroup.enter()
-                DispatchQueue.global(qos: .utility).async {
-                    // must drain autoreleasepool after each encrypt/decrypt, because Crypto PGP framework uses NSData. Without this, memory usage will accumulate over time (memory leak)
-                    autoreleasepool {
-                        defer {
-                            dispatchGroup.leave()
-                        }
-                        guard let data = try? assetKey.decrypt(encryptedData) else {
-                            self.log.error("\(asset.uuid.string): failed to decrypt data")
-                            error = error ?? .recoverable
-                            return
-                        }
-                        if self.delegate.write(data, to: asset.localPath) {
-                            self.delegate.delete(resourceAt: fileSource)
-                        } else {
-                            self.log.error("\(asset.uuid.string): failed to write decrypted data to disk")
-                            error = error ?? .recoverable
-                        }
+                switch asset.logicalAsset.type {
+                case .photo:
+                    decryptPhoto(asset: asset, fileSource: fileSource) { (returnedError) in
+                        try? FileManager.default.removeItem(at: fileSource)
+                        error = error ?? returnedError
+                        dispatchGroup.leave()
                     }
+                case .video:
+                    decryptVideo(asset: asset, fileSource: fileSource) { (returnedError) in
+                        try? FileManager.default.removeItem(at: fileSource)
+                        error = error ?? returnedError
+                        dispatchGroup.leave()
+                    }
+                case .audio, .unknown:
+                    fatalError()
                 }
             }
 
@@ -571,6 +593,63 @@ extension AssetManager {
                     self.finish(.failure(error))
                 } else {
                     self.finish(.success(nil))
+                }
+            }
+        }
+
+        // TODO: make default way for all file types
+        private func decryptVideo(asset: MutablePhysicalAsset, fileSource: URL, callback: @escaping (AssetSubOperationError?) -> Void) {
+            delegate.keychainQueue.async { [weak self] in
+                guard let self = self, let assetKey = self.delegate.key(for: asset.logicalAsset) else {
+                    callback(.recoverable)
+                    return
+                }
+                DispatchQueue.global(qos: .utility).async {
+                    // 500 KB chunk size for videos
+                    if let url = assetKey.decrypt(fileAtURL: fileSource, chunkSize: 500000) {
+                        do {
+                            try FileManager.default.moveItem(at: url, to: asset.localPath, createIntermediateDirectories: true)
+                            callback(nil)
+                        } catch {
+                            self.log.error(String(describing: error))
+                            assertionFailure()
+                            try? FileManager.default.removeItem(at: url)
+                            callback(.recoverable)
+                        }
+                    } else {
+                        callback(.recoverable)
+                    }
+                }
+            }
+        }
+
+        private func decryptPhoto(asset: MutablePhysicalAsset, fileSource: URL, callback: @escaping (AssetSubOperationError?) -> Void) {
+            guard let encryptedData = delegate.load(fileSource) else {
+                log.error("\(asset.uuid.string): unable to load file - fileSource: \(String(describing: fileSource))")
+                callback(.recoverable)
+                return
+            }
+            delegate.keychainQueue.async { [weak self] in
+                guard let self = self, let assetKey = self.delegate.key(for: asset.logicalAsset) else {
+                    callback(.recoverable)
+                    return
+                }
+
+                DispatchQueue.global(qos: .utility).async {
+                    // must drain autoreleasepool after each encrypt/decrypt, because Crypto PGP framework uses NSData. Without this, memory usage will accumulate over time (memory leak)
+                    autoreleasepool {
+                        guard let data = try? assetKey.decrypt(encryptedData) else {
+                            self.log.error("\(asset.uuid.string): failed to decrypt data")
+                            callback(.recoverable)
+                            return
+                        }
+                        if self.delegate.write(data, to: asset.localPath) {
+                            callback(nil)
+                        } else {
+                            self.log.error("\(asset.uuid.string): failed to write decrypted data to disk")
+                            callback(.recoverable)
+                        }
+                    }
                 }
             }
         }

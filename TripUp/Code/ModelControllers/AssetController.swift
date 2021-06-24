@@ -14,6 +14,7 @@ protocol AssetFinder {
 }
 
 protocol AssetController: AnyObject, AssetFinder {
+    func localIdentifier(forAsset asset: Asset, callback: @escaping (String?) -> Void)
     func assetIDlocalIDMap(callback: @escaping ([UUID: String]) -> Void)
     func remove<T>(assets: T) where T: Collection, T.Element == Asset
     func remove<T>(assets: T) where T: Collection, T.Element == AssetManager.MutableAsset
@@ -76,9 +77,11 @@ extension ModelController {
                 let assets: [(Asset, String)] = newPHAssets.map { asset in
                     return (Asset(
                         uuid: UUID(),   // FIXME: check uuid isn't already taken
+                        type: AssetType(iosMediaType: asset.mediaType),
                         ownerID: self.primaryUserID,
                         creationDate: asset.creationDate,
                         location: TULocation(asset.location),
+                        duration: asset.duration == 0 ? nil : asset.duration,
                         pixelSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight),
                         imported: false
                     ), asset.localIdentifier)
@@ -191,6 +194,7 @@ extension ModelController {
                     var md5: Data!
                     var creationDate: Date?
                     var location: TULocation?
+                    var duration: TimeInterval?
                     autoreleasepool {
                         do {
                             let keyString = try decryptionKeyPair.0.decrypt(keyData, signedByOneOf: decryptionKeyPair.1).0
@@ -225,6 +229,15 @@ extension ModelController {
                                     assertionFailure()
                                 }
                             }
+                            if let durationString = assetData["duration"] as? String {
+                                let durationStringDecrypted = try assetKey.decrypt(durationString, signedBy: assetKey)
+                                if let durationInterval = TimeInterval(durationStringDecrypted) {
+                                    duration = durationInterval
+                                } else {
+                                    self.log.error("invalid duration string - assetID: \(id), durationString: \(durationStringDecrypted)")
+                                    assertionFailure()
+                                }
+                            }
                         } catch {
                             self.log.error("assetID: \(id), assetData: \(assetData), error: \(String(describing: error))")
                             assertionFailure()
@@ -237,7 +250,8 @@ extension ModelController {
                         "key": assetKey,
                         "md5": md5,
                         "createdate": creationDate,
-                        "location": location
+                        "location": location,
+                        "duration": duration
                     ]
                 }
                 assert(newAssetIDs.count == decryptedData.count)
@@ -334,6 +348,21 @@ extension ModelController: AssetFinder {
 }
 
 extension ModelController: AssetController {
+    func localIdentifier(forAsset asset: Asset, callback: @escaping (String?) -> Void) {
+        databaseQueue.async { [weak self] in
+            var localIdentifier: String?
+            do {
+                localIdentifier = try self?.assetDatabase.localIdentifier(forAssetID: asset.uuid)
+            } catch {
+                self?.log.error(String(describing: error))
+                assertionFailure()
+            }
+            DispatchQueue.global().async {
+                callback(localIdentifier)
+            }
+        }
+    }
+
     func assetIDlocalIDMap(callback: @escaping ([UUID: String]) -> Void) {
         databaseQueue.async { [weak self] in
             let idMap = self?.assetIDlocalIDMap

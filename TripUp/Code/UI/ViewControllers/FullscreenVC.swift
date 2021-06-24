@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import AVFoundation.AVPlayer
+import CoreMedia.CMTime
 import UIKit
 
 protocol FullscreenViewTransitionDelegate {
@@ -15,9 +17,9 @@ protocol FullscreenViewTransitionDelegate {
 }
 
 protocol FullscreenViewDelegate: class {
+    var fullscreenViewController: FullscreenViewController? { get set }
     var modelCount: Int { get }
     var modelIsEmpty: Bool { get }
-    var ownerLabel: UILabel? { get set }
     var bottomToolbarItems: [UIBarButtonItem]? { get }
     func fullsizeOfItem(at index: Int) -> CGSize
     func configure(cell: FullscreenViewCell, forItemAt index: Int)
@@ -32,13 +34,35 @@ protocol FullscreenViewDelegate: class {
 class FullscreenViewController: UIViewController {
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var presentingImageView: UIImageView!
+    @IBOutlet var presentingPlayerView: AVPlayerView!
     @IBOutlet var overlayViews: [UIView]!
     @IBOutlet var ownerLabel: UILabel!
+    @IBOutlet var avControlsView: AVControlsView!
     @IBOutlet var bottomToolbar: UIToolbar!
 
     var delegate: FullscreenViewDelegate!
     var onDismiss: (() -> Void)?
+
+    private lazy var playButtonImage: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage(systemName: "play.fill")
+        } else {
+            return UIImage(named: "play")
+        }
+    }()
+    private lazy var pauseButtonImage: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage(systemName: "pause.fill")
+        } else {
+            return UIImage(named: "pause")
+        }
+    }()
     private var initialIndex: Int!
+    private var avPlayerPlayPauseObserver: NSKeyValueObservation?
+    private var avPlayerPlaytimeObserver: (AVPlayer, Any)?
+    private var avPlayerStatusObserver: NSKeyValueObservation?
+    private var avPlayerSeeking = false
+    private var avPlayerChaseTime: CMTime = .zero
     private var presenter: FullscreenViewTransitionDelegate?
     private var hideStatusBar: Bool = true {
         didSet {
@@ -55,6 +79,8 @@ class FullscreenViewController: UIViewController {
 
         self.modalPresentationStyle = .overFullScreen
         self.modalPresentationCapturesStatusBarAppearance = true
+
+        delegate.fullscreenViewController = self
     }
 
     func assertDependencies() {
@@ -84,10 +110,30 @@ class FullscreenViewController: UIViewController {
 
         ownerLabel.layer.cornerRadius = 5.0
         ownerLabel.layer.masksToBounds = true
-        delegate.ownerLabel = ownerLabel
 
         overlayViews.forEach{ $0.isHidden = false }
         overlayViews.forEach{ $0.alpha = 0.0 }
+
+        // generate scrubber thumb circle image (thumbImage is only set from storyboard if colours changed from default values)
+        if let defaultThumbHeight = avControlsView.scrubber.thumbImage(for: .normal)?.size.height {
+            let height = defaultThumbHeight / 2
+            let thumbView = UIView()
+            thumbView.backgroundColor = .white
+            thumbView.frame = CGRect(x: 0, y: height / 2, width: height, height: height)
+            thumbView.layer.cornerRadius = height / 2
+            let renderer = UIGraphicsImageRenderer(bounds: thumbView.bounds)
+            let resizedImage = renderer.image { rendererContext in
+                thumbView.layer.render(in: rendererContext.cgContext)
+            }
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .application)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .disabled)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .focused)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .highlighted)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .normal)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .reserved)
+            avControlsView.scrubber.setThumbImage(resizedImage, for: .selected)
+            avControlsView.scrubber.value = 0
+        }
 
         if #available(iOS 13.0, *) {
             let toolbarAppearance = UIToolbarAppearance()
@@ -138,7 +184,16 @@ class FullscreenViewController: UIViewController {
                 }
                 self.presentingImageView.isHidden = true
                 self.collectionView.isHidden = false
+                self.configureOverlayViews(forIndexPath: IndexPath(item: self.initialIndex, section: 0))
             }
+        } else {
+            configureOverlayViews(forIndexPath: IndexPath(item: initialIndex, section: 0))
+        }
+    }
+
+    deinit {
+        if let avPlayerPlaytimeObserver = avPlayerPlaytimeObserver {
+            avPlayerPlaytimeObserver.0.removeTimeObserver(avPlayerPlaytimeObserver.1)
         }
     }
 
@@ -181,6 +236,38 @@ class FullscreenViewController: UIViewController {
         }
     }
 
+    @IBAction func playPauseAction(_ sender: UIButton) {
+        guard let cell = collectionView.visibleCells.first as? FullscreenViewCell, let player = cell.avPlayerView.player else {
+            return
+        }
+        switch player.timeControlStatus {
+        case .playing:
+            player.pause()
+        case .paused:
+            let currentItem = player.currentItem
+            if currentItem?.currentTime() == currentItem?.duration {
+                currentItem?.seek(to: .zero, completionHandler: nil)
+            }
+            player.play()
+        default:
+            player.pause()
+        }
+    }
+
+    @IBAction func scrubberDidChange(_ sender: UISlider) {
+        guard let cell = collectionView.visibleCells.first as? FullscreenViewCell, let player = cell.avPlayerView.player else {
+            return
+        }
+        player.pause()
+        let newTime = CMTime(seconds: Double(sender.value), preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        if CMTimeCompare(newTime, avPlayerChaseTime) != 0 {
+            avPlayerChaseTime = newTime
+            if !avPlayerSeeking {
+                seek(player: player)
+            }
+        }
+    }
+
     @IBAction func toggleOverlay(_ sender: Any) {
         UIView.animate(withDuration: 0.3) {
             if let alpha: CGFloat = self.overlayViews.first?.alpha == 1.0 ? 0.0 : 1.0 {
@@ -199,8 +286,13 @@ class FullscreenViewController: UIViewController {
         collectionView.performBatchUpdates({
             collectionView.insertItems(at: indexPaths)
         }) { [weak self] success in
-            if success, let self = self, self.delegate.modelIsEmpty {
+            guard let self = self, success else {
+                return
+            }
+            if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
+            } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
+                self.configureOverlayViews(forIndexPath: currentIndexPath)
             }
         }
     }
@@ -210,8 +302,13 @@ class FullscreenViewController: UIViewController {
         collectionView.performBatchUpdates({
             collectionView.deleteItems(at: indexPaths)
         }) { [weak self] success in
-            if success, let self = self, self.delegate.modelIsEmpty {
+            guard let self = self, success else {
+                return
+            }
+            if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
+            } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
+                self.configureOverlayViews(forIndexPath: currentIndexPath)
             }
         }
     }
@@ -221,28 +318,114 @@ class FullscreenViewController: UIViewController {
         collectionView.performBatchUpdates({
             collectionView.moveItem(at: indexPath, to: indexPath)
         }) { [weak self] success in
-            if success, let self = self, self.delegate.modelIsEmpty {
+            guard let self = self, success else {
+                return
+            }
+            if self.delegate.modelIsEmpty {
                 self.dismiss(animated: true, completion: nil)
+            } else if let currentIndexPath = self.collectionView.indexPathsForVisibleItems.first {
+                self.configureOverlayViews(forIndexPath: currentIndexPath)
             }
         }
+    }
+
+    // usually called after cell has loaded (after cellForItemAt method). Note that cell contents loaded asynchronously might not be ready yet
+    private func configureOverlayViews(forIndexPath indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell
+        avPlayerPlayPauseObserver = nil
+        if let avPlayerPlaytimeObserver = avPlayerPlaytimeObserver {
+            avPlayerPlaytimeObserver.0.removeTimeObserver(avPlayerPlaytimeObserver.1)
+        }
+        avPlayerPlaytimeObserver = nil
+        avPlayerStatusObserver = nil
+        avControlsView.playPauseButton.setImage(playButtonImage, for: .normal)
+        avControlsView.scrubber.value = 0
+        avControlsView.scrubber.maximumValue = 0
+        avControlsView.isUserInteractionEnabled = false
+        if let avPlayer = cell?.avPlayerView.player {
+            avPlayerPlayPauseObserver = avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self, weak cell] (avPlayer, _) in
+                precondition(Thread.isMainThread)
+                guard avPlayer === cell?.avPlayerView.player else {
+                    return
+                }
+                var image: UIImage?
+                switch avPlayer.timeControlStatus {
+                case .playing:
+                    image = self?.pauseButtonImage
+                case .paused, .waitingToPlayAtSpecifiedRate:
+                    image = self?.playButtonImage
+                @unknown default:
+                    image = self?.pauseButtonImage
+                }
+                self?.avControlsView.playPauseButton.setImage(image, for: .normal)
+            }
+            let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+            avPlayerPlaytimeObserver = (avPlayer, avPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self, weak cell, weak avPlayer] time in
+                guard let avPlayer = avPlayer, avPlayer === cell?.avPlayerView.player else {
+                    return
+                }
+                // don't run if user is changing the scrubber or if playerItem is not ready to play yet
+                guard let self = self, !self.avControlsView.scrubber.isTracking, avPlayer.currentItem?.status == .some(.readyToPlay) else {
+                    return
+                }
+                let value = time.seconds
+                self.avControlsView.scrubber.setValue(Float(value), animated: true)
+            })
+            avPlayerStatusObserver = avPlayer.observe(\.currentItem?.status, options: [.initial, .new]) { [weak self, weak cell] (avPlayer, _) in
+                precondition(Thread.isMainThread)
+                guard avPlayer === cell?.avPlayerView.player else {
+                    return
+                }
+                guard let currentItem = avPlayer.currentItem else {
+                    return
+                }
+                switch currentItem.status {
+                case .failed:
+                    self?.avControlsView.isUserInteractionEnabled = false
+                    self?.view.makeToastie("failed to load video", duration: 7.5)   // TODO: some other way of showing video load failure
+                case .readyToPlay:
+                    self?.avControlsView.isUserInteractionEnabled = true
+                    if CMTIME_IS_VALID(currentItem.duration), self?.avControlsView.scrubber.maximumValue == 0 {
+                        self?.avControlsView.scrubber.maximumValue = Float(currentItem.duration.seconds)
+                        self?.avControlsView.scrubber.value = 0
+                    }
+                    avPlayer.play()
+                case .unknown:
+                    self?.avControlsView.isUserInteractionEnabled = false
+                @unknown default:
+                    assertionFailure()
+                    self?.avControlsView.isUserInteractionEnabled = false
+                }
+            }
+        }
+        delegate.configureOverlayViews(forItemAt: indexPath.item)
     }
 
     private func dismiss(indexPath: IndexPath, withCell cell: FullscreenViewCell) {
         hideStatusBar = false
         if let presenter = presenter {
             let targetFrame = presenter.transitioning(to: indexPath.item)
-            presentingImageView.frame = frame(forSize: delegate.fullsizeOfItem(at: indexPath.item))
-            presentingImageView.center = cell.contentView.center
-            presentingImageView.image = cell.imageView.image
-            presentingImageView.isHidden = false
+            var presentingView: UIView!
+            if let player = cell.avPlayerView.player {
+                presentingPlayerView.player = player
+                presentingPlayerView.player?.pause()
+                presentingPlayerView.fill()
+                presentingView = presentingPlayerView
+            } else {
+                presentingImageView.image = cell.imageView.image
+                presentingView = presentingImageView
+            }
+            presentingView.frame = frame(forSize: delegate.fullsizeOfItem(at: indexPath.item))
+            presentingView.center = cell.contentView.center
+            presentingView.isHidden = false
             collectionView.isHidden = true
             overlayViews.forEach{ $0.isHidden = true }
             UIView.animate(withDuration: 0.2, animations: {
                 self.view.backgroundColor = .clear
-                self.presentingImageView.frame = targetFrame
+                presentingView.frame = targetFrame
             }) { _ in
                 UIView.animate(withDuration: 0.2, animations: {
-                    self.presentingImageView.alpha = 0
+                    presentingView.alpha = 0
                 }, completion: { _ in
                     self.dismiss(animated: false, completion: self.onDismiss)
                 })
@@ -266,6 +449,22 @@ class FullscreenViewController: UIViewController {
             centeredFrame = CGRect(x: x, y: 0, width: screenBounds.size.width - (2 * x), height: screenBounds.size.height)
         }
         return centeredFrame
+    }
+
+    // https://developer.apple.com/library/archive/qa/qa1820/_index.html
+    private func seek(player: AVPlayer) {
+        avPlayerSeeking = true
+        let seekTimeInProgress = avPlayerChaseTime
+        player.seek(to: seekTimeInProgress, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] (_) in
+            guard let self = self else {
+                return
+            }
+            if CMTimeCompare(seekTimeInProgress, self.avPlayerChaseTime) == 0 {
+                self.avPlayerSeeking = false
+            } else {
+                self.seek(player: player)
+            }
+        }
     }
 }
 
@@ -298,19 +497,26 @@ extension FullscreenViewController: UICollectionViewDataSourcePrefetching {
 }
 
 extension FullscreenViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        delegate.configureOverlayViews(forItemAt: indexPath.item)
-    }
-
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let cell = cell as! FullscreenViewCell
         cell.scrollView.zoomScale = 1.0
+        cell.avPlayerView.player?.pause()
+        cell.avPlayerView.player?.currentItem?.seek(to: .zero, completionHandler: nil)
+    }
+
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        let center = CGPoint(x: targetContentOffset.pointee.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
+        if let indexPath = collectionView.indexPathForItem(at: center) {
+            configureOverlayViews(forIndexPath: indexPath)
+        }
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let center = CGPoint(x: scrollView.contentOffset.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
-        if let indexPath = collectionView.indexPathForItem(at: center) {
-            delegate.configureOverlayViews(forItemAt: indexPath.item)
+        if let indexPath = collectionView.indexPathForItem(at: center), let cell = collectionView.cellForItem(at: indexPath) as? FullscreenViewCell {
+            if let avPlayer = cell.avPlayerView.player, let avPlayerItemStatus = avPlayer.currentItem?.status, avPlayerItemStatus == .readyToPlay {
+                avPlayer.play()
+            }
         }
     }
 }

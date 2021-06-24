@@ -145,8 +145,10 @@ extension PhotoViewDelegate: UICollectionViewDataSource {
         if #available(iOS 13.0, *), let image = UIImage(systemName: "eye") {
             cell.shareIcon.image = image
         }
+        cell.durationLabel.text = asset.duration?.formattedString
         cell.shareIcon.isHidden = !shared
-        cell.gradientView.isHidden = cell.allIconsHidden
+        cell.topGradient.isHidden = cell.topIconsHidden
+        cell.bottomGradient.isHidden = cell.bottomIconsHidden
         if asset.ownerID == primaryUserID {
             if #available(iOS 13.0, *) {
                 cell.shareActionIcon.image = UIImage(systemName: "eye")

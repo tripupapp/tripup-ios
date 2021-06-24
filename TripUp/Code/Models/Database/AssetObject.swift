@@ -11,11 +11,13 @@ import RealmSwift
 
 @objcMembers final class AssetObject: Object {
     dynamic var uuid: String = ""
+    dynamic var type: String = ""
     dynamic var ownerID: String = ""
     dynamic var creationDate: Date? = nil
     let latitude = RealmOptional<Double>()
     let longitude = RealmOptional<Double>()
     let altitude = RealmOptional<Double>()
+    let duration = RealmOptional<Double>()
     dynamic var pixelWidth: Int = 0
     dynamic var pixelHeight: Int = 0
     dynamic var fingerprint: String? = nil
@@ -44,11 +46,13 @@ import RealmSwift
     convenience init(_ asset: Asset) {
         self.init()
         self.uuid = asset.uuid.string
+        self.type = asset.type.rawValue
         self.ownerID = asset.ownerID.string
         self.creationDate = asset.creationDate
         self.latitude.value = asset.location?.latitude
         self.longitude.value = asset.location?.longitude
         self.altitude.value = asset.location?.altitude
+        self.duration.value = asset.duration
         self.pixelWidth = Int(asset.pixelSize.width)
         self.pixelHeight = Int(asset.pixelSize.height)
         self.imported = asset.imported
@@ -69,12 +73,12 @@ import RealmSwift
 extension AssetObject {
     convenience init?(id: UUID, assetData: [String: Any], decryptedAssetData: [String: Any?]) {
         // server data response check
-        guard let ownerIDstring = assetData["ownerid"] as? String, let pixelWidth = assetData["pixelwidth"] as? Int, let pixelHeight = assetData["pixelheight"] as? Int, let remotePathLow = assetData["remotepath"] as? String else {
+        guard let type = assetData["type"] as? String, let ownerIDstring = assetData["ownerid"] as? String, let pixelWidth = assetData["pixelwidth"] as? Int, let pixelHeight = assetData["pixelheight"] as? Int, let remotePathLow = assetData["remotepath"] as? String else {
             assertionFailure("invalid JSON response – assetID: \(id.string)")
             return nil
         }
         // valid data check
-        guard UUID(uuidString: ownerIDstring) != nil, pixelWidth != 0, pixelHeight != 0, URL(string: remotePathLow) != nil else {
+        guard AssetType(rawValue: type) != nil, UUID(uuidString: ownerIDstring) != nil, pixelWidth != 0, pixelHeight != 0, URL(string: remotePathLow) != nil else {
             assertionFailure("invalid server data – assetID: \(id.string)")
             return nil
         }
@@ -89,14 +93,17 @@ extension AssetObject {
         }
         let creationDate = decryptedAssetData["createdate"] as? Date
         let location = decryptedAssetData["location"] as? TULocation
+        let duration = decryptedAssetData["duration"] as? TimeInterval
 
         self.init()
         self.uuid = id.string
+        self.type = type
         self.ownerID = ownerIDstring
         self.creationDate = creationDate
         self.latitude.value = location?.latitude
         self.longitude.value = location?.longitude
         self.altitude.value = location?.altitude
+        self.duration.value = duration
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
         self.fingerprint = assetKey.fingerprint
