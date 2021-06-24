@@ -259,7 +259,7 @@ class FullscreenViewController: UIViewController {
             return
         }
         player.pause()
-        let newTime = CMTime(seconds: Double(sender.value), preferredTimescale: player.currentTime().timescale)
+        let newTime = CMTime(seconds: Double(sender.value), preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         if CMTimeCompare(newTime, avPlayerChaseTime) != 0 {
             avPlayerChaseTime = newTime
             if !avPlayerSeeking {
