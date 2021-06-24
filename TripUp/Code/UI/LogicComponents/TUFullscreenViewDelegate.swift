@@ -117,6 +117,9 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
                 guard cell.assetID == asset.uuid, let resultInfo = resultInfo else {
                     return
                 }
+                guard cell.avPlayerView.player?.currentItem == nil else {
+                    return  // don't load image when a video (AVPlayerItem) has already loaded
+                }
                 if resultInfo.final {
                     if let image = image {
                         if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
@@ -156,6 +159,7 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
                 } else if cell.avPlayerView.player?.currentItem == nil {
                     cell.avPlayerView.player?.replaceCurrentItem(with: avPlayerItem)
                 }
+                cell.imageView.image = nil
             }
         }
     }
