@@ -2,6 +2,33 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AppConfig</key>
+	<dict>
+		<key>API_BASE_URL</key>
+		<string>API_HOST</string>
+		<key>APP_STORE_ID</key>
+		<string>1420176032</string>
+		<key>APP_STORE_URL</key>
+		<string>https://apps.apple.com/us/app/tripup-private-photo-storage/id1420176032</string>
+		<key>AWS_ASSETS_BUCKET</key>
+		<string>$(AWS_ASSETS_BUCKET)</string>
+		<key>AWS_ASSETS_BUCKET_REGION</key>
+		<string>eu-west-2</string>
+		<key>DOMAIN</key>
+		<string>https://www.tripup.app</string>
+		<key>FEDERATION_PROVIDER</key>
+		<string>securetoken.google.com/tripup-3ad66</string>
+		<key>FIREBASE_DYNAMICLINKS_DOMAIN</key>
+		<string>https://tripup.page.link</string>
+		<key>LOG_ASYNC</key>
+		<string>$(LOG_ASYNC)</string>
+		<key>ONESIGNAL_APP_ID</key>
+		<string>7cedb3de-2705-4c38-b0e2-89e4edc2fdcd</string>
+		<key>REVENUECAT_APIKEY</key>
+		<string>kPiLcetCuJsWnmOnZkmQIoCRvkipHdbO</string>
+		<key>SERVER_SCHEMA_VERSION</key>
+		<string>$(SERVER_SCHEMA_VERSION)</string>
+	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>app.tripup.importAssets</string>
@@ -100,32 +127,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>AppConfig</key>
-	<dict>
-		<key>API_BASE_URL</key>
-		<string>API_HOST</string>
-		<key>APP_STORE_ID</key>
-		<string>1420176032</string>
-		<key>APP_STORE_URL</key>
-		<string>https://apps.apple.com/us/app/tripup-private-photo-storage/id1420176032</string>
-		<key>AWS_ASSETS_BUCKET</key>
-		<string>$(AWS_ASSETS_BUCKET)</string>
-		<key>AWS_ASSETS_BUCKET_REGION</key>
-		<string>eu-west-2</string>
-		<key>DOMAIN</key>
-		<string>https://www.tripup.app</string>
-		<key>FEDERATION_PROVIDER</key>
-		<string>securetoken.google.com/tripup-3ad66</string>
-		<key>FIREBASE_DYNAMICLINKS_DOMAIN</key>
-		<string>https://tripup.page.link</string>
-		<key>LOG_ASYNC</key>
-		<string>$(LOG_ASYNC)</string>
-		<key>ONESIGNAL_APP_ID</key>
-		<string>7cedb3de-2705-4c38-b0e2-89e4edc2fdcd</string>
-		<key>REVENUECAT_APIKEY</key>
-		<string>kPiLcetCuJsWnmOnZkmQIoCRvkipHdbO</string>
-		<key>SERVER_SCHEMA_VERSION</key>
-		<string>$(SERVER_SCHEMA_VERSION)</string>
-	</dict>
 </dict>
 </plist>
