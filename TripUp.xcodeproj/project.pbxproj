@@ -165,6 +165,7 @@
 		20E7743A2327178700F2AB0C /* PhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E774392327178700F2AB0C /* PhotoViewCell.swift */; };
 		20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E8396022B92BA10098F45C /* PGPData.pb.swift */; };
 		20E84E76244E217800AB4D4A /* script-privacypolicy.txt in Resources */ = {isa = PBXBuildFile; fileRef = 20E84E75244E217800AB4D4A /* script-privacypolicy.txt */; };
+		20E89E5C2684D8D300C1DD1B /* FileSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E89E5B2684D8D300C1DD1B /* FileSystem.swift */; };
 		20E9863A250F626C00A5F6EE /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E98639250F626C00A5F6EE /* Notification.swift */; };
 		20F14AE6244EFAF000003CE2 /* eula.html in Resources */ = {isa = PBXBuildFile; fileRef = 20F14AE5244EFAF000003CE2 /* eula.html */; };
 		20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */; };
@@ -424,6 +425,7 @@
 		20E8396022B92BA10098F45C /* PGPData.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PGPData.pb.swift; sourceTree = "<group>"; };
 		20E8396122B92BA20098F45C /* PGPData.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.protobuf; path = PGPData.proto; sourceTree = "<group>"; };
 		20E84E75244E217800AB4D4A /* script-privacypolicy.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "script-privacypolicy.txt"; sourceTree = "<group>"; };
+		20E89E5B2684D8D300C1DD1B /* FileSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystem.swift; sourceTree = "<group>"; };
 		20E98639250F626C00A5F6EE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		20E98647250FBC0400A5F6EE /* WarningHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningHeaderView.swift; sourceTree = "<group>"; };
 		20E98649250FBC1D00A5F6EE /* WarningHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WarningHeaderView.xib; sourceTree = "<group>"; };
@@ -565,6 +567,7 @@
 				20764E5222AEBE8E004BFE62 /* Crypto */,
 				20435BEA21BABC6C007E4CE8 /* Database */,
 				200D846B246DB8AD00B2A793 /* EmailUtils.swift */,
+				20E89E5B2684D8D300C1DD1B /* FileSystem.swift */,
 				203A6606245488D200A3F4B4 /* Keyboard.swift */,
 				20ABFF5E22CFABAA00D38019 /* LocationManager.swift */,
 				2057B78D2306149C00F41BB2 /* Logger.swift */,
@@ -1544,6 +1547,7 @@
 				20B7F4512621FBD1004765EC /* DebugVC.swift in Sources */,
 				20168805210A546A00FA5D53 /* ContactsManager.swift in Sources */,
 				207150B823425AF700829C5D /* Database.swift in Sources */,
+				20E89E5C2684D8D300C1DD1B /* FileSystem.swift in Sources */,
 				207CF022230CB3A600ABEA6C /* PhotoViewDelegate.swift in Sources */,
 				20E9863A250F626C00A5F6EE /* Notification.swift in Sources */,
 				203A66092454906900A3F4B4 /* Toastie.swift in Sources */,

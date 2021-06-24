@@ -87,6 +87,56 @@ extension CryptoPublicKey: AsymmetricPublicKey {
         }
         return try! encryptedDataOutput.serializedData()
     }
+
+    // 100 KB default chunk size
+    func encrypt(fileAtURL url: URL, chunkSize: Int = 100000, outputFilename: String) -> URL? {
+        assert(!Thread.isMainThread)
+        guard let encryptedOutputFile = FileManager.default.uniqueTempFile(filename: outputFilename) else {
+            return nil
+        }
+        let outputWriter: CryptoWriterProtocol
+        do {
+            outputWriter = try CryptoFileWriter(encryptedOutputFile)
+        } catch {
+            assertionFailure(String(describing: error))
+            return nil
+        }
+        guard let goOutputWriter = HelperNewMobile2GoWriter(outputWriter) else {
+            assertionFailure()
+            return nil
+        }
+
+        let inputWriter: CryptoWriteCloserProtocol
+        do {
+            inputWriter = try publicKeyRing.encryptStream(goOutputWriter, plainMessageMetadata: nil, sign: nil)
+        } catch {
+            assertionFailure(String(describing: error))
+            return nil
+        }
+
+        var inputWriterError: Error?
+        FileSystem.default.processFile(atURL: url, chunkSize: chunkSize) { (data) in
+            do {
+                var dataWritten: Int = 0
+                try inputWriter.write(data, n: &dataWritten)
+            } catch {
+                assertionFailure(String(describing: error))
+                inputWriterError = error
+            }
+        }
+        guard inputWriterError == nil else {
+            try? FileManager.default.removeItem(at: encryptedOutputFile)
+            return nil
+        }
+        do {
+            try inputWriter.close()
+        } catch {
+            assertionFailure(String(describing: error))
+            try? FileManager.default.removeItem(at: encryptedOutputFile)
+            return nil
+        }
+        return encryptedOutputFile
+    }
 }
 
 // MARK: Private Key Object
@@ -194,5 +244,103 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
             }
         }
         return message!.getBinary()!
+    }
+
+    // 100 KB default chunk size
+    func decrypt(fileAtURL url: URL, chunkSize: Int = 100000) -> URL? {
+        assert(!Thread.isMainThread)
+        let inputReader: HelperMobileReaderProtocol
+        do {
+            inputReader = try CryptoFileReader(url)
+        } catch {
+            assertionFailure(String(describing: error))
+            return nil
+        }
+        guard let goInputReader = HelperNewMobile2GoReader(inputReader) else {
+            assertionFailure()
+            return nil
+        }
+
+        let privateKeyRing = self.privateKeyRing
+        defer {
+            privateKeyRing.clearPrivateParams()
+        }
+
+        let outputReader: CryptoPlainMessageReader
+        do {
+            outputReader = try privateKeyRing.decryptStream(goInputReader, verifyKeyRing: nil, verifyTime: CryptoGetUnixTime())
+        } catch {
+            print(String(describing: error))
+            assertionFailure()
+            return nil
+        }
+
+        guard let goOutputReader = HelperNewGo2MobileReader(outputReader) else {
+            assertionFailure()
+            return nil
+        }
+
+        guard let outputURL = FileManager.default.uniqueTempFile(filename: url.lastPathComponent) else {
+            assertionFailure()
+            return nil
+        }
+
+        var outputWriterError: Error?
+        FileSystem.default.write(streamData: { () -> Data? in
+            do {
+                let result = try goOutputReader.read(chunkSize)
+                return result.data
+            } catch {
+                assertionFailure(String(describing: error))
+                outputWriterError = error
+                return nil
+            }
+        }, toURL: outputURL)
+
+        guard outputWriterError == nil else {
+            try? FileManager.default.removeItem(at: outputURL)
+            return nil
+        }
+
+        return outputURL
+    }
+}
+
+fileprivate class CryptoFileWriter: NSObject {
+    let fileHandle: FileHandle
+
+    init(_ url: URL) throws {
+        FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil)
+        fileHandle = try FileHandle(forWritingTo: url)
+    }
+}
+
+extension CryptoFileWriter: CryptoWriterProtocol {
+    func write(_ data: Data?, n: UnsafeMutablePointer<Int>?) throws {
+        if let data = data {
+            fileHandle.write(data)
+            n?.pointee = data.count
+        } else {
+            n?.pointee = 0
+        }
+    }
+}
+
+fileprivate class CryptoFileReader: NSObject {
+    let fileHandle: FileHandle
+
+    init(_ url: URL) throws {
+        fileHandle = try FileHandle(forReadingFrom: url)
+    }
+}
+
+extension CryptoFileReader: HelperMobileReaderProtocol {
+    func read(_ max: Int) throws -> HelperMobileReadResult {
+        let data = fileHandle.readData(ofLength: max)
+        if let result = HelperNewMobileReadResult(data.count, data.count < max, data) {
+            return result
+        } else {
+            throw NSError(domain: "app.tripup.cryptofilereader", code: 1, userInfo: nil)
+        }
     }
 }
