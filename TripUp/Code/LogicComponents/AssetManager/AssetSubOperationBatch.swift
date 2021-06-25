@@ -193,7 +193,7 @@ extension AssetManager {
                     callback(.fatal)    // terminate this asset, as we've linked the image data to another asset
                 } else {
                     let url = asset.physicalAssets.original.localPath.deletingPathExtension().appendingPathExtension(uti.fileExtension ?? "")
-                    if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true)) != nil {
+                    if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true, overwrite: true)) != nil {
                         asset.originalUTI = uti
                         asset.md5 = md5
                         callback(nil)
@@ -328,7 +328,7 @@ extension AssetManager {
                     case .video:
                         self.delegate.compressVideo(atURL: originalPath) { (tempURL) in
                             if let tempURL = tempURL {
-                                if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath, createIntermediateDirectories: true)) == nil {
+                                if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)) == nil {
                                     try? FileManager.default.removeItem(at: tempURL)
                                     error = error ?? .recoverable
                                 }
@@ -411,7 +411,7 @@ extension AssetManager {
                         return
                     }
                     do {
-                        try FileManager.default.moveItem(at: encryptedURL, to: self.tempURLForEncryptedItem(physicalAsset: asset), createIntermediateDirectories: true)
+                        try FileManager.default.moveItem(at: encryptedURL, to: self.tempURLForEncryptedItem(physicalAsset: asset), createIntermediateDirectories: true, overwrite: true)
                         callback(nil)
                     } catch {
                         self.log.error(String(describing: error))
@@ -608,7 +608,7 @@ extension AssetManager {
                     // 500 KB chunk size for videos
                     if let url = assetKey.decrypt(fileAtURL: fileSource, chunkSize: 500000) {
                         do {
-                            try FileManager.default.moveItem(at: url, to: asset.localPath, createIntermediateDirectories: true)
+                            try FileManager.default.moveItem(at: url, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)
                             callback(nil)
                         } catch {
                             self.log.error(String(describing: error))
