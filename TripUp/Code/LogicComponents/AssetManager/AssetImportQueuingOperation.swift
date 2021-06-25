@@ -31,7 +31,7 @@ extension AssetManager {
         private unowned let operationDelegate: AssetOperationDelegate
         private let log = Logger.self
         private let batchSize = 5
-        private let concurrentImports = 3
+        private let concurrentImports = 1
 
         init(assetImportList: [UUID], operationDelegate: AssetOperationDelegate) {
             self.assetImportList = AtomicVar<[UUID]>(assetImportList)
