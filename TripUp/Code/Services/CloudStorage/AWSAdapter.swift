@@ -54,8 +54,8 @@ class AWSAdapter {
 
     private let log = Logger.self
     private let transferUtilityKey = "transfer-utility-with-advanced-options"
-    private let retryLimit = 3
-    private let timeout = 15 * 60
+    private let retryLimit = 1      // retry one time - default value is 0
+    private let timeout = 50 * 60   // 50 minute timeout - default value
     private let listenerToken = NSObject()
 
     // TODO: https://aws.amazon.com/blogs/aws/amazon-s3-path-deprecation-plan-the-rest-of-the-story/
@@ -190,12 +190,13 @@ extension AWSAdapter: DataService {
                 return nil
             }
             let s3object = AWSS3Object(bucket: bucket, identityID: task.result! as String, localURL: url)
-            let expression = AWSS3TransferUtilityUploadExpression()
-            #if DEBUG
-            #else
-            expression.setValue("STANDARD_IA", forRequestHeader: "x-amz-storage-class")
-            #endif
-            return transferUtility.uploadFile(url, bucket: s3object.bucket, key: s3object.key, contentType: "application/octet-stream", expression: expression) { [log, s3endpoint] (task, error) in
+
+            let completionAlreadyCalled = AtomicVar<Bool>(false)    // because AWS SDK sucks, so need to have this to prevent SDK from calling completion handler multiple times on (multipart) failure
+            let completionHandler: (Any, Error?) -> Void = { [log, s3endpoint] (_, error) in
+                guard !completionAlreadyCalled.value else {
+                    return
+                }
+                completionAlreadyCalled.mutate{ $0 = true }
                 if let error = error {
                     log.error("upload failed - bucket: \(s3object.bucket), key: \(s3object.key), error: \(String(describing: error))")
                     callback(nil)
@@ -205,11 +206,33 @@ extension AWSAdapter: DataService {
                     callback(publicURL)
                 }
             }
+            let attr = try? FileManager.default.attributesOfItem(atPath: url.path)
+            if let fileSize = attr?[FileAttributeKey.size] as? UInt64, fileSize >= 5242880 {    // use multipart upload for files larger than 5 MB
+                let expression = AWSS3TransferUtilityMultiPartUploadExpression()
+                #if DEBUG
+                #else
+                expression.setValue("STANDARD_IA", forRequestHeader: "x-amz-storage-class")
+                #endif
+                return transferUtility.uploadUsingMultiPart(fileURL: url, bucket: s3object.bucket, key: s3object.key, contentType: "application/octet-stream", expression: expression, completionHandler: completionHandler)
+            } else {
+                let expression = AWSS3TransferUtilityUploadExpression()
+                #if DEBUG
+                #else
+                expression.setValue("STANDARD_IA", forRequestHeader: "x-amz-storage-class")
+                #endif
+                return transferUtility.uploadFile(url, bucket: s3object.bucket, key: s3object.key, contentType: "application/octet-stream", expression: expression, completionHandler: completionHandler)
+            }
         }.continueWith { [log] task -> Any? in
             switch (task.result, task.error) {
             case (let task as AWSS3TransferUtilityUploadTask, .none):
                 log.verbose("upload started – bucket: \(task.bucket), key: \(task.key), fileURL: \(String(describing: url))")
+            case (let task as AWSS3TransferUtilityMultiPartUploadTask, .none):
+                log.verbose("upload started – bucket: \(task.bucket), key: \(task.key), fileURL: \(String(describing: url))")
             case (let task as AWSS3TransferUtilityUploadTask, .some(let error)):
+                log.error("failed to initialise upload – bucket: \(task.bucket), key: \(task.key), fileURL: \(String(describing: url)), error: \(String(describing: error))")
+                log.verbose((error as NSError).userInfo)
+                callback(nil)
+            case (let task as AWSS3TransferUtilityMultiPartUploadTask, .some(let error)):
                 log.error("failed to initialise upload – bucket: \(task.bucket), key: \(task.key), fileURL: \(String(describing: url)), error: \(String(describing: error))")
                 log.verbose((error as NSError).userInfo)
                 callback(nil)
