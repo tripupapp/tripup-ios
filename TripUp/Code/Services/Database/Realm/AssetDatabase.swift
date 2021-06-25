@@ -33,12 +33,18 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
-    var cloudStorageUsed: (noOfItems: Int, totalSize: UInt64) {
+    var cloudStorageUsed: UsedStorage? {
         autoreleasepool {
-            guard let realm = try? Realm() else { return (0, 0) }
-            let importedItems = realm.objects(AssetObject.self).filter(NSPredicate(format: "%K == true", #keyPath(AssetObject.imported))).count
-            let totalSize: Int64 = realm.objects(AssetObject.self).sum(ofProperty: #keyPath(AssetObject.totalSize))
-            return (importedItems, UInt64(exactly: totalSize)!)
+            guard let realm = try? Realm() else { return nil }
+            let importedItems = realm.objects(AssetObject.self).filter(NSPredicate(format: "%K == true", #keyPath(AssetObject.imported)))
+            let photos = importedItems.filter(NSPredicate(format: "%K == %@", #keyPath(AssetObject.type), AssetType.photo.rawValue))
+            let videos = importedItems.filter(NSPredicate(format: "%K == %@", #keyPath(AssetObject.type), AssetType.video.rawValue))
+            let photosSize: Int64 = photos.sum(ofProperty: #keyPath(AssetObject.totalSize))
+            let videosSize: Int64 = videos.sum(ofProperty: #keyPath(AssetObject.totalSize))
+            return UsedStorage(
+                photos: (count: photos.count, totalSize: photosSize),
+                videos: (count: videos.count, totalSize: videosSize)
+            )
         }
     }
 

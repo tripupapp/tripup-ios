@@ -53,6 +53,7 @@
 		201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201F760D26826F58007D7A21 /* Gopenpgp.xcframework */; };
 		201FAF4125E02D5400AFABEA /* CloudProgressSync.xib in Resources */ = {isa = PBXBuildFile; fileRef = 207985E424056EB70003BB97 /* CloudProgressSync.xib */; };
 		201FEDD62438C29700013D18 /* WebDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201FEDD52438C29700013D18 /* WebDocumentLoader.swift */; };
+		2021AE3626862737002FAD86 /* UsedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021AE3526862737002FAD86 /* UsedStorage.swift */; };
 		202335FA25E189C3004823B4 /* Background.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202335F925E189C3004823B4 /* Background.swift */; };
 		2024103F22B434D400FBACC5 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2024103E22B434D400FBACC5 /* KeychainTests.swift */; };
 		202450C025ED87AB0015F3D4 /* SynchronizedStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202450BF25ED87AB0015F3D4 /* SynchronizedStateMachine.swift */; };
@@ -311,6 +312,7 @@
 		201C251B253A0190009D95CE /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		201F760D26826F58007D7A21 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		201FEDD52438C29700013D18 /* WebDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDocumentLoader.swift; sourceTree = "<group>"; };
+		2021AE3526862737002FAD86 /* UsedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedStorage.swift; sourceTree = "<group>"; };
 		202335F925E189C3004823B4 /* Background.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Background.swift; sourceTree = "<group>"; };
 		2024103E22B434D400FBACC5 /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
 		202450BF25ED87AB0015F3D4 /* SynchronizedStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizedStateMachine.swift; sourceTree = "<group>"; };
@@ -593,6 +595,7 @@
 				208FFC0524D08DA800329DFA /* MutableAsset.swift */,
 				208FFC0724D0923A00329DFA /* MutablePhysicalAsset.swift */,
 				2055054222CE873500B391C1 /* TULocation.pb.swift */,
+				2021AE3526862737002FAD86 /* UsedStorage.swift */,
 				20168832210A555400FA5D53 /* User.swift */,
 			);
 			path = Models;
@@ -1533,6 +1536,7 @@
 				20B8A9FE2680DC170022EBA7 /* FileManager.swift in Sources */,
 				208887C421CD809B00396029 /* URL.swift in Sources */,
 				202D5ED8239BC63100906723 /* LocalizedError.swift in Sources */,
+				2021AE3626862737002FAD86 /* UsedStorage.swift in Sources */,
 				208671AF24F53D5B002A58F2 /* PhotoLibrary.swift in Sources */,
 				20764E5422AEBEEB004BFE62 /* CryptoPublicKey+CryptoPrivateKey.swift in Sources */,
 				2016882D210A554A00FA5D53 /* Asset.swift in Sources */,

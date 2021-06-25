@@ -39,7 +39,7 @@ protocol KeychainDelegate: class {
 
 protocol AppContextInfo: AnyObject {
     var photoLibraryAccessDenied: Bool? { get }
-    func usedStorage(callback: @escaping ((noOfItems: Int, totalSize: UInt64)) -> Void)
+    func usedStorage(callback: @escaping (UsedStorage?) -> Void)
     func lowDiskSpace(callback: @escaping ClosureBool)
     func lowCloudStorage(callback: @escaping ClosureBool)
 }
@@ -67,10 +67,10 @@ extension AppContext: AppContextInfo {
         return nil
     }
     
-    func usedStorage(callback: @escaping ((noOfItems: Int, totalSize: UInt64)) -> Void) {
-        modelController.cloudStorageUsed { (cloudStorage) in
+    func usedStorage(callback: @escaping (UsedStorage?) -> Void) {
+        modelController.cloudStorageUsed { (cloudStorageUsed) in
             DispatchQueue.main.async {
-                callback(cloudStorage)
+                callback(cloudStorageUsed)
             }
         }
     }
@@ -426,7 +426,7 @@ class AppContext {
     private func isLowOnCloudStorage(basedOn currentTier: StorageTier, callback: @escaping ClosureBool) {
         modelController.cloudStorageUsed { (usedStorage) in
             DispatchQueue.main.async {
-                callback(usedStorage.totalSize >= currentTier.size)
+                callback(usedStorage?.totalSize ?? 0 >= currentTier.size)
             }
         }
     }

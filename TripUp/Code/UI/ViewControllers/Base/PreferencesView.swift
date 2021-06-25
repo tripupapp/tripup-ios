@@ -150,20 +150,28 @@ extension PreferencesView {
     private func drawStorage(tier storageTier: StorageTier) {
         guard let storageLabel = storageLabel else { return }
         appContextInfo?.usedStorage { [weak self] (usedStorage) in
-            storageLabel.text = "\(ByteCountFormatter.string(fromByteCount: Int64(exactly: usedStorage.totalSize)!, countStyle: .binary)) of \(String(describing: storageTier)) Used"
-            self?.drawStorageChart(noOfItems: usedStorage.noOfItems, usedStorage: Double(usedStorage.totalSize), availableStorage: Double(storageTier.size))
+            guard let usedStorage = usedStorage else {
+                return
+            }
+            storageLabel.text = "\(ByteCountFormatter.string(fromByteCount: usedStorage.totalSize, countStyle: .binary)) of \(String(describing: storageTier)) Used"
+            self?.drawStorageChart(usedStorage: usedStorage, availableStorage: Double(storageTier.size))
         }
     }
 
-    private func drawStorageChart(noOfItems: Int, usedStorage: Double, availableStorage: Double) {
-        let labels = ["\(noOfItems) Photos"]
-        let values = [usedStorage]
+    private func drawStorageChart(usedStorage: UsedStorage, availableStorage: Double) {
+        let labels = [
+            "\(usedStorage.photos.count) Photos",
+            "\(usedStorage.videos.count) Videos"
+        ]
+        let values = [
+            Double(usedStorage.photos.totalSize),
+            Double(usedStorage.videos.totalSize)
+        ]
 
         let dataEntries = [BarChartDataEntry(x: 0, yValues: values)]
         let chartDataSet = BarChartDataSet(entries: dataEntries, label: nil)
-        chartDataSet.label = labels[0]
-//        chartDataSet.stackLabels = labels
-        chartDataSet.colors = [.systemYellow]
+        chartDataSet.stackLabels = labels
+        chartDataSet.colors = [.systemYellow, .systemRed]
         chartDataSet.drawValuesEnabled = false
 
         let chartData = BarChartData(dataSet: chartDataSet)

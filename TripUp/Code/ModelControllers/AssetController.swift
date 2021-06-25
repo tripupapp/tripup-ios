@@ -29,11 +29,11 @@ protocol AssetAPI {
 }
 
 extension ModelController {
-    func cloudStorageUsed(callback: @escaping ((noOfItems: Int, totalSize: UInt64)) -> Void) {
+    func cloudStorageUsed(callback: @escaping (UsedStorage?) -> Void) {
         databaseQueue.async { [weak self] in
             let cloudStorageUsed = self?.assetDatabase.cloudStorageUsed
             DispatchQueue.global().async {
-                callback(cloudStorageUsed ?? (0,0))
+                callback(cloudStorageUsed)
             }
         }
     }

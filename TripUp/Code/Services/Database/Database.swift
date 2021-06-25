@@ -30,7 +30,7 @@ protocol GroupDatabase: class {
 protocol AssetDatabase: class {
     var allAssets: [UUID: Asset] { get }
     var assetIDLocalIDMap: [UUID: String] { get }
-    var cloudStorageUsed: (noOfItems: Int, totalSize: UInt64) { get }
+    var cloudStorageUsed: UsedStorage? { get }
     var deletedAssetIDs: [UUID]? { get }
 
     func mutableAssets<T, U>(forAssetIDs assetIDs: T) throws -> U where T: Collection, T.Element == UUID, U: ArrayOrSet, U.Element == AssetManager.MutableAsset
