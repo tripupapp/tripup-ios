@@ -837,22 +837,24 @@ private extension AssetManager {
             }
         }
         deleteOperation.completionBlock = { [weak self, weak deleteOperation] in
-            guard let self = self, let operation = deleteOperation else {
-                return
+            self?.assetManagerQueue.async {
+                guard let self = self, let operation = deleteOperation else {
+                    return
+                }
+                switch operation.currentState.value {
+                case .some(.deletedFromDisk):
+                    self.terminate(assets: assets)
+                case .some(.deletedFromServer):
+                    self.deleteQueue.isSuspended = true
+                    self.queueNewDeleteOperation(for: assets, state: .deletedFromServer)
+                    self.checkSystemFull()
+                case .none:
+                    self.deleteQueue.isSuspended = true
+                    self.queueNewDeleteOperation(for: assets)
+                    self.checkSystemFull()
+                }
+                self.clear(deleteOperation: operation)
             }
-            switch operation.currentState.value {
-            case .some(.deletedFromDisk):
-                self.terminate(assets: assets)
-            case .some(.deletedFromServer):
-                self.deleteQueue.isSuspended = true
-                self.queueNewDeleteOperation(for: assets, state: .deletedFromServer)
-                self.checkSystemFull()
-            case .none:
-                self.deleteQueue.isSuspended = true
-                self.queueNewDeleteOperation(for: assets)
-                self.checkSystemFull()
-            }
-            self.clear(deleteOperation: operation)
         }
         queue(operation: deleteOperation)
     }
