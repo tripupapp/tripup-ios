@@ -826,13 +826,13 @@ private extension AssetManager {
         }
         let deleteOperation = AssetDeleteOperation(assets: assets, delegate: self, currentState: state)
         for asset in assets {
-            if let importOperation = findScheduledOperationOfType(AssetImportOperation.self, forAsset: asset) {
+            if let importOperation = findScheduledOrInProgressOperationOfType(AssetImportOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(importOperation)
             }
-            if let downloadOperation = findScheduledOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.low) {
+            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.low) {
                 deleteOperation.addDependency(downloadOperation)
             }
-            if let downloadOperation = findScheduledOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.original) {
+            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.original) {
                 deleteOperation.addDependency(downloadOperation)
             }
         }
