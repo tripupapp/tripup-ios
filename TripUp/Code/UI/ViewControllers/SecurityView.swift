@@ -100,11 +100,6 @@ class SecurityView: UIViewController, UIViewControllerTransparent {
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        securityContents.flashScrollIndicators()
-    }
-
     private func securitySettings(visible: Bool) {
         if visible {
             userKeyPassword.text = primaryUserPass
