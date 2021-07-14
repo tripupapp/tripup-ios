@@ -73,10 +73,9 @@ class AssetManager {
     unowned let keychainDelegate: KeychainDelegate
     unowned let assetController: AssetController
 
+    let assetOperationDelegate: AssetOperationDelegateObject
     let photoLibrary: PhotoLibrary
     let iosImageManager = PHImageManager.default()
-    let dataService: DataService
-    let webAPI: API
     let syncTracker = AssetSyncTracker()
 
     let log = Logger.self
@@ -108,9 +107,9 @@ class AssetManager {
         self.assetDatabase = assetDatabase
         self.photoLibrary = photoLibrary
         self.keychainDelegate = keychainDelegate
-        self.dataService = dataService
         self.networkController = networkController
-        self.webAPI = webAPI
+        self.assetOperationDelegate = AssetOperationDelegateObject(assetController: assetController, dataService: dataService, webAPI: webAPI, photoLibrary: photoLibrary, keychainQueue: keychainQueue)
+        assetOperationDelegate.keychainDelegate = keychainDelegate
 
         importQueue.qualityOfService = .utility
         downloadQueue.qualityOfService = .userInitiated

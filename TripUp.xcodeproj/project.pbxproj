@@ -153,6 +153,8 @@
 		20BE892B26741664006089DE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE892A26741664006089DE /* AVPlayerView.swift */; };
 		20BE8945267417D3006089DE /* AVControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20BE8944267417D3006089DE /* AVControlsView.swift */; };
 		20C0065D24EAAEC40084B4C0 /* AssetSyncTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */; };
+		20C175372697955100A89BA2 /* DedupeFix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C175362697955100A89BA2 /* DedupeFix.swift */; };
+		20C1753F2697A62E00A89BA2 /* MD5Summer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C1753E2697A62E00A89BA2 /* MD5Summer.swift */; };
 		20C17EE325D6F67800279AEF /* UserNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C17EE225D6F67800279AEF /* UserNotifications.swift */; };
 		20C4F60123D3701D00B041B2 /* LoginLogicController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C4F60023D3701D00B041B2 /* LoginLogicController.swift */; };
 		20C547AD24EC4C7400CE5325 /* Library.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 20C547AC24EC4C7400CE5325 /* Library.storyboard */; };
@@ -414,6 +416,8 @@
 		20BE892A26741664006089DE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		20BE8944267417D3006089DE /* AVControlsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVControlsView.swift; sourceTree = "<group>"; };
 		20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetSyncTracker.swift; sourceTree = "<group>"; };
+		20C175362697955100A89BA2 /* DedupeFix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DedupeFix.swift; sourceTree = "<group>"; };
+		20C1753E2697A62E00A89BA2 /* MD5Summer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MD5Summer.swift; sourceTree = "<group>"; };
 		20C17EE225D6F67800279AEF /* UserNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotifications.swift; sourceTree = "<group>"; };
 		20C4F60023D3701D00B041B2 /* LoginLogicController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginLogicController.swift; sourceTree = "<group>"; };
 		20C547AC24EC4C7400CE5325 /* Library.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Library.storyboard; sourceTree = "<group>"; };
@@ -691,6 +695,7 @@
 			children = (
 				2046D1D8258FADE0003B01B1 /* ServerUpgrader.swift */,
 				2046D1DA258FAE39003B01B1 /* Schema0-1.swift */,
+				20C175362697955100A89BA2 /* DedupeFix.swift */,
 			);
 			path = Upgrader;
 			sourceTree = "<group>";
@@ -1000,6 +1005,7 @@
 				2057C78A24EBE80A00718F1C /* AssetManager */,
 				20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */,
 				200C316926052324008682F8 /* Cache.swift */,
+				20C1753E2697A62E00A89BA2 /* MD5Summer.swift */,
 				202450BF25ED87AB0015F3D4 /* SynchronizedStateMachine.swift */,
 				2046D1D7258FADBE003B01B1 /* Upgrader */,
 			);
@@ -1603,6 +1609,7 @@
 				208C10DB223F1381003BBA09 /* Data.swift in Sources */,
 				208FFC0624D08DA800329DFA /* MutableAsset.swift in Sources */,
 				2016880D210A54C300FA5D53 /* API.swift in Sources */,
+				20C1753F2697A62E00A89BA2 /* MD5Summer.swift in Sources */,
 				201C0AA12437886800F57C04 /* PolicyView.swift in Sources */,
 				20D75169229C39FF00F1D37D /* FullscreenVC.swift in Sources */,
 				20168839210A555400FA5D53 /* UUID.swift in Sources */,
@@ -1636,6 +1643,7 @@
 				200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */,
 				202D63302508E49A0095FA36 /* UIViewControllerTransparent.swift in Sources */,
 				2006BB4C2488F17400A87B3F /* GuideBox.swift in Sources */,
+				20C175372697955100A89BA2 /* DedupeFix.swift in Sources */,
 				20168857210A562100FA5D53 /* LoginView.swift in Sources */,
 				20168820210A553800FA5D53 /* Heap.swift in Sources */,
 				20A2580D2450BD4F00AA5F37 /* AssetManager.swift in Sources */,

@@ -36,4 +36,10 @@ extension FileManager {
             try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
         }
     }
+
+    func removeItem(at URL: URL, idempotent: Bool) throws {
+        do {
+            try FileManager.default.removeItem(at: URL)
+        } catch CocoaError.fileNoSuchFile where idempotent {}
+    }
 }

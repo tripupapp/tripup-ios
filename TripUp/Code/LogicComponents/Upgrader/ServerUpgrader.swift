@@ -21,15 +21,15 @@ class ServerUpgrader {
         }
     }
 
-    let dataManager: DataManager
-    let userKey: CryptoPrivateKey
-    let api: UpgraderAPI
+    var user: User?
+    var userKey: CryptoPrivateKey?
+    var keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>?
+    var database: Database?
+    var api: API?
+    var dataService: DataService?
+    var object: Any?    // generic object, use to hold a strong reference for subtasks
 
-    init(userKey: CryptoPrivateKey, api: UpgraderAPI, dataService: DataService) {
-        self.dataManager = DataManager(dataService: dataService, simultaneousTransfers: 4)
-        self.userKey = userKey
-        self.api = api
-    }
+    let log = Logger.self
 
     func upgrade(fromSchemaVersion currentSchemaVersion: String?, callback: @escaping ClosureBool) {
         switch currentSchemaVersion {
@@ -38,5 +38,9 @@ class ServerUpgrader {
         default:
             fatalError("unimplemented schema: \(String(describing: currentSchemaVersion))")
         }
+    }
+
+    func upgradeClient() {
+
     }
 }

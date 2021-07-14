@@ -292,7 +292,13 @@ extension AppDelegate: AppDelegateExtension {
             let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
             upgradeVC.appDelegateExtension = self
             guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else { fatalError("primary user key not found") }
-            upgradeVC.serverUpgrader = ServerUpgrader(userKey: primaryUserKey, api: api, dataService: dataService)
+
+            let serverUpgrader = ServerUpgrader()
+            serverUpgrader.userKey = primaryUserKey
+            serverUpgrader.api = api
+            serverUpgrader.dataService = dataService
+            upgradeVC.serverUpgrader = serverUpgrader
+
             loginNavigationController(navigateTo: upgradeVC)
             return
         }
@@ -315,6 +321,10 @@ extension AppDelegate: AppDelegateExtension {
                 guard previousVersion > "1.0.0.13" else {
                     presentNextRootViewController(resetApp: true)
                     return
+                }
+
+                if previousVersion <= "1.1.0.4" {
+                    
                 }
 
                 // refresh privacy policy
