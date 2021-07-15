@@ -12,6 +12,7 @@ import Photos
 class MD5FixerOperation: UpgradeOperation {
     private var modelController: ModelController?
     private var keychainDelegate: KeychainDelegateObject?
+    private var assetOperationDelegate: AssetOperationDelegateObject?
     private var operationQueue: OperationQueue?
 
     override func main() {
@@ -111,18 +112,32 @@ class MD5FixerOperation: UpgradeOperation {
             return
         }
         keychainDelegate = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
-        let assetOperationDelegate = AssetOperationDelegateObject(assetController: modelController!, dataService: dataService, webAPI: api, photoLibrary: PhotoLibrary(), keychainQueue: .global())
-        assetOperationDelegate.keychainDelegate = keychainDelegate
-        let operation = AssetManager.AssetImportOperation(assets: Array(mutableAssetsToReImport.values), delegate: assetOperationDelegate, currentState: AssetManager.AssetImportOperation.FetchedFromIOS.self)
+        assetOperationDelegate = AssetOperationDelegateObject(assetController: modelController!, dataService: dataService, webAPI: api, photoLibrary: PhotoLibrary(), keychainQueue: .global())
+        assetOperationDelegate?.keychainDelegate = keychainDelegate
+
+        operationQueue = OperationQueue()
+        queueImportOperation(for: Array(mutableAssetsToReImport.values))
+    }
+
+    private func queueImportOperation(for mutableAssets: [AssetManager.MutableAsset]) {
+        guard let assetOperationDelegate = assetOperationDelegate else {
+            return
+        }
+        let assets: [AssetManager.MutableAsset] = mutableAssets.suffix(5)
+        let operation = AssetManager.AssetImportOperation(assets: assets, delegate: assetOperationDelegate, currentState: AssetManager.AssetImportOperation.FetchedFromIOS.self)
         operation.completionBlock = {
             if operation.currentState is AssetManager.AssetImportOperation.Success {
-                self.progress = (self.progress.completed + mutableAssetsToReImport.count, self.progress.total)
-                self.finish(success: true)
+                self.progress = (self.progress.completed + assets.count, self.progress.total)
+                let remainingAssets: [AssetManager.MutableAsset] = mutableAssets.dropLast(5)
+                if remainingAssets.isNotEmpty {
+                    self.queueImportOperation(for: remainingAssets)
+                } else {
+                    self.finish(success: true)
+                }
             } else {
                 self.finish(success: false)
             }
         }
-        operationQueue = OperationQueue()
         operationQueue?.addOperation(operation)
     }
 }
