@@ -9,30 +9,26 @@
 import Foundation
 import Photos
 
-extension ServerUpgrader {
-    private class MD5FixerDependencies {
-        var modelController: ModelController?
-        var keychainDelegate: KeychainDelegateObject?
-        var operationQueue: OperationQueue?
-    }
+class MD5FixerOperation: UpgradeOperation {
+    private var modelController: ModelController?
+    private var keychainDelegate: KeychainDelegateObject?
+    private var operationQueue: OperationQueue?
 
-    func fixMD5s(callback: @escaping ClosureBool) {
+    override func main() {
+        super.main()
+
         guard let database = database, let dataService = dataService, let api = api, let primaryUser = user, let primaryUserKey = userKey, let keychain = keychain else {
-            callback(false)
+            finish(success: false)
             return
         }
-        let modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
-        let md5FixerDependencies = MD5FixerDependencies()
-        object = md5FixerDependencies
-        md5FixerDependencies.modelController = modelController
+        modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
 
         let allAssets = database.allAssets
         guard let allMutableAssets: [AssetManager.MutableAsset] = try? database.mutableAssets(forAssetIDs: allAssets.keys) else {
-            callback(false)
+            finish(success: false)
             return
         }
         self.progress = (completed: 0, total: allMutableAssets.count)
-        var mutableAssetsToTerminate = [UUID: AssetManager.MutableAsset]()
         var mutableAssetsToReImport = [UUID: AssetManager.MutableAsset]()
         for mutableAsset in allMutableAssets {
             guard mutableAsset.ownerID == primaryUser.uuid else {
@@ -48,6 +44,11 @@ extension ServerUpgrader {
                 continue
             }
 
+            guard let localIdentifier = mutableAsset.localIdentifier else {
+                self.progress = (self.progress.completed + 1, self.progress.total)
+                continue
+            }
+
             let fetchOptions = PHFetchOptions()
             // only allow photos and videos; filter out audio and other types for now
             fetchOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
@@ -56,32 +57,14 @@ extension ServerUpgrader {
             ])
             fetchOptions.sortDescriptors = [NSSortDescriptor(key: #keyPath(PHAsset.creationDate), ascending: true)]
 
-            guard let localIdentifier = mutableAsset.localIdentifier else {
-                if shouldDelete(asset: mutableAsset, from: allMutableAssets, assetsAlreadyMarkedForDeletion: mutableAssetsToTerminate) {
-                    mutableAssetsToTerminate[mutableAsset.uuid] = mutableAsset
-                } else {
-                    self.progress = (self.progress.completed + 1, self.progress.total)
-                }
-                continue
-            }
-
             guard let phAsset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: fetchOptions).firstObject else {
-                if shouldDelete(asset: mutableAsset, from: allMutableAssets, assetsAlreadyMarkedForDeletion: mutableAssetsToTerminate) {
-                    mutableAssetsToTerminate[mutableAsset.uuid] = mutableAsset
-                } else {
-                    self.progress = (self.progress.completed + 1, self.progress.total)
-                }
+                self.progress = (self.progress.completed + 1, self.progress.total)
                 mutableAsset.localIdentifier = nil
                 continue
             }
-
             let phAssetResources = PHAssetResource.assetResources(for: phAsset)
             guard let assetResource = phAssetResources.first(where: { $0.type == (mutableAsset.type == .photo ? .photo : .video) }) else {
-                if shouldDelete(asset: mutableAsset, from: allMutableAssets, assetsAlreadyMarkedForDeletion: mutableAssetsToTerminate) {
-                    mutableAssetsToTerminate[mutableAsset.uuid] = mutableAsset
-                } else {
-                    self.progress = (self.progress.completed + 1, self.progress.total)
-                }
+                self.progress = (self.progress.completed + 1, self.progress.total)
                 mutableAsset.localIdentifier = nil
                 continue
             }
@@ -102,7 +85,7 @@ extension ServerUpgrader {
             }
             dispatchGroup.wait()
             guard case .success(let md5) = md5Summer.result else {
-                callback(false)
+                finish(success: false)
                 return
             }
 
@@ -123,79 +106,24 @@ extension ServerUpgrader {
             mutableAssetsToReImport[mutableAsset.uuid] = mutableAsset
         }
 
-        var deleteSuccessful = true
-        let dispatchGroup = DispatchGroup()
-        if mutableAssetsToTerminate.isNotEmpty {
-            dispatchGroup.enter()
-            api.delete(assetIDs: mutableAssetsToTerminate.keys.map{ $0.string }, callbackOn: .global()) { success in
-                defer {
-                    dispatchGroup.leave()
-                }
-                guard success else {
-                    deleteSuccessful = false
-                    return
-                }
-                for mutableAsset in mutableAssetsToTerminate.values {
-                    try? FileManager.default.removeItem(at: mutableAsset.physicalAssets.low.localPath, idempotent: true)
-                    try? FileManager.default.removeItem(at: mutableAsset.physicalAssets.original.localPath, idempotent: true)
-                    if let fingerprint = mutableAsset.fingerprint, let key = try? keychain.retrievePrivateKey(withFingerprint: fingerprint, keyType: .asset) {
-                        try? keychain.deletePrivateKey(key)
-                    }
-                }
-                modelController.remove(assets: mutableAssetsToTerminate.values)
-                self.progress = (self.progress.completed + mutableAssetsToTerminate.count, self.progress.total)
+        guard mutableAssetsToReImport.isNotEmpty else {
+            finish(success: true)
+            return
+        }
+        keychainDelegate = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
+        let assetOperationDelegate = AssetOperationDelegateObject(assetController: modelController!, dataService: dataService, webAPI: api, photoLibrary: PhotoLibrary(), keychainQueue: .global())
+        assetOperationDelegate.keychainDelegate = keychainDelegate
+        let operation = AssetManager.AssetImportOperation(assets: Array(mutableAssetsToReImport.values), delegate: assetOperationDelegate, currentState: AssetManager.AssetImportOperation.FetchedFromIOS.self)
+        operation.completionBlock = {
+            if operation.currentState is AssetManager.AssetImportOperation.Success {
+                self.progress = (self.progress.completed + mutableAssetsToReImport.count, self.progress.total)
+                self.finish(success: true)
+            } else {
+                self.finish(success: false)
             }
         }
-
-        dispatchGroup.notify(queue: .global()) {
-            guard deleteSuccessful else {
-                callback(false)
-                return
-            }
-            guard mutableAssetsToReImport.isNotEmpty else {
-                callback(true)
-                return
-            }
-            md5FixerDependencies.keychainDelegate = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
-            let assetOperationDelegate = AssetOperationDelegateObject(assetController: modelController, dataService: dataService, webAPI: api, photoLibrary: PhotoLibrary(), keychainQueue: .global())
-            assetOperationDelegate.keychainDelegate = md5FixerDependencies.keychainDelegate
-            let operation = AssetManager.AssetImportOperation(assets: Array(mutableAssetsToReImport.values), delegate: assetOperationDelegate, currentState: AssetManager.AssetImportOperation.FetchedFromIOS.self)
-            operation.completionBlock = {
-                if operation.currentState is AssetManager.AssetImportOperation.Success {
-                    self.progress = (self.progress.completed + mutableAssetsToReImport.count, self.progress.total)
-                    callback(true)
-                } else {
-                    callback(false)
-                }
-            }
-            md5FixerDependencies.operationQueue = OperationQueue()
-            md5FixerDependencies.operationQueue?.addOperation(operation)
-        }
-    }
-
-    private func shouldDelete(asset mutableAsset: AssetManager.MutableAsset, from allMutableAssets: [AssetManager.MutableAsset], assetsAlreadyMarkedForDeletion: [UUID: AssetManager.MutableAsset]) -> Bool {
-        let duplicateSearchPredicate = { (asset: AssetManager.MutableAsset) -> Bool in
-            var duplicate: Bool
-            duplicate = asset.type == mutableAsset.type
-            duplicate = duplicate && asset.creationDate == mutableAsset.creationDate
-            duplicate = duplicate && asset.location == mutableAsset.location
-            duplicate = duplicate && asset.duration == mutableAsset.duration
-            duplicate = duplicate && asset.pixelSize == mutableAsset.pixelSize
-            return duplicate
-        }
-        if let duplicate = allMutableAssets.first(where: duplicateSearchPredicate), assetsAlreadyMarkedForDeletion[duplicate.uuid] == nil {
-            if mutableAsset.type == .photo {
-                switch (mutableAsset.originalUTI, duplicate.originalUTI) {
-                case (_, _):
-                    break
-                }
-                if mutableAsset.originalUTI == AVFileType("public.png") && duplicate.originalUTI == .jpg {
-
-                }
-            }
-            return true
-        }
-        return false
+        operationQueue = OperationQueue()
+        operationQueue?.addOperation(operation)
     }
 }
 

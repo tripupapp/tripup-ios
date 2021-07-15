@@ -15,7 +15,6 @@ import Firebase
 import TripUpShared
 
 protocol AppDelegateExtension: AnyObject {
-    var serverSchemaVersion: String? { get set }
     var autoBackup: Bool? { get set }
     func initialise(_ cloudStorageVC: CloudStorageVC)
     func presentNextRootViewController(after currentViewController: UIViewController?, fadeIn: Bool, resetApp: Bool)
@@ -290,15 +289,33 @@ extension AppDelegate: AppDelegateExtension {
             UserDefaults.standard.removeObject(forKey: UserDefaultsKey.AppVersionNumber.rawValue)
 
             let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
-            upgradeVC.appDelegateExtension = self
-            guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else { fatalError("primary user key not found") }
-
-            let serverUpgrader = ServerUpgrader()
-            serverUpgrader.userKey = primaryUserKey
-            serverUpgrader.api = api
-            serverUpgrader.dataService = dataService
-            upgradeVC.serverUpgrader = serverUpgrader
-
+            switch serverSchemaVersion {
+            case .none, "0":
+                let schemaUpgradeOperation = Schema0to1UpgradeOperation()
+                guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
+                    fatalError("primary user key not found")
+                }
+                schemaUpgradeOperation.userKey = primaryUserKey
+                schemaUpgradeOperation.api = api
+                schemaUpgradeOperation.dataService = dataService
+                schemaUpgradeOperation.completionBlock = {
+                    DispatchQueue.main.async {
+                        if schemaUpgradeOperation.success {
+                            self.serverSchemaVersion = "1"
+                            self.presentNextRootViewController(after: upgradeVC)
+                        } else {
+                            let alert = UIAlertController(title: "Upgrade failed", message: "There was an error upgrading your data. Please try again. If the problem persists, please contact us.", preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                                self.presentNextRootViewController(after: upgradeVC, resetApp: true)
+                            }))
+                            upgradeVC.present(alert, animated: true, completion: nil)
+                        }
+                    }
+                }
+                upgradeVC.upgradeOperation = schemaUpgradeOperation
+            default:
+                fatalError("unimplemented schema: \(String(describing: serverSchemaVersion))")
+            }
             loginNavigationController(navigateTo: upgradeVC)
             return
         }
@@ -323,15 +340,44 @@ extension AppDelegate: AppDelegateExtension {
                     return
                 }
 
-                if previousVersion <= "1.1.0.4" {
-                    
+                let clientUpgradeSuccessfulBlock = {
+                    // refresh privacy policy
+                    self.privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)
+
+                    // finally, update local app version number
+                    UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
                 }
 
-                // refresh privacy policy
-                privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)
-
-                // finally, update local app version number
-                UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
+                guard previousVersion > "1.1.1.1" else {
+                    let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
+                    guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
+                        fatalError("primary user key not found")
+                    }
+                    let md5FixerOperation = MD5FixerOperation()
+                    md5FixerOperation.database = database
+                    md5FixerOperation.dataService = dataService
+                    md5FixerOperation.api = api
+                    md5FixerOperation.user = primaryUser
+                    md5FixerOperation.userKey = primaryUserKey
+                    md5FixerOperation.keychain = keychain
+                    md5FixerOperation.completionBlock = {
+                        DispatchQueue.main.async {
+                            if md5FixerOperation.success {
+                                clientUpgradeSuccessfulBlock()
+                                self.presentNextRootViewController(after: upgradeVC)
+                            } else {
+                                let alert = UIAlertController(title: "Upgrade failed", message: "There was an error upgrading your data. Please try again. If the problem persists, please contact us.", preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                                    self.presentNextRootViewController(after: upgradeVC)
+                                }))
+                                upgradeVC.present(alert, animated: true, completion: nil)
+                            }
+                        }
+                    }
+                    upgradeVC.upgradeOperation = md5FixerOperation
+                    loginNavigationController(navigateTo: upgradeVC)
+                    return
+                }
             }
         } else {    // new install
             // download privacy policy – in case it was wiped from previous clearing of app data

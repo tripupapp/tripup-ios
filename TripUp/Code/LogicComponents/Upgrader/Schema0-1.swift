@@ -8,27 +8,29 @@
 
 import Foundation
 
-extension ServerUpgrader {
-    func upgradeFromSchema0(callback: @escaping ClosureBool) {
+class Schema0to1UpgradeOperation: UpgradeOperation {
+    override func main() {
+        super.main()
+
         guard let userKey = userKey, let api = api, let dataService = dataService else {
-            callback(false)
+            finish(success: false)
             return
         }
         let dataManager = DataManager(dataService: dataService, simultaneousTransfers: 4)
 
-        let queue = DispatchQueue(label: String(describing: ServerUpgrader.self) + ".upgradeFromSchema0", qos: .userInitiated)
+        let queue = DispatchQueue(label: String(describing: self), qos: .userInitiated)
         api.fetchGroups(callbackOn: queue) { [weak api] (success, allGroupData) in
             let log = Logger.self
             guard let api = api, success else {
                 log.error("FetchGroups callback failed")
-                DispatchQueue.main.async { callback(false) }
+                self.finish(success: false)
                 return
             }
             let allGroupData = allGroupData ?? [String: [String: Any]]()
-            api.getSchema0Data(callbackOn: queue) { [weak self] (success, data) in
-                guard let self = self, success else {
+            api.getSchema0Data(callbackOn: queue) { (success, data) in
+                guard success else {
                     log.error("GetAssetsLegacy callback failed")
-                    DispatchQueue.main.async { callback(false) }
+                    self.finish(success: false)
                     return
                 }
                 let data = data ?? [[String: Any]]()
@@ -111,10 +113,13 @@ extension ServerUpgrader {
                     failed = true
                     log.error(String(describing: error))
                 }
-                dispatchGroup.notify(queue: queue) { [weak api] in
-                    guard let api = api, !failed else { DispatchQueue.main.async { callback(false) }; return }
-                    api.patchSchema0Data(assetKeys: assetKeys, assetMD5s: assetMD5s, callbackOn: queue) { success in
-                        DispatchQueue.main.async { callback(success) }
+                dispatchGroup.notify(queue: queue) {
+                    if failed {
+                        self.finish(success: false)
+                    } else {
+                        api.patchSchema0Data(assetKeys: assetKeys, assetMD5s: assetMD5s, callbackOn: queue) { success in
+                            self.finish(success: success)
+                        }
                     }
                 }
             }

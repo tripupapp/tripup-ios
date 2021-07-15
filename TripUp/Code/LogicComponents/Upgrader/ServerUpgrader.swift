@@ -13,7 +13,7 @@ protocol UpgraderAPI: GroupAPI {
     func patchSchema0Data(assetKeys: [String: String], assetMD5s: [String: String], callbackOn queue: DispatchQueue, resultHandler: @escaping ClosureBool)
 }
 
-class ServerUpgrader {
+class UpgradeOperation: AsynchronousOperation {
     var progressUpdateUI: ((_ completed: Int, _ total: Int) -> Void)?
     var progress = (completed: 0, total: 0) {
         didSet {
@@ -27,20 +27,16 @@ class ServerUpgrader {
     var database: Database?
     var api: API?
     var dataService: DataService?
-    var object: Any?    // generic object, use to hold a strong reference for subtasks
+    var success: Bool = false
 
     let log = Logger.self
 
-    func upgrade(fromSchemaVersion currentSchemaVersion: String?, callback: @escaping ClosureBool) {
-        switch currentSchemaVersion {
-        case .none, "0":
-            upgradeFromSchema0(callback: callback)
-        default:
-            fatalError("unimplemented schema: \(String(describing: currentSchemaVersion))")
-        }
+    override func main() {
+        fatalError("unimplemented")
     }
 
-    func upgradeClient() {
-
+    func finish(success: Bool) {
+        self.success = success
+        super.finish()
     }
 }
