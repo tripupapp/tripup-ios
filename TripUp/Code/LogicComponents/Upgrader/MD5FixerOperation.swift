@@ -1,5 +1,5 @@
 //
-//  DedupeFix.swift
+//  MD5FixerOperation.swift
 //  TripUp
 //
 //  Created by Vinoth Ramiah on 08/07/2021.

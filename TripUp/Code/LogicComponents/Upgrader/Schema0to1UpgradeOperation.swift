@@ -1,5 +1,5 @@
 //
-//  Schema0-1.swift
+//  Schema0to1UpgradeOperation.swift
 //  TripUp
 //
 //  Created by Vinoth Ramiah on 20/12/2020.
