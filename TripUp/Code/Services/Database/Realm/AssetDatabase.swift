@@ -81,6 +81,20 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
+    func unlinkedAssets() -> [UUID: Asset]? {
+        autoreleasepool {
+            guard let realm = try? Realm() else {
+                return nil
+            }
+            let predicate = NSPredicate(format: "%K == nil", #keyPath(AssetObject.localIdentifier))
+            let objects = realm.objects(AssetObject.self).filter(predicate)
+            let assets = objects.map{ Asset(from: $0) }
+            return assets.reduce(into: [UUID: Asset]()) {
+                $0[$1.uuid] = $1
+            }
+        }
+    }
+
     func fingerprint(forAssetID assetID: UUID) throws -> String? {
         try autoreleasepool {
             let realm = try Realm()

@@ -46,6 +46,13 @@ protocol AssetSyncManager: AnyObject {
     func removeInvalidAssets<T>(ids invalidAssetIDs: T) where T: Collection, T.Element == UUID
 }
 
+protocol AssetUIManager {
+    func delete<T>(_ assets: T) where T: Collection, T.Element == Asset
+    func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void)
+    func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void)
+    func removeAssets<T>(ids: T) where T: Collection, T.Element == UUID
+}
+
 class AssetManager {
     enum Quality: String {
         case original
@@ -86,6 +93,7 @@ class AssetManager {
     private unowned let assetDatabase: MutableAssetDatabase
     private weak var networkController: NetworkMonitorController?
 
+    private let primaryUserID: UUID
     private let liveAssets = Cache<UUID, MutableAsset>()    // used as database cache but also to ensure multiple operations refer to the same asset instance for data consistency
     private var autoQueuer: AssetImportQueuingOperation?
     private var manualQueuer: AssetManualImportQueuingOperation?
@@ -102,7 +110,8 @@ class AssetManager {
     private var didBecomeActiveObserverToken: NSObjectProtocol?
     private var enterBackgroundObserverToken: NSObjectProtocol?
 
-    init(assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
+    init(primaryUserID: UUID, assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
+        self.primaryUserID = primaryUserID
         self.assetController = assetController
         self.assetDatabase = assetDatabase
         self.photoLibrary = photoLibrary
@@ -254,111 +263,6 @@ extension AssetManager {
     func cancelBackgroundImports() {
         importQueue.cancelAllOperations()
         importQueue.isSuspended = false
-    }
-}
-
-// MARK: functions called directly by UI
-extension AssetManager {
-    func delete<T>(_ assets: T) where T: Collection, T.Element == Asset {
-        assert(assets.isNotEmpty)
-        mutableAssets(from: assets.map{ $0.uuid }) { [weak self] mutableAssets in
-            guard let self = self else {
-                return
-            }
-            assert(mutableAssets.count == assets.count)
-            var trackingIDs = [UUID]()
-            var localIDs = [String]()
-            var assetsOnClientOnly = [MutableAsset]()
-            var assetsOnServer = [MutableAsset]()
-            for asset in mutableAssets {
-                if asset.imported || self.operationScheduledOrInProgressOfType(AssetImportOperation.self, forAsset: asset) {
-                    assetsOnServer.append(asset)
-                    asset.deleted = true
-                    trackingIDs.append(asset.uuid)
-                } else {
-                    assetsOnClientOnly.append(asset)
-                }
-                if let localIdentifier = asset.localIdentifier {
-                    localIDs.append(localIdentifier)
-                }
-            }
-            if trackingIDs.isNotEmpty {
-                self.syncTracker.startTracking(trackingIDs)
-            }
-            if assetsOnServer.isNotEmpty {
-                self.queueNewDeleteOperation(for: assetsOnServer)
-            }
-            if assetsOnClientOnly.isNotEmpty {
-                self.terminate(assets: assetsOnClientOnly)
-            }
-            if localIDs.isNotEmpty {
-                self.photoLibrary.fetchAssets(withLocalIdentifiers: localIDs) { iosAssets in
-                    let iosAssets = iosAssets.compactMap{ $0 }
-                    guard iosAssets.isNotEmpty else { return }
-                    PHPhotoLibrary.shared().performChanges({
-                        PHAssetChangeRequest.deleteAssets(iosAssets as NSArray)
-                    })  // completionHandler triggers error when denying deletion only on iOS 12
-                }
-            }
-        }
-    }
-
-    func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void) {
-        let callbackOnMain = { (_ success: Bool, _ wasAlreadySaved: Bool) -> Void in
-            DispatchQueue.main.async {
-                callback(success, wasAlreadySaved)
-            }
-        }
-        guard asset.imported else {
-            callbackOnMain(false, true)
-            return
-        }
-        let phAssetResourceType: PHAssetResourceType
-        switch asset.type {
-        case .photo:
-            phAssetResourceType = .photo
-        case .video:
-            phAssetResourceType = .video
-        case .audio, .unknown:
-            assertionFailure()
-            callbackOnMain(false, false)
-            return
-        }
-        assetController.localIdentifier(forAsset: asset) { [weak self] (existinglocalIdentifier) in
-            guard existinglocalIdentifier == nil else {
-                callbackOnMain(false, true)
-                return
-            }
-            self?.load(asset: asset, atQuality: .original) { (url, uti) in
-                guard let url = url else {
-                    callbackOnMain(false, false)
-                    return
-                }
-                var newAssetPlaceholder: PHObjectPlaceholder?
-                PHPhotoLibrary.shared().performChanges({
-                    let options = PHAssetResourceCreationOptions()
-                    options.uniformTypeIdentifier = uti?.rawValue
-                    let newAsset = PHAssetCreationRequest.forAsset()
-                    newAssetPlaceholder = newAsset.placeholderForCreatedAsset
-                    newAsset.addResource(with: phAssetResourceType, fileURL: url, options: options)
-                    newAsset.creationDate = asset.creationDate
-                    newAsset.location = asset.location?.coreLocation
-                    newAsset.isFavorite = asset.favourite
-                }) { (successfullySavedToLibrary, _) in
-                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else {
-                        callbackOnMain(false, false)
-                        return
-                    }
-                    // write localIdentifier to local database
-                    self?.mutableAsset(from: asset.uuid) { (mutableAsset) in
-                        if let mutableAsset = mutableAsset {
-                            mutableAsset.localIdentifier = localIdentifier
-                        }
-                        callbackOnMain(true, false)
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -968,6 +872,129 @@ extension AssetManager: AssetSyncManager {
             if invalidMutableAssets.isNotEmpty {
                 self?.terminate(assets: invalidMutableAssets)
             }
+        }
+    }
+}
+
+// MARK: functions called directly by UI
+extension AssetManager: AssetUIManager {
+    func delete<T>(_ assets: T) where T: Collection, T.Element == Asset {
+        assert(assets.isNotEmpty)
+        mutableAssets(from: assets.map{ $0.uuid }) { [weak self] mutableAssets in
+            guard let self = self else {
+                return
+            }
+            assert(mutableAssets.count == assets.count)
+            var trackingIDs = [UUID]()
+            var localIDs = [String]()
+            var assetsOnClientOnly = [MutableAsset]()
+            var assetsOnServer = [MutableAsset]()
+            for asset in mutableAssets {
+                if asset.imported || self.operationScheduledOrInProgressOfType(AssetImportOperation.self, forAsset: asset) {
+                    assetsOnServer.append(asset)
+                    asset.deleted = true
+                    trackingIDs.append(asset.uuid)
+                } else {
+                    assetsOnClientOnly.append(asset)
+                }
+                if let localIdentifier = asset.localIdentifier {
+                    localIDs.append(localIdentifier)
+                }
+            }
+            if trackingIDs.isNotEmpty {
+                self.syncTracker.startTracking(trackingIDs)
+            }
+            if assetsOnServer.isNotEmpty {
+                self.queueNewDeleteOperation(for: assetsOnServer)
+            }
+            if assetsOnClientOnly.isNotEmpty {
+                self.terminate(assets: assetsOnClientOnly)
+            }
+            if localIDs.isNotEmpty {
+                self.photoLibrary.fetchAssets(withLocalIdentifiers: localIDs) { iosAssets in
+                    let iosAssets = iosAssets.compactMap{ $0 }
+                    guard iosAssets.isNotEmpty else { return }
+                    PHPhotoLibrary.shared().performChanges({
+                        PHAssetChangeRequest.deleteAssets(iosAssets as NSArray)
+                    })  // completionHandler triggers error when denying deletion only on iOS 12
+                }
+            }
+        }
+    }
+
+    func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void) {
+        let callbackOnMain = { (_ success: Bool, _ wasAlreadySaved: Bool) -> Void in
+            DispatchQueue.main.async {
+                callback(success, wasAlreadySaved)
+            }
+        }
+        guard asset.imported else {
+            callbackOnMain(false, true)
+            return
+        }
+        let phAssetResourceType: PHAssetResourceType
+        switch asset.type {
+        case .photo:
+            phAssetResourceType = .photo
+        case .video:
+            phAssetResourceType = .video
+        case .audio, .unknown:
+            assertionFailure()
+            callbackOnMain(false, false)
+            return
+        }
+        assetController.localIdentifier(forAsset: asset) { [weak self] (existinglocalIdentifier) in
+            guard existinglocalIdentifier == nil else {
+                callbackOnMain(false, true)
+                return
+            }
+            self?.load(asset: asset, atQuality: .original) { (url, uti) in
+                guard let url = url else {
+                    callbackOnMain(false, false)
+                    return
+                }
+                var newAssetPlaceholder: PHObjectPlaceholder?
+                PHPhotoLibrary.shared().performChanges({
+                    let options = PHAssetResourceCreationOptions()
+                    options.uniformTypeIdentifier = uti?.rawValue
+                    let newAsset = PHAssetCreationRequest.forAsset()
+                    newAssetPlaceholder = newAsset.placeholderForCreatedAsset
+                    newAsset.addResource(with: phAssetResourceType, fileURL: url, options: options)
+                    newAsset.creationDate = asset.creationDate
+                    newAsset.location = asset.location?.coreLocation
+                    newAsset.isFavorite = asset.favourite
+                }) { (successfullySavedToLibrary, _) in
+                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else {
+                        callbackOnMain(false, false)
+                        return
+                    }
+                    // write localIdentifier to local database
+                    self?.mutableAsset(from: asset.uuid) { (mutableAsset) in
+                        if let mutableAsset = mutableAsset {
+                            mutableAsset.localIdentifier = localIdentifier
+                        }
+                        callbackOnMain(true, false)
+                    }
+                }
+            }
+        }
+    }
+
+    func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void) {
+        assetController.unlinkedAssets { [weak self] (unlinkedAssets: [UUID: Asset]?) in
+            guard let self = self, let unlinkedAssets = unlinkedAssets else {
+                return
+            }
+            let ownedUnlinkedAssets = unlinkedAssets.filter{ $0.value.ownerID == self.primaryUserID && $0.value.imported }
+            DispatchQueue.main.async {
+                callback(ownedUnlinkedAssets)
+            }
+        }
+    }
+
+    func removeAssets<T>(ids: T) where T: Collection, T.Element == UUID {
+        self.mutableAssets(from: ids) { [weak self] (mutableAssets) in
+            self?.queueNewDeleteOperation(for: mutableAssets)
         }
     }
 }

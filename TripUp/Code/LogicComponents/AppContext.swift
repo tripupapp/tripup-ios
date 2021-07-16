@@ -37,6 +37,7 @@ protocol KeychainDelegate: class {
 }
 
 protocol AppContextInfo: AnyObject {
+    var assetUIManager: AssetUIManager { get }
     var photoLibraryAccessDenied: Bool? { get }
     func usedStorage(callback: @escaping (UsedStorage?) -> Void)
     func lowDiskSpace(callback: @escaping ClosureBool)
@@ -59,6 +60,10 @@ protocol AppContextObserverRegister {
 }
 
 extension AppContext: AppContextInfo {
+    var assetUIManager: AssetUIManager {
+        return assetManager
+    }
+
     var photoLibraryAccessDenied: Bool? {
         if let photoLibraryAccess = photoLibrary.canAccess {
             return !photoLibraryAccess
@@ -235,7 +240,7 @@ class AppContext {
         purchasesController.addObserver(self)
 
 //        let dataManager = DataManager(dataService: dataService, simultaneousTransfers: 4)
-        self.assetManager = AssetManager(assetController: modelController, assetDatabase: modelController, photoLibrary: photoLibrary, keychainDelegate: keychainDelegateObject, apiUser: apiUser, webAPI: webAPI, dataService: dataService, networkController: networkMonitor)
+        self.assetManager = AssetManager(primaryUserID: primaryUser.uuid, assetController: modelController, assetDatabase: modelController, photoLibrary: photoLibrary, keychainDelegate: keychainDelegateObject, apiUser: apiUser, webAPI: webAPI, dataService: dataService, networkController: networkMonitor)
         assetManager.triggerStatusNotification = { [weak self] in
             self?.generateStatusNotification()
         }
