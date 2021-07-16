@@ -75,6 +75,24 @@ class PreferencesView: UITableViewController {
         }
     }
 
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        switch (indexPath.section, indexPath.item) {
+        case (1, 1):    // Delete online-only content
+            let message = """
+            This will remove all photos and videos that aren't present on your phone from your cloud backup.
+
+            This is useful if you've deleted some content from the Photos app and would like those changes reflected in TripUp.
+
+            Online-only content will be removed from all albums. This does not affect content that has been shared with you by others.
+            """
+            let alert = UIAlertController(title: "", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        default:
+            break
+        }
+    }
+
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         switch (indexPath.section, indexPath.item) {
         case (1, 0):    // auto backup switch toggle
@@ -98,7 +116,10 @@ class PreferencesView: UITableViewController {
                 self.view.makeToastieActivity(false)
                 self.tableView.deselectRow(at: indexPath, animated: false)
             }
-        case (1, 2):    // Purchase Cloud Storage
+        case (1, 1):    // Delete online-only content
+            deleteOnlineOnlyContent()
+            tableView.deselectRow(at: indexPath, animated: false)
+        case (1, 3):    // Purchase Cloud Storage
             tableView.deselectRow(at: indexPath, animated: false)
         case (3, 1):    // Legal
             legal()
@@ -116,6 +137,26 @@ class PreferencesView: UITableViewController {
     @IBAction func backupSwitchToggled(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: UserDefaultsKey.AutoBackup.rawValue)
         NotificationCenter.default.post(name: .AutoBackupChanged, object: sender.isOn)
+    }
+
+    private func deleteOnlineOnlyContent() {
+        appContextInfo?.assetUIManager.unlinkedAssets(callback: { [weak self] (unlinkedAssets) in
+            guard unlinkedAssets.isNotEmpty else {
+                self?.view.makeToastie("There is no online-only content in your cloud storage.", duration: 5.0)
+                return
+            }
+            let photoCount = unlinkedAssets.filter{ $0.value.type == .photo }.count
+            let videoCount = unlinkedAssets.filter{ $0.value.type == .video }.count
+            assert(unlinkedAssets.count == (photoCount + videoCount))
+            let message = "This will remove \(photoCount) photos and \(videoCount) videos from your cloud storage. This action is irreversible."
+            let alert = UIAlertController(title: "Are you sure you want to remove online-only content from your cloud storage?", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+                self?.view.makeToastie("\(unlinkedAssets.count) items will be removed.", duration: 7.5)
+                self?.appContextInfo?.assetUIManager.removeAssets(ids: unlinkedAssets.keys)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            self?.present(alert, animated: true, completion: nil)
+        })
     }
 
     private func legal() {

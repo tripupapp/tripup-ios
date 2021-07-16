@@ -100,7 +100,7 @@ extension AssetManager {
             let dispatchGroup = DispatchGroup()
 
             for asset in assets {
-                guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) || asset.md5 == nil else {
+                guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) || asset.md5 == nil || asset.originalUTI == nil else {
                     continue
                 }
 
@@ -130,41 +130,40 @@ extension AssetManager {
                         return
                     }
                     let uti = AVFileType(phAssetResource.uniformTypeIdentifier)
-                    if uti.isCrossCompatible {
-                        guard let tempURL = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
+                    guard let tempURL = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
+                        error = error ?? .recoverable
+                        dispatchGroup.leave()
+                        return
+                    }
+                    self.delegate.photoLibrary.write(resource: phAssetResource, toURL: tempURL) { (success) in
+                        guard success else {
                             error = error ?? .recoverable
                             dispatchGroup.leave()
                             return
                         }
-                        self.delegate.photoLibrary.write(resource: phAssetResource, toURL: tempURL) { (success) in
-                            guard success else {
-                                error = error ?? .recoverable
-                                dispatchGroup.leave()
-                                return
-                            }
-                            self.join(asset: asset, toTempURL: tempURL, uti: uti) { (returnedError) in
-                                error = error ?? returnedError
-                                dispatchGroup.leave()
-                            }
+                        guard let md5 = self.delegate.md5(ofFileAtURL: tempURL) else {
+                            self.log.error("error calculating md5 - assetID: \(asset.uuid.string), inputURL: \(String(describing: tempURL))")
+                            error = error ?? .recoverable
+                            dispatchGroup.leave()
+                            return
                         }
-                    } else {
-                        switch asset.type {
-                        case .photo:
-                            fatalError(asset.type.rawValue)  // TODO
-                        case .video:
-                            self.delegate.photoLibrary.transcodeVideoToMP4(forPHAsset: phAsset) { (output) in
-                                guard let tempURL = output?.0, let uti = output?.1 else {
+                        self.delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
+                            if let candidateAsset = candidateAsset {
+                                self.delegate.save(localIdentifier: asset.localIdentifier, forAsset: candidateAsset)
+                                self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
+                                try? FileManager.default.removeItem(at: tempURL)
+                                error = error ?? .fatal     // terminate this asset, as we've linked the image data to another asset
+                            } else {
+                                asset.md5 = md5
+                                asset.originalUTI = uti
+                                let url = asset.physicalAssets.original.localPath.deletingPathExtension().appendingPathExtension(uti.fileExtension ?? "")
+                                if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true, overwrite: true)) == nil {
+                                    self.log.error("failed to move file - assetID: \(asset.uuid.string), currentURL: \(String(describing: tempURL)), destinationURL: \(String(describing: url))")
+                                    try? FileManager.default.removeItem(at: tempURL)
                                     error = error ?? .recoverable
-                                    dispatchGroup.leave()
-                                    return
-                                }
-                                self.join(asset: asset, toTempURL: tempURL, uti: uti) { (returnedError) in
-                                    error = error ?? returnedError
-                                    dispatchGroup.leave()
                                 }
                             }
-                        case .audio, .unknown:
-                            fatalError()
+                            dispatchGroup.leave()
                         }
                     }
                 }
@@ -175,32 +174,6 @@ extension AssetManager {
                     self.finish(.failure(error))
                 } else {
                     self.finish(.success(nil))
-                }
-            }
-        }
-
-        private func join(asset: MutableAsset, toTempURL tempURL: URL, uti: AVFileType, callback: @escaping (AssetSubOperationError?) -> Void) {
-            guard let md5 = delegate.md5(ofFileAtURL: tempURL) else {
-                log.error("error calculating md5 - assetID: \(asset.uuid.string), inputURL: \(String(describing: tempURL))")
-                callback(.recoverable)
-                return
-            }
-            delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
-                if let candidateAsset = candidateAsset {
-                    self.delegate.save(localIdentifier: asset.localIdentifier, forAsset: candidateAsset)
-                    self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
-                    try? FileManager.default.removeItem(at: tempURL)
-                    callback(.fatal)    // terminate this asset, as we've linked the image data to another asset
-                } else {
-                    let url = asset.physicalAssets.original.localPath.deletingPathExtension().appendingPathExtension(uti.fileExtension ?? "")
-                    if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true, overwrite: true)) != nil {
-                        asset.originalUTI = uti
-                        asset.md5 = md5
-                        callback(nil)
-                    } else {
-                        self.log.error("failed to move file - assetID: \(asset.uuid.string), currentURL: \(String(describing: tempURL)), destinationURL: \(String(describing: url))")
-                        callback(.recoverable)
-                    }
                 }
             }
         }

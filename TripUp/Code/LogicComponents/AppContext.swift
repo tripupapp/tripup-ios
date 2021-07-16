@@ -28,7 +28,6 @@ protocol DependencyInjector {
 
 protocol KeychainDelegate: class {
     var primaryUserKey: CryptoPrivateKey { get }
-    func groupKey(for groupID: UUID) -> CryptoPrivateKey?
     func assetKey(forFingerprint assetFingerprint: String) -> CryptoPrivateKey?
     func newAssetKey() -> CryptoPrivateKey
     func delete(key: CryptoPrivateKey) throws
@@ -38,6 +37,7 @@ protocol KeychainDelegate: class {
 }
 
 protocol AppContextInfo: AnyObject {
+    var assetUIManager: AssetUIManager { get }
     var photoLibraryAccessDenied: Bool? { get }
     func usedStorage(callback: @escaping (UsedStorage?) -> Void)
     func lowDiskSpace(callback: @escaping ClosureBool)
@@ -60,6 +60,10 @@ protocol AppContextObserverRegister {
 }
 
 extension AppContext: AppContextInfo {
+    var assetUIManager: AssetUIManager {
+        return assetManager
+    }
+
     var photoLibraryAccessDenied: Bool? {
         if let photoLibraryAccess = photoLibrary.canAccess {
             return !photoLibraryAccess
@@ -201,6 +205,7 @@ class AppContext {
     private let purchasesController: PurchasesController
 
     private let keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>
+    private let keychainDelegateObject: KeychainDelegateObject
     private let photoLibrary = PhotoLibrary()
 
     private var contextObservers = [ObjectIdentifier: AppContextObserverWrapper]()
@@ -213,6 +218,7 @@ class AppContext {
         self.keychain = keychain
 
         let primaryUserKey = try! keychain.retrievePrivateKey(withFingerprint: user.fingerprint, keyType: .user)!
+        self.keychainDelegateObject = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
 
         modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
         modelController.groupAPI = webAPI
@@ -234,7 +240,7 @@ class AppContext {
         purchasesController.addObserver(self)
 
 //        let dataManager = DataManager(dataService: dataService, simultaneousTransfers: 4)
-        self.assetManager = AssetManager(assetController: modelController, assetDatabase: modelController, photoLibrary: photoLibrary, keychainDelegate: self, apiUser: apiUser, webAPI: webAPI, dataService: dataService, networkController: networkMonitor)
+        self.assetManager = AssetManager(primaryUserID: primaryUser.uuid, assetController: modelController, assetDatabase: modelController, photoLibrary: photoLibrary, keychainDelegate: keychainDelegateObject, apiUser: apiUser, webAPI: webAPI, dataService: dataService, networkController: networkMonitor)
         assetManager.triggerStatusNotification = { [weak self] in
             self?.generateStatusNotification()
         }
@@ -505,14 +511,14 @@ extension AppContext: AppContextObserverRegister {
     }
 }
 
-extension AppContext: KeychainDelegate {
-    var primaryUserKey: CryptoPrivateKey {
-        return try! keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user)!
-    }
+class KeychainDelegateObject: KeychainDelegate {
+    let primaryUserKey: CryptoPrivateKey
 
-    func groupKey(for groupID: UUID) -> CryptoPrivateKey? {
-        guard let group = modelController.group(for: groupID) else { return nil }
-        return try? keychain.retrievePrivateKey(withFingerprint: group.fingerprint, keyType: .group)
+    private let keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>
+
+    init(keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, primaryUserKey: CryptoPrivateKey) {
+        self.keychain = keychain
+        self.primaryUserKey = primaryUserKey
     }
 
     func assetKey(forFingerprint assetFingerprint: String) -> CryptoPrivateKey? {

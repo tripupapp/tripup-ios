@@ -37,19 +37,35 @@ protocol AssetOperationDelegate: AnyObject {
     func deleteFromDB(assets: [AssetManager.MutableAsset], callback: @escaping ClosureBool)
 }
 
-extension AssetManager: AssetOperationDelegate {
+class AssetOperationDelegateObject: AssetOperationDelegate {
+    weak var keychainDelegate: KeychainDelegate?
+
+    let keychainQueue: DispatchQueue
+    let photoLibrary: PhotoLibrary
+
+    private let log = Logger.self
+    private let dataService: DataService
+    private let webAPI: API
+    private let assetController: AssetController
+
+    init(assetController: AssetController, dataService: DataService, webAPI: API, photoLibrary: PhotoLibrary, keychainQueue: DispatchQueue) {
+        self.dataService = dataService
+        self.webAPI = webAPI
+        self.assetController = assetController
+        self.keychainQueue = keychainQueue
+        self.photoLibrary = photoLibrary
+    }
+
     // MARK: key functions
     func newAssetKey() -> CryptoPrivateKey  {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
-        return keychainDelegate.newAssetKey()
+        return keychainDelegate!.newAssetKey()
     }
 
-    func key(for asset: MutableAsset) -> CryptoPrivateKey? {
+    func key(for asset: AssetManager.MutableAsset) -> CryptoPrivateKey? {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
         if let fingerprint = asset.fingerprint {
-            return keychainDelegate.assetKey(forFingerprint: fingerprint)
+            return keychainDelegate!.assetKey(forFingerprint: fingerprint)
         }
         return nil
     }
@@ -66,14 +82,14 @@ extension AssetManager: AssetOperationDelegate {
     // MARK: disk functions
     func fileExists(at url: URL) -> Bool {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
+
         let reachable = try? url.checkResourceIsReachable()
         return reachable ?? false
     }
 
     func write(_ data: Data, to url: URL) -> Bool {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
+
         do {
             try data.write(to: url, options: [.atomic])
         } catch CocoaError.fileNoSuchFile {
@@ -94,7 +110,7 @@ extension AssetManager: AssetOperationDelegate {
 
     func load(_ url: URL) -> Data? {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
+
         var data: Data?
         do {
             data = try Data(contentsOf: url)
@@ -106,7 +122,7 @@ extension AssetManager: AssetOperationDelegate {
 
      @discardableResult func delete(resourceAt url: URL) -> Bool {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
+
         do {
             try FileManager.default.removeItem(at: url)
         } catch CocoaError.fileNoSuchFile {
@@ -120,7 +136,6 @@ extension AssetManager: AssetOperationDelegate {
     // https://stackoverflow.com/a/42935601/2728986
     func md5(ofFileAtURL url: URL) -> Data? {
         assert(!Thread.isMainThread)
-        assert(.notOn(assetManagerQueue))
 
         let bufferSize = 1024 * 1024
         do {
@@ -246,12 +261,12 @@ extension AssetManager: AssetOperationDelegate {
     }
 
     // MARK: server functions
-    func createOnServer(assets: [MutableAsset], callback: @escaping (Result<[String: Int], Error>) -> Void) {
+    func createOnServer(assets: [AssetManager.MutableAsset], callback: @escaping (Result<[String: Int], Error>) -> Void) {
         keychainQueue.async { [weak self] in
             guard let self = self else {
                 return
             }
-            let userKey = self.keychainDelegate.primaryUserKey
+            let userKey = self.keychainDelegate!.primaryUserKey
             let assetKeys = assets.compactMap{ self.key(for: $0) }
             DispatchQueue.global().async {
                 guard assetKeys.count == assets.count else {
@@ -299,7 +314,7 @@ extension AssetManager: AssetOperationDelegate {
         }
     }
 
-    func writeOriginalToDB(assets: [MutableAsset], callback: @escaping ([String: Int]?) -> Void) {
+    func writeOriginalToDB(assets: [AssetManager.MutableAsset], callback: @escaping ([String: Int]?) -> Void) {
         let assetsOriginalPaths = assets.reduce(into: [String: String]()) {
             $0[$1.uuid.string] = $1.physicalAssets.original.remotePath!.absoluteString
         }
@@ -312,9 +327,86 @@ extension AssetManager: AssetOperationDelegate {
         }
     }
 
-    func deleteFromDB(assets: [MutableAsset], callback: @escaping ClosureBool) {
-        webAPI.delete(assetIDs: assets.map{ $0.uuid.string }, callbackOn: assetManagerQueue) { success in
+    func deleteFromDB(assets: [AssetManager.MutableAsset], callback: @escaping ClosureBool) {
+        webAPI.delete(assetIDs: assets.map{ $0.uuid.string }, callbackOn: .global()) { success in
             callback(success)
         }
+    }
+}
+
+extension AssetManager: AssetOperationDelegate {
+    func newAssetKey() -> CryptoPrivateKey {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.newAssetKey()
+    }
+
+    func key(for asset: AssetManager.MutableAsset) -> CryptoPrivateKey? {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.key(for: asset)
+    }
+
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void) {
+        assetOperationDelegate.unlinkedAsset(withMD5Hash: md5, callback: callback)
+    }
+
+    func save(localIdentifier: String?, forAsset asset: Asset) {
+        assetOperationDelegate.save(localIdentifier: localIdentifier, forAsset: asset)
+    }
+
+    func fileExists(at url: URL) -> Bool {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.fileExists(at: url)
+    }
+
+    func write(_ data: Data, to url: URL) -> Bool {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.write(data, to: url)
+    }
+
+    func load(_ url: URL) -> Data? {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.load(url)
+    }
+
+    @discardableResult func delete(resourceAt url: URL) -> Bool {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.delete(resourceAt: url)
+    }
+
+    func md5(ofFileAtURL url: URL) -> Data? {
+        assert(.notOn(assetManagerQueue))
+        return assetOperationDelegate.md5(ofFileAtURL: url)
+    }
+
+    func downsample(imageAt imageSourceURL: URL, originalSize size: CGSize, toScale scale: CGFloat, compress: Bool, destination imageDestinationURL: URL) -> Bool {
+        return assetOperationDelegate.downsample(imageAt: imageSourceURL, originalSize: size, toScale: scale, compress: compress, destination: imageDestinationURL)
+    }
+
+    func compressVideo(atURL url: URL, callback: @escaping (URL?) -> Void) {
+        assetOperationDelegate.compressVideo(atURL: url, callback: callback)
+    }
+
+    func upload(fileAtURL localURL: URL, transferPriority: DataManager.Priority, callback: @escaping (URL?) -> Void) {
+        assetOperationDelegate.upload(fileAtURL: localURL, transferPriority: transferPriority, callback: callback)
+    }
+
+    func downloadFile(at source: URL, to destination: URL, priority: DataManager.Priority, callback: @escaping ClosureBool) {
+        assetOperationDelegate.downloadFile(at: source, to: destination, priority: priority, callback: callback)
+    }
+
+    func createOnServer(assets: [AssetManager.MutableAsset], callback: @escaping (Result<[String : Int], Error>) -> Void) {
+        assetOperationDelegate.createOnServer(assets: assets, callback: callback)
+    }
+
+    func writeOriginalToDB(assets: [AssetManager.MutableAsset], callback: @escaping ([String : Int]?) -> Void) {
+        assetOperationDelegate.writeOriginalToDB(assets: assets, callback: callback)
+    }
+
+    func deleteFromDB(assets: [AssetManager.MutableAsset], callback: @escaping ClosureBool) {
+        assetOperationDelegate.deleteFromDB(assets: assets, callback: { [weak self] (success: Bool) in
+            self?.assetManagerQueue.async {
+                callback(success)
+            }
+        })
     }
 }
