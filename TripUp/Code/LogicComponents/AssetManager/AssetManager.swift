@@ -221,41 +221,84 @@ extension AssetManager {
             log.debug("import queue is suspended. refreshing network state in an attempt to turn back on")
             networkController?.refresh()
         }
-        retrieveUnimportedAssetIDs { [weak self] (unimportedAssetIDs) in
+        assetController.allAssets { [weak self] (allAssets) in
             guard let self = self else {
                 callback(false)
                 return
             }
-            let assetIDs: [UUID] = unimportedAssetIDs.suffix(100)
-            self.mutableAssets(from: assetIDs) { [weak self] (unimportedAssets) in
-                guard let self = self else {
-                    callback(false)
-                    return
-                }
-                guard unimportedAssets.isNotEmpty else {
-                    callback(true)
-                    return
-                }
-                let operation = AssetImportOperation(assets: unimportedAssets, delegate: self)
-                operation.completionBlock = { [weak self, weak operation] in
-                    guard let self = self, let operation = operation else {
-                        callback(false)
+            let unimportedAssets = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0 }
+
+            var success = true
+            let dispatchGroup = DispatchGroup()
+            let photoAssets = unimportedAssets.filter{ $0.type == .photo }.suffix(100)
+            if photoAssets.isNotEmpty {
+                dispatchGroup.enter()
+                self.mutableAssets(from: photoAssets.map{ $0.uuid }) { [weak self] (unimportedAssets) in
+                    guard let self = self, unimportedAssets.isNotEmpty else {
+                        success = success && false
+                        dispatchGroup.leave()
                         return
                     }
-                    self.assetManagerQueue.sync { [weak self] in
-                        self?.clear(operation: operation)
+                    let operation = AssetImportOperation(assets: unimportedAssets, delegate: self)
+                    operation.completionBlock = { [weak self, weak operation] in
+                        defer {
+                            dispatchGroup.leave()
+                        }
+                        guard let self = self, let operation = operation else {
+                            success = success && false
+                            return
+                        }
+                        self.assetManagerQueue.sync { [weak self] in
+                            self?.clear(operation: operation)
+                        }
+                        switch operation.currentState {
+                        case .some(is AssetImportOperation.Success):
+                            success = success && true
+                        case .some(is AssetImportOperation.Fatal):
+                            self.terminate(assets: unimportedAssets)
+                            success = success && true
+                        default:
+                            success = success && false
+                        }
                     }
-                    switch operation.currentState {
-                    case .some(is AssetImportOperation.Success):
-                        callback(true)
-                    case .some(is AssetImportOperation.Fatal):
-                        self.terminate(assets: unimportedAssets)
-                        callback(true)
-                    default:
-                        callback(false)
-                    }
+                    self.queue(operation: operation)
                 }
-                self.queue(operation: operation)
+            }
+            if let videoAsset = unimportedAssets.last(where: { $0.type == .video }) {
+                dispatchGroup.enter()
+                self.mutableAssets(from: [videoAsset.uuid]) { [weak self] (unimportedAssets) in
+                    guard let self = self, unimportedAssets.isNotEmpty else {
+                        success = success && false
+                        dispatchGroup.leave()
+                        return
+                    }
+                    let operation = AssetImportOperation(assets: unimportedAssets, delegate: self)
+                    operation.completionBlock = { [weak self, weak operation] in
+                        defer {
+                            dispatchGroup.leave()
+                        }
+                        guard let self = self, let operation = operation else {
+                            success = success && false
+                            return
+                        }
+                        self.assetManagerQueue.sync { [weak self] in
+                            self?.clear(operation: operation)
+                        }
+                        switch operation.currentState {
+                        case .some(is AssetImportOperation.Success):
+                            success = success && true
+                        case .some(is AssetImportOperation.Fatal):
+                            self.terminate(assets: unimportedAssets)
+                            success = success && true
+                        default:
+                            success = success && false
+                        }
+                    }
+                    self.queue(operation: operation)
+                }
+            }
+            dispatchGroup.notify(queue: .global()) {
+                callback(success)
             }
         }
     }
@@ -332,15 +375,6 @@ extension AssetManager {
 
 // MARK: AssetManager specific functions
 private extension AssetManager {
-    private func retrieveUnimportedAssetIDs(callback: @escaping ([UUID]) -> Void) {
-        assetController.allAssets { (allAssets) in
-            let unimportedAssetIDs = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0.uuid }
-            DispatchQueue.global().async {
-                callback(unimportedAssetIDs)
-            }
-        }
-    }
-
     private func mutableAsset(from assetID: UUID, callback: @escaping (MutableAsset?) -> Void) {
         mutableAssets(from: [assetID]) { [weak self] mutableAssets in
             guard let self = self else { return }
@@ -513,7 +547,8 @@ private extension AssetManager {
 // MARK: operation and queing functions
 private extension AssetManager {
     private func autoQueueUnimportedAssetIDs() {
-        retrieveUnimportedAssetIDs { [weak self] (unimportedAssetIDs) in
+        assetController.allAssets { [weak self] (allAssets) in
+            let unimportedAssetIDs = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0.uuid }
             guard unimportedAssetIDs.isNotEmpty else {
                 return
             }
