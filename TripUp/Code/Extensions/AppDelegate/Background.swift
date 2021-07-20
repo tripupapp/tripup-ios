@@ -18,8 +18,8 @@ extension AppDelegate {
         BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundProcessingTaskSchedulerIdentifier, using: nil) { (task) in
             self.log.debug("Background Task Start")
             task.expirationHandler = {
-                self.context?.assetManager.cancelBackgroundImports()
                 self.log.debug("Background Task End - expired")
+                self.context?.assetManager.cancelBackgroundImports()
                 task.setTaskCompleted(success: false)
             }
             self.context?.assetManager.startBackgroundImports { (success) in
