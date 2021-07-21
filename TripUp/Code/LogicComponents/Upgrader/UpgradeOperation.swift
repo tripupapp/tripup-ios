@@ -31,10 +31,6 @@ class UpgradeOperation: AsynchronousOperation {
 
     let log = Logger.self
 
-    override func main() {
-        fatalError("unimplemented")
-    }
-
     func finish(success: Bool) {
         self.success = success
         super.finish()
