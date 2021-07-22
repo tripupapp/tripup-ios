@@ -177,12 +177,6 @@ extension RealmDatabase: AssetDatabase {
             guard let imageObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
                 throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
             }
-            if let existingMD5 = imageObject.md5 {
-                guard existingMD5 == md5 else {
-                    throw "md5 data changed - assetID: \(assetID), existingMD5: \(existingMD5), md5: \(md5)"
-                }
-                return
-            }
             try realm.write {
                 imageObject.md5 = md5
             }
