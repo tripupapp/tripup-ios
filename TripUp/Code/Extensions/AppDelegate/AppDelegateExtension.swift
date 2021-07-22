@@ -352,7 +352,7 @@ extension AppDelegate: AppDelegateExtension {
                     UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
                 }
 
-                guard previousVersion > "1.1.1.1" else {
+                guard previousVersion > "1.1.2.4" else {
                     let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
                     guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
                         fatalError("primary user key not found")
