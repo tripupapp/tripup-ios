@@ -124,7 +124,7 @@ class MD5FixerOperation: UpgradeOperation {
             return
         }
         let assets: [AssetManager.MutableAsset] = mutableAssets.suffix(5)
-        let operation = AssetManager.AssetImportOperation(assets: assets, delegate: assetOperationDelegate, currentState: AssetManager.AssetImportOperation.FetchedFromIOS.self)
+        let operation = AssetManager.AssetImportOperation(assets: assets, delegate: assetOperationDelegate, currentState: AssetManager.AssetImportOperation.KeyGenerated.self)
         operation.completionBlock = {
             if operation.currentState is AssetManager.AssetImportOperation.Success {
                 self.progress = (self.progress.completed + assets.count, self.progress.total)
