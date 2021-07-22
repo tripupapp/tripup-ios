@@ -366,6 +366,12 @@
                                 <color key="progressTintColor" systemColor="systemIndigoColor"/>
                                 <color key="trackTintColor" white="1" alpha="0.50302333047945202" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </progressView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="50 %" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kTK-IF-iCg">
+                                <rect key="frame" x="167" y="511" width="41" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="xRU-7v-uAe"/>
                         <color key="backgroundColor" systemColor="systemOrangeColor"/>
@@ -379,16 +385,19 @@
                             <constraint firstItem="OO5-Em-Hfc" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="M27-gX-EJ4"/>
                             <constraint firstItem="OO5-Em-Hfc" firstAttribute="centerY" secondItem="cNd-nL-tGU" secondAttribute="centerY" id="Pbs-M5-iaN"/>
                             <constraint firstItem="Jjz-UH-nkl" firstAttribute="width" secondItem="UPy-Zh-cHg" secondAttribute="width" multiplier="0.75" id="SuX-PP-1wl"/>
+                            <constraint firstItem="kTK-IF-iCg" firstAttribute="top" secondItem="Jjz-UH-nkl" secondAttribute="bottom" constant="20" id="Wll-Lx-VUU"/>
                             <constraint firstItem="Jjz-UH-nkl" firstAttribute="top" secondItem="UPy-Zh-cHg" secondAttribute="bottom" constant="40" id="ZQA-NO-7aH"/>
                             <constraint firstItem="UPy-Zh-cHg" firstAttribute="width" secondItem="xRU-7v-uAe" secondAttribute="width" multiplier="0.85" id="a6e-Hp-7Jd"/>
                             <constraint firstItem="UPy-Zh-cHg" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="afe-1e-R5c"/>
                             <constraint firstItem="xRU-7v-uAe" firstAttribute="bottom" secondItem="3yw-AN-jYT" secondAttribute="bottom" constant="34" id="eWh-72-O58"/>
                             <constraint firstItem="UPy-Zh-cHg" firstAttribute="top" secondItem="OO5-Em-Hfc" secondAttribute="bottom" constant="10" id="hoI-S3-eUW"/>
+                            <constraint firstItem="kTK-IF-iCg" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="oiR-NC-zwN"/>
                             <constraint firstItem="xga-D7-MKM" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="rgH-Jo-7ZS"/>
                             <constraint firstItem="Jjz-UH-nkl" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="svi-vW-ia0"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="progressPercentage" destination="kTK-IF-iCg" id="izE-CO-REk"/>
                         <outlet property="progressView" destination="Jjz-UH-nkl" id="6FO-Ue-Jd1"/>
                     </connections>
                 </viewController>
@@ -411,7 +420,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloudy" translatesAutoresizingMaskIntoConstraints="NO" id="Dii-Jj-Rr3">
-                                <rect key="frame" x="131.66666666666666" y="270.66666666666669" width="111.66666666666666" height="91.333333333333314"/>
+                                <rect key="frame" x="131.66666666666666" y="267.66666666666669" width="111.66666666666666" height="97"/>
                                 <color key="tintColor" systemColor="systemIndigoColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="Dii-Jj-Rr3" secondAttribute="height" multiplier="23:20" id="HpD-VW-QZn"/>

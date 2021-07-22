@@ -11,6 +11,7 @@ import UIKit
 
 class UpgradeVC: UIViewController, UIViewControllerTransparent {
     @IBOutlet var progressView: UIProgressView!
+    @IBOutlet var progressPercentage: UILabel!
 
     var upgradeOperation: UpgradeOperation?
     var transparent: Bool = true
@@ -23,13 +24,19 @@ class UpgradeVC: UIViewController, UIViewControllerTransparent {
         view.backgroundColor = .clear
         progressView.progress = 0
         progressView.isHidden = true
+        progressPercentage.isHidden = true
+        progressPercentage.text = ""
         upgradeOperation?.progressUpdateUI = { [weak self] (completed: Int, total: Int) in
             DispatchQueue.main.async {
                 self?.progressView.isHidden = false
+                self?.progressPercentage.isHidden = false
                 if completed == total {
                     self?.progressView.setProgress(1.0, animated: true)
+                    self?.progressPercentage.text = "100 %"
                 } else {
-                    self?.progressView.progress = Float(completed) / Float(total)
+                    let fraction = Float(completed) / Float(total)
+                    self?.progressView.progress = fraction
+                    self?.progressPercentage.text = "\(Int(fraction * 100)) %"
                 }
             }
         }
