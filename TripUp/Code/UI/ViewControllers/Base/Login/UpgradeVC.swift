@@ -10,6 +10,9 @@ import Foundation
 import UIKit
 
 class UpgradeVC: UIViewController, UIViewControllerTransparent {
+    @IBOutlet var initialViews: UIView!
+    @IBOutlet var upgradingViews: [UIView]!
+    @IBOutlet var imageView: UIImageView!
     @IBOutlet var progressView: UIProgressView!
     @IBOutlet var progressPercentage: UILabel!
 
@@ -23,9 +26,10 @@ class UpgradeVC: UIViewController, UIViewControllerTransparent {
         super.viewDidLoad()
         view.backgroundColor = .clear
         progressView.progress = 0
-        progressView.isHidden = true
-        progressPercentage.isHidden = true
-        progressPercentage.text = ""
+        progressPercentage.text = "0 %"
+        if #available(iOS 13.0, *), let image = UIImage(systemName: "cpu") {
+            imageView.image = image
+        }
         upgradeOperation?.progressUpdateUI = { [weak self] (completed: Int, total: Int) in
             DispatchQueue.main.async {
                 self?.progressView.isHidden = false
@@ -42,8 +46,9 @@ class UpgradeVC: UIViewController, UIViewControllerTransparent {
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    @IBAction func beginUpgrade(_ sender: UIButton) {
+        initialViews.isHidden = true
+        upgradingViews.forEach{ $0.isHidden = false }
         operationQueue.addOperation(upgradeOperation!)
     }
 }

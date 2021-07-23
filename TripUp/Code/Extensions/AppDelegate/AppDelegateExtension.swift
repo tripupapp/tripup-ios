@@ -273,8 +273,6 @@ extension AppDelegate: AppDelegateExtension {
 
         // server updates
         guard serverSchemaVersion == config.serverSchemaVersion else {
-            while UIApplication.shared.applicationState == .background {}   // pause execution if app is in background - data migration should only happen in foreground
-
             // don't remove entire keychain! need to keep icloud data, primary user key, etc
             // don't remove all user defaults! some user defaults need to persist (e.g. primaryUser)
             // don't nil out authenticatedUser or purchasesController
@@ -334,8 +332,6 @@ extension AppDelegate: AppDelegateExtension {
         let currentVersion = config.appVersion
         if let previousVersion = UserDefaults.standard.string(forKey: UserDefaultsKey.AppVersionNumber.rawValue) {  // existing install
             if previousVersion != currentVersion {
-                while UIApplication.shared.applicationState == .background {}   // pause execution if app is in background - data migration should only happen in foreground
-
                 log.info("migrating from \(previousVersion) to \(currentVersion)")
 
                 // reset local app data for legacy versions (<1.0) and versions prior to this fix (<=1.0.0.13)
