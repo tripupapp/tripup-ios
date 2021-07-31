@@ -52,6 +52,7 @@ extension AssetManager {
         }
         class Fatal: GKState {
             weak var operationQueue: OperationQueue?
+            var assets = [MutableAsset]()
 
             override func didEnter(from previousState: GKState?) {
                 operationQueue?.cancelAllOperations()
@@ -108,7 +109,8 @@ extension AssetManager {
                         break
                     case .failure(.recoverable):
                         break
-                    case .failure(.fatal):
+                    case .failure(.fatal(let asset)):
+                        self?.stateMachine.state(forClass: Fatal.self)?.assets.append(asset)
                         self?.stateMachine.enter(Fatal.self)
                     }
                 }
@@ -127,7 +129,8 @@ extension AssetManager {
                         break
                     case .failure(.recoverable):
                         break
-                    case .failure(.fatal):
+                    case .failure(.fatal(let asset)):
+                        self?.stateMachine.state(forClass: Fatal.self)?.assets.append(asset)
                         self?.stateMachine.enter(Fatal.self)
                     }
                 }
@@ -139,7 +142,8 @@ extension AssetManager {
             case .some(is FetchedFromIOS):
                 let opDataUploadLow = AssetUploadOperation(assets: assets.map{ $0.physicalAssets.low }, delegate: delegate)
                 opDataUploadLow.completionBlock = { [weak self, weak operation = opDataUploadLow] in
-                    if case .some(.failure(.fatal)) = operation?.result {
+                    if case .some(.failure(.fatal(let asset))) = operation?.result {
+                        self?.stateMachine.state(forClass: Fatal.self)?.assets.append(asset)
                         self?.stateMachine.enter(Fatal.self)
                     }
                 }
@@ -150,7 +154,8 @@ extension AssetManager {
 
                 let opDataUploadOriginal = AssetUploadOperation(assets: assets.map{ $0.physicalAssets.original }, delegate: delegate)
                 opDataUploadOriginal.completionBlock = { [weak self, weak operation = opDataUploadOriginal] in
-                    if case .some(.failure(.fatal)) = operation?.result {
+                    if case .some(.failure(.fatal(let asset))) = operation?.result {
+                        self?.stateMachine.state(forClass: Fatal.self)?.assets.append(asset)
                         self?.stateMachine.enter(Fatal.self)
                     }
                 }
@@ -188,7 +193,8 @@ extension AssetManager {
                         break
                     case .failure(.recoverable):
                         break
-                    case .failure(.fatal):
+                    case .failure(.fatal(let asset)):
+                        self?.stateMachine.state(forClass: Fatal.self)?.assets.append(asset)
                         self?.stateMachine.enter(Fatal.self)
                     }
                 }

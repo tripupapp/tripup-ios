@@ -816,11 +816,11 @@ extension AssetManager: AssetImportOperationDelegate {
         }
     }
 
-    func completed(importOperation operation: AssetImportOperation, success: Bool, terminate: Bool) {
+    func completed(importOperation operation: AssetImportOperation, success: Bool, terminate: [MutableAsset]?) {
         assetManagerQueue.async { [weak self] in
             self?.runCallbacks(for: operation, success: success)
-            if terminate {
-                self?.terminate(assets: operation.assets)
+            if let assetsToTerminate = terminate {
+                self?.terminate(assets: assetsToTerminate)
             }
         }
     }

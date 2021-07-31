@@ -18,7 +18,7 @@ extension AssetManager {
     enum AssetSubOperationError: Error {
         case notRun
         case recoverable
-        case fatal
+        case fatal(AssetManager.MutableAsset)
     }
 
     class AssetSubOperationBatch<Asset: MutableAssetProtocol>: AsynchronousOperation {
@@ -106,7 +106,7 @@ extension AssetManager {
 
                 guard let localIdentifier = asset.localIdentifier else {
                     log.error("\(asset.uuid.string): no localIdentifier found. Terminating...")
-                    error = error ?? .fatal
+                    error = error ?? .fatal(asset)
                     return
                 }
 
@@ -119,13 +119,13 @@ extension AssetManager {
                     }
                     guard let phAsset = phAsset else {
                         self.log.error("\(asset.uuid.string): unable to find PHAsset! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
-                        error = error ?? .fatal
+                        error = error ?? .fatal(asset)
                         dispatchGroup.leave()
                         return
                     }
                     guard let phAssetResource = self.delegate.photoLibrary.resource(forPHAsset: phAsset, type: asset.type) else {
                         self.log.error("\(asset.uuid.string): unable to find PHAssetResource! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
-                        error = error ?? .fatal
+                        error = error ?? .fatal(asset)
                         dispatchGroup.leave()
                         return
                     }
@@ -152,7 +152,7 @@ extension AssetManager {
                                 self.delegate.save(localIdentifier: asset.localIdentifier, forAsset: candidateAsset)
                                 self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
                                 try? FileManager.default.removeItem(at: tempURL)
-                                error = error ?? .fatal     // terminate this asset, as we've linked the image data to another asset
+                                error = error ?? .fatal(asset)     // terminate this asset, as we've linked the image data to another asset
                             } else {
                                 asset.md5 = md5
                                 asset.originalUTI = uti
@@ -498,7 +498,7 @@ extension AssetManager {
                 }
                 guard let downloadURL = asset.remotePath else {
                     log.error("\(asset.uuid.string): no download url set")
-                    error = error ?? .fatal
+                    error = error ?? .fatal(asset.logicalAsset)
                     break
                 }
 

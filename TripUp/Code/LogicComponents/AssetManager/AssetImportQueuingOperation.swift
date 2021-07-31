@@ -14,7 +14,7 @@ protocol AssetImportOperationDelegate: AnyObject {
     func filterImported(assets: [AssetManager.MutableAsset]) -> [AssetManager.MutableAsset]
     func queue(importOperation operation: AssetManager.AssetImportOperation)
     func clear(importOperation operation: AssetManager.AssetImportOperation)
-    func completed(importOperation operation: AssetManager.AssetImportOperation, success: Bool, terminate: Bool)
+    func completed(importOperation operation: AssetManager.AssetImportOperation, success: Bool, terminate: [AssetManager.MutableAsset]?)
     func suspendImports()
     func checkSystem()
     func checkSystemFull()
@@ -98,16 +98,16 @@ extension AssetManager {
 
                 switch operation.currentState {
                 case .some(is AssetImportOperation.Success):
-                    delegate.completed(importOperation: operation, success: true, terminate: false)
+                    delegate.completed(importOperation: operation, success: true, terminate: nil)
                     delegate.checkSystem()
                     dispatchGroup.leave()
-                case .some(is AssetImportOperation.Fatal):
-                    delegate.completed(importOperation: operation, success: false, terminate: true)
+                case .some(let fatalState as AssetImportOperation.Fatal):
+                    delegate.completed(importOperation: operation, success: false, terminate: fatalState.assets)
                     delegate.checkSystem()
                     dispatchGroup.leave()
                 case .some(let state):
                     if operation.isCancelled {
-                        delegate.completed(importOperation: operation, success: false, terminate: false)
+                        delegate.completed(importOperation: operation, success: false, terminate: nil)
                         dispatchGroup.leave()
                     } else {
                         delegate.suspendImports()
@@ -117,7 +117,7 @@ extension AssetManager {
                     }
                 case .none:
                     if operation.isCancelled {
-                        delegate.completed(importOperation: operation, success: false, terminate: false)
+                        delegate.completed(importOperation: operation, success: false, terminate: nil)
                         dispatchGroup.leave()
                     } else {
                         delegate.suspendImports()
