@@ -733,8 +733,10 @@ private extension AssetManager {
                 if let self = self {
                     self.photoImportQueue = photoImports
                     self.videoImportQueue = videoImports
-                    self.scheduleNextBatchOfPhotoImports(batchSize: 5)
-                    self.scheduleNextBatchOfVideoImports(batchSize: 1)
+                    if self.importOperationQueue.operationCount == 0 {
+                        self.scheduleNextBatchOfPhotoImports(batchSize: 5)
+                        self.scheduleNextBatchOfVideoImports(batchSize: 1)
+                    }
                 }
             }
         }
