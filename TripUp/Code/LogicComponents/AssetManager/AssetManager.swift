@@ -544,19 +544,6 @@ private extension AssetManager {
 
 // MARK: operation and queing functions
 private extension AssetManager {
-    private func reloadQueuedImports() {
-        assetController.allAssets { [weak self] (allAssets) in
-            let unimportedAssets = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0 }
-            guard unimportedAssets.isNotEmpty else {
-                return
-            }
-            self?.assetManagerQueue.async { [weak self] in
-                self?.queuedImports = unimportedAssets
-                self?.scheduleNextBatchOfImports()
-            }
-        }
-    }
-
     private func scheduleNextBatchOfImports() {
         precondition(.on(assetManagerQueue))
         let assets = queuedImports.suffix(5)
@@ -653,17 +640,6 @@ private extension AssetManager {
     private func clear(deleteOperation operation: AssetDeleteOperation) {
         assetManagerQueue.async { [weak self] in
             self?.clear(operation: operation)
-        }
-    }
-
-    private func suspendImportOperations(_ value: Bool) {
-        precondition(.on(assetManagerQueue))
-        for operations in assetOperations.values {
-            for (_, operation) in operations {
-                if let operation = operation as? AssetImportOperation {
-                    operation.suspend(value)
-                }
-            }
         }
     }
 
@@ -799,24 +775,37 @@ private extension AssetManager {
 
 // MARK: import operation and queing functions
 private extension AssetManager {
-    func filterImported(assets: [MutableAsset]) -> [MutableAsset] {
+    private func reloadQueuedImports() {
+        assetController.allAssets { [weak self] (allAssets) in
+            let unimportedAssets = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0 }
+            guard unimportedAssets.isNotEmpty else {
+                return
+            }
+            self?.assetManagerQueue.async { [weak self] in
+                self?.queuedImports = unimportedAssets
+                self?.scheduleNextBatchOfImports()
+            }
+        }
+    }
+
+    private func filterImported(assets: [MutableAsset]) -> [MutableAsset] {
         precondition(.on(assetManagerQueue))
         return assets.filter{ !$0.imported && !operationScheduledOrInProgressOfType(AssetImportOperation.self, forAsset: $0) }
     }
 
-    func queue(importOperation operation: AssetImportOperation) {
+    private func queue(importOperation operation: AssetImportOperation) {
         assetManagerQueue.async { [weak self] in
             self?.queue(operation: operation)
         }
     }
 
-    func clear(importOperation operation: AssetImportOperation) {
+    private func clear(importOperation operation: AssetImportOperation) {
         assetManagerQueue.async { [weak self] in
             self?.clear(operation: operation)
         }
     }
 
-    func completed(importOperation operation: AssetImportOperation, success: Bool, terminate: [MutableAsset]?) {
+    private func completed(importOperation operation: AssetImportOperation, success: Bool, terminate: [MutableAsset]?) {
         assetManagerQueue.async { [weak self] in
             self?.runCallbacks(for: operation, success: success)
             if let assetsToTerminate = terminate {
@@ -825,15 +814,26 @@ private extension AssetManager {
         }
     }
 
-    func suspendImports() {
+    private func suspendImports() {
         importOperationQueue.isSuspended = true
     }
 
-    func checkSystem() {
+    private func suspendImportOperations(_ value: Bool) {
+        precondition(.on(assetManagerQueue))
+        for operations in assetOperations.values {
+            for (_, operation) in operations {
+                if let operation = operation as? AssetImportOperation {
+                    operation.suspend(value)
+                }
+            }
+        }
+    }
+
+    private func checkSystem() {
         triggerStatusNotification?()
     }
 
-    func checkSystemFull() {
+    private func checkSystemFull() {
         networkController?.refresh()
     }
 }
