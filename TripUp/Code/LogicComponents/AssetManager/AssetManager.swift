@@ -244,24 +244,24 @@ extension AssetManager {
                     }
                     let operation = AssetImportOperation(assets: unimportedAssets, delegate: self)
                     operation.completionBlock = { [weak self, weak operation] in
-                        defer {
-                            dispatchGroup.leave()
-                        }
-                        guard let self = self, let operation = operation else {
-                            success = success && false
-                            return
-                        }
-                        self.assetManagerQueue.sync { [weak self] in
-                            self?.clear(operation: operation)
-                        }
-                        switch operation.currentState {
-                        case .some(is AssetImportOperation.Success):
-                            success = success && true
-                        case .some(is AssetImportOperation.Fatal):
-                            self.terminate(assets: unimportedAssets)
-                            success = success && true
-                        default:
-                            success = success && false
+                        self?.assetManagerQueue.async {
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            guard let self = self, let operation = operation else {
+                                success = success && false
+                                return
+                            }
+                            switch operation.currentState {
+                            case .some(is AssetImportOperation.Success):
+                                success = success && true
+                            case .some(is AssetImportOperation.Fatal):
+                                self.terminate(assets: unimportedAssets)
+                                success = success && true
+                            default:
+                                success = success && false
+                            }
+                            self.clear(operation: operation)
                         }
                     }
                     self.queue(operation: operation)
@@ -277,24 +277,24 @@ extension AssetManager {
                     }
                     let operation = AssetImportOperation(assets: unimportedAssets, delegate: self)
                     operation.completionBlock = { [weak self, weak operation] in
-                        defer {
-                            dispatchGroup.leave()
-                        }
-                        guard let self = self, let operation = operation else {
-                            success = success && false
-                            return
-                        }
-                        self.assetManagerQueue.sync { [weak self] in
-                            self?.clear(operation: operation)
-                        }
-                        switch operation.currentState {
-                        case .some(is AssetImportOperation.Success):
-                            success = success && true
-                        case .some(is AssetImportOperation.Fatal):
-                            self.terminate(assets: unimportedAssets)
-                            success = success && true
-                        default:
-                            success = success && false
+                        self?.assetManagerQueue.async {
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            guard let self = self, let operation = operation else {
+                                success = success && false
+                                return
+                            }
+                            switch operation.currentState {
+                            case .some(is AssetImportOperation.Success):
+                                success = success && true
+                            case .some(is AssetImportOperation.Fatal):
+                                self.terminate(assets: unimportedAssets)
+                                success = success && true
+                            default:
+                                success = success && false
+                            }
+                            self.clear(operation: operation)
                         }
                     }
                     self.queue(operation: operation)
