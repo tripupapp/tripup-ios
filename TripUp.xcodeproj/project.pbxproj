@@ -62,7 +62,6 @@
 		202D632A2508DE4A0095FA36 /* CloudStorageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202D63292508DE4A0095FA36 /* CloudStorageVC.swift */; };
 		202D63302508E49A0095FA36 /* UIViewControllerTransparent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202D632F2508E49A0095FA36 /* UIViewControllerTransparent.swift */; };
 		202D6332250946490095FA36 /* CloudStorage.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 202D6331250946490095FA36 /* CloudStorage.storyboard */; };
-		202FD4E625EE67DF004CA1C3 /* AssetImportQueuingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202FD4E525EE67DF004CA1C3 /* AssetImportQueuingOperation.swift */; };
 		20331BED24291651009789DB /* UInt64.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20331BEC24291651009789DB /* UInt64.swift */; };
 		2033EB052507BB0D00EB1FFE /* BackupPreferencesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2033EB042507BB0D00EB1FFE /* BackupPreferencesVC.swift */; };
 		2033EB082507F16100EB1FFE /* LoginNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2033EB072507F16100EB1FFE /* LoginNavigationController.swift */; };
@@ -323,7 +322,6 @@
 		202D63292508DE4A0095FA36 /* CloudStorageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudStorageVC.swift; sourceTree = "<group>"; };
 		202D632F2508E49A0095FA36 /* UIViewControllerTransparent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerTransparent.swift; sourceTree = "<group>"; };
 		202D6331250946490095FA36 /* CloudStorage.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CloudStorage.storyboard; sourceTree = "<group>"; };
-		202FD4E525EE67DF004CA1C3 /* AssetImportQueuingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetImportQueuingOperation.swift; sourceTree = "<group>"; };
 		20331BEC24291651009789DB /* UInt64.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UInt64.swift; sourceTree = "<group>"; };
 		2033EB042507BB0D00EB1FFE /* BackupPreferencesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupPreferencesVC.swift; sourceTree = "<group>"; };
 		2033EB072507F16100EB1FFE /* LoginNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginNavigationController.swift; sourceTree = "<group>"; };
@@ -853,7 +851,6 @@
 			isa = PBXGroup;
 			children = (
 				20BE88CD26735873006089DE /* AssetDataRequester */,
-				202FD4E525EE67DF004CA1C3 /* AssetImportQueuingOperation.swift */,
 				20A2580C2450BD4F00AA5F37 /* AssetManager.swift */,
 				20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */,
 				2057C78F24EBEC6F00718F1C /* AssetOperationDelegate.swift */,
@@ -1572,7 +1569,6 @@
 				20168847210A55D200FA5D53 /* UserSelectionView.swift in Sources */,
 				20BE88CF2673588F006089DE /* AssetImageRequester.swift in Sources */,
 				20A6381C233E412F00217E27 /* AssetController.swift in Sources */,
-				202FD4E625EE67DF004CA1C3 /* AssetImportQueuingOperation.swift in Sources */,
 				2057C77C24EBD9A500718F1C /* AuthenticationView.swift in Sources */,
 				20168829210A554A00FA5D53 /* Group.swift in Sources */,
 				2079D58A242E010F0050E0AF /* PurchasesController.swift in Sources */,

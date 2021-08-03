@@ -95,8 +95,7 @@ class AssetManager {
 
     private let primaryUserID: UUID
     private let liveAssets = Cache<UUID, MutableAsset>()    // used as database cache but also to ensure multiple operations refer to the same asset instance for data consistency
-    private var autoQueuer: AssetImportQueuingOperation?
-    private var manualQueuer: AssetManualImportQueuingOperation?
+    private var queuedImports = [Asset]()
     private let importQueue = OperationQueue()
     private let downloadQueue = OperationQueue()
     private let deleteQueue = OperationQueue()
@@ -136,13 +135,13 @@ class AssetManager {
             }
             self.log.verbose("received notification - name: \(notification.name), value: \(autoBackup)")
             if autoBackup {
-                self.autoQueueUnimportedAssetIDs()
+                self.reloadQueuedImports()
             } else {
                 self.assetManagerQueue.async { [weak self] in
-                    if let pendingItems = self?.autoQueuer?.assetImportList.value, pendingItems.isNotEmpty {
-                        self?.syncTracker.removeTracking(pendingItems)
+                    if queuedImports.isNotEmpty {
+                        self?.syncTracker.removeTracking(queuedImports.map{ $0.uuid })
+                        queuedImports.removeAll()
                     }
-                    self?.autoQueuer?.cancel()
                     self?.importQueue.cancelAllOperations()
                     self?.importQueue.isSuspended = false
                 }
@@ -172,7 +171,6 @@ class AssetManager {
                 if let pendingItems = self?.assetOperations.keys, pendingItems.isNotEmpty {
                     self?.syncTracker.removeTracking(pendingItems)
                 }
-                self?.autoQueuer?.cancel()
                 self?.importQueue.cancelAllOperations()
                 self?.downloadQueue.cancelAllOperations()
                 self?.deleteQueue.cancelAllOperations()
@@ -203,7 +201,7 @@ class AssetManager {
 extension AssetManager {
     func loadAndStartQueues() {
         if UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) {
-            autoQueueUnimportedAssetIDs()
+            reloadQueuedImports()
         }
         assetController.deletedAssetIDs { [weak self] (deletedAssetIDs) in
             guard let deletedAssetIDs = deletedAssetIDs, deletedAssetIDs.isNotEmpty else {
@@ -546,74 +544,75 @@ private extension AssetManager {
 
 // MARK: operation and queing functions
 private extension AssetManager {
-    private func autoQueueUnimportedAssetIDs() {
+    private func reloadQueuedImports() {
         assetController.allAssets { [weak self] (allAssets) in
-            let unimportedAssetIDs = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0.uuid }
-            guard unimportedAssetIDs.isNotEmpty else {
+            let unimportedAssets = allAssets.values.sorted(by: .creationDate(ascending: true)).compactMap{ $0.imported ? nil : $0 }
+            guard unimportedAssets.isNotEmpty else {
                 return
             }
             self?.assetManagerQueue.async { [weak self] in
-                self?.autoQueue(assetIDs: unimportedAssetIDs)
+                self?.queuedImports = unimportedAssets
+                self?.scheduleNextBatchOfImports()
             }
         }
     }
 
-    private func autoQueue(assetIDs: [UUID]) {
+    private func scheduleNextBatchOfImports() {
         precondition(.on(assetManagerQueue))
-        var assetIDs = assetIDs
-        if let autoQueuer = autoQueuer, !autoQueuer.isFinished {
-            autoQueuer.assetImportList.mutate { queuedIDs in
-                let queuedIDsSet = Set(queuedIDs)
-                assetIDs.removeAll(where: { queuedIDsSet.contains($0) })
-                queuedIDs.append(contentsOf: assetIDs)
-            }
-        } else {
-            let autoQueuer = AssetImportQueuingOperation(assetImportList: assetIDs, operationDelegate: self)
-            autoQueuer.delegate = self
-            autoQueuer.conditions = {
-                return UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue)
-            }
-            autoQueuer.completionBlock = { [weak self] in
-                self?.assetManagerQueue.async { [weak self] in
-                    guard let self = self else {
-                        return
-                    }
-                    if self.autoQueuer === autoQueuer {
-                        self.autoQueuer = nil
-                    }
-                }
-            }
-            self.autoQueuer = autoQueuer
-            DispatchQueue.global().async {
-                self.autoQueuer?.start()
-            }
+        let assets = queuedImports.suffix(5)
+        queuedImports = queuedImports.dropLast(5)
+        guard assets.isNotEmpty, UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
+            return
         }
-        if assetIDs.isNotEmpty {
-            syncTracker.startTracking(assetIDs)
-        }
-    }
 
-    private func manualQueue(assetIDs: [UUID]) {
-        precondition(.on(assetManagerQueue))
-        if let manualQueuer = manualQueuer, !manualQueuer.isFinished {
-            manualQueuer.assetImportList.mutate{ $0.append(contentsOf: assetIDs) }
-        } else {
-            let manualQueuer = AssetManualImportQueuingOperation(assetImportList: assetIDs, operationDelegate: self)
-            manualQueuer.delegate = self
-            manualQueuer.completionBlock = { [weak self] in
-                self?.assetManagerQueue.async { [weak self] in
-                    guard let self = self else {
-                        return
+        mutableAssets(from: assets.map{ $0.uuid }) { [weak self] (mutableAssets) in
+            guard let self = self else {
+                return
+            }
+            let mutableAssetsNotImported = self.filterImported(assets: mutableAssets)
+            guard mutableAssetsNotImported.isNotEmpty else {
+                self.scheduleNextBatchOfImports()
+                return
+            }
+            let operation = AssetImportOperation(assets: mutableAssetsNotImported, delegate: self)
+            operation.completionBlock = { [weak self] in
+                self?.log.debug("Import Operation for \(String(describing: operation.assets.map{ $0.uuid.string })) - finished state: \(String(describing: operation.currentState)), cancelled: \(operation.isCancelled)")
+
+                switch operation.currentState {
+                case .some(is AssetImportOperation.Success):
+                    self?.completed(importOperation: operation, success: true, terminate: nil)
+                    self?.checkSystem()
+                    self?.assetManagerQueue.async {
+                        self?.scheduleNextBatchOfImports()
                     }
-                    if self.manualQueuer === manualQueuer {
-                        self.manualQueuer = nil
+                case .some(let fatalState as AssetImportOperation.Fatal):
+                    let fatalAssetIDs = fatalState.assets.map{ $0.uuid }
+                    let recoverableAssets = assets.filter{ !fatalAssetIDs.contains($0.uuid) }
+                    self?.completed(importOperation: operation, success: false, terminate: fatalState.assets)
+                    self?.checkSystem()
+                    self?.assetManagerQueue.async {
+                        self?.queuedImports.insert(contentsOf: recoverableAssets, at: 0)
+                        self?.scheduleNextBatchOfImports()
+                    }
+                case .some, .none:
+                    if operation.isCancelled {
+                        self?.completed(importOperation: operation, success: false, terminate: nil)
+                    } else {
+                        self?.suspendImports()
+                        self?.assetManagerQueue.async {
+                            self?.queuedImports.insert(contentsOf: assets, at: 0)
+                            self?.scheduleNextBatchOfImports()
+                        }
+                        self?.checkSystemFull()
                     }
                 }
+                self?.clear(importOperation: operation)
             }
-            self.manualQueuer = manualQueuer
-            DispatchQueue.global().async {
-                self.manualQueuer?.start()
+            guard UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
+                return
             }
+            self.queue(operation: operation)
+            self.syncTracker.startTracking(mutableAssetsNotImported.map{ $0.uuid })
         }
     }
 
@@ -798,7 +797,8 @@ private extension AssetManager {
     }
 }
 
-extension AssetManager: AssetImportOperationDelegate {
+// MARK: import operation and queing functions
+private extension AssetManager {
     func filterImported(assets: [MutableAsset]) -> [MutableAsset] {
         precondition(.on(assetManagerQueue))
         return assets.filter{ !$0.imported && !operationScheduledOrInProgressOfType(AssetImportOperation.self, forAsset: $0) }
@@ -845,13 +845,19 @@ extension AssetManager: AssetImportManager {
             callback(true)
             return
         }
-        assetManagerQueue.async { [weak self] in
+
+        mutableAssets(from: unimportedAssetIDs) { [weak self] (mutableAssets) in
             guard let self = self else {
+                return
+            }
+            let mutableAssetsNotImported = self.filterImported(assets: mutableAssets)
+            guard mutableAssetsNotImported.isNotEmpty else {
                 DispatchQueue.global().async {
-                    callback(false)
+                    callback(true)
                 }
                 return
             }
+
             let dispatchGroup = DispatchGroup()
             var allSuccess = true
             let importRequest: ClosureBool = { [weak self] success in
@@ -859,17 +865,31 @@ extension AssetManager: AssetImportManager {
                 allSuccess = allSuccess && success
                 dispatchGroup.leave()
             }
-
-            for assetID in unimportedAssetIDs {
+            for mutableAsset in mutableAssetsNotImported {
                 dispatchGroup.enter()
-                self.schedule(callback: importRequest, for: AssetImportOperation.lookupKey, onAssetID: assetID)
+                self.schedule(callback: importRequest, for: AssetImportOperation.lookupKey, onAssetID: mutableAsset.uuid)
             }
-            self.syncTracker.startTracking(unimportedAssetIDs)
-            self.manualQueue(assetIDs: unimportedAssetIDs)
-
             dispatchGroup.notify(queue: .global()) {
                 callback(allSuccess)
             }
+
+            let operation = AssetImportOperation(assets: mutableAssetsNotImported, delegate: self)
+            operation.completionBlock = { [weak self] in
+                self?.log.debug("Manual Import Operation for \(String(describing: operation.assets.map{ $0.uuid.string })) - finished state: \(String(describing: operation.currentState)), cancelled: \(operation.isCancelled)")
+
+                switch operation.currentState {
+                case .some(is AssetImportOperation.Success):
+                    self?.completed(importOperation: operation, success: true, terminate: nil)
+                case .some(let fatalState as AssetImportOperation.Fatal):
+                    self?.completed(importOperation: operation, success: false, terminate: fatalState.assets)
+                case .some, .none:
+                    self?.completed(importOperation: operation, success: false, terminate: nil)
+                }
+                self?.clear(importOperation: operation)
+            }
+            operation.queuePriority = .high
+            self.queue(operation: operation)
+            self.syncTracker.startTracking(mutableAssetsNotImported.map{ $0.uuid })
         }
     }
 }
