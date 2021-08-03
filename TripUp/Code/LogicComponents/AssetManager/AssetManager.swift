@@ -96,9 +96,9 @@ class AssetManager {
     private let primaryUserID: UUID
     private let liveAssets = Cache<UUID, MutableAsset>()    // used as database cache but also to ensure multiple operations refer to the same asset instance for data consistency
     private var queuedImports = [Asset]()
-    private let importQueue = OperationQueue()
-    private let downloadQueue = OperationQueue()
-    private let deleteQueue = OperationQueue()
+    private let importOperationQueue = OperationQueue()
+    private let downloadOperationQueue = OperationQueue()
+    private let deleteOperationQueue = OperationQueue()
     /** [assetid: [operationid: operation]] */
     private var assetOperations = [UUID: [UUID: Operation]]()
     /** [assetid: [operationname: [callback]] */
@@ -119,9 +119,9 @@ class AssetManager {
         self.assetOperationDelegate = AssetOperationDelegateObject(assetController: assetController, dataService: dataService, webAPI: webAPI, photoLibrary: photoLibrary, keychainQueue: keychainQueue)
         assetOperationDelegate.keychainDelegate = keychainDelegate
 
-        importQueue.qualityOfService = .utility
-        downloadQueue.qualityOfService = .userInitiated
-        deleteQueue.qualityOfService = .default
+        importOperationQueue.qualityOfService = .utility
+        downloadOperationQueue.qualityOfService = .userInitiated
+        deleteOperationQueue.qualityOfService = .default
 
         let cacheDelegate = CacheDelegateAssetManager()
         cacheDelegate.assetManager = self
@@ -142,8 +142,8 @@ class AssetManager {
                         self?.syncTracker.removeTracking(queuedImports.map{ $0.uuid })
                         queuedImports.removeAll()
                     }
-                    self?.importQueue.cancelAllOperations()
-                    self?.importQueue.isSuspended = false
+                    self?.importOperationQueue.cancelAllOperations()
+                    self?.importOperationQueue.isSuspended = false
                 }
             }
         }
@@ -152,16 +152,16 @@ class AssetManager {
             self.log.verbose("received notification - name: \(UIApplication.willResignActiveNotification)")
             self.assetManagerQueue.async { [weak self] in
                 self?.suspendImportOperations(true)
-                self?.importQueue.isSuspended = true
-                self?.deleteQueue.isSuspended = true
-                self?.downloadQueue.isSuspended = true
+                self?.importOperationQueue.isSuspended = true
+                self?.deleteOperationQueue.isSuspended = true
+                self?.downloadOperationQueue.isSuspended = true
             }
         }
 
         didBecomeActiveObserverToken = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [unowned self] (_) in
             self.log.verbose("received notification - name: \(UIApplication.didBecomeActiveNotification)")
             self.assetManagerQueue.async { [weak self] in
-                self?.downloadQueue.isSuspended = false // always keep download queue unsuspended whenever possible
+                self?.downloadOperationQueue.isSuspended = false // always keep download queue unsuspended whenever possible
             }
         }
 
@@ -171,12 +171,12 @@ class AssetManager {
                 if let pendingItems = self?.assetOperations.keys, pendingItems.isNotEmpty {
                     self?.syncTracker.removeTracking(pendingItems)
                 }
-                self?.importQueue.cancelAllOperations()
-                self?.downloadQueue.cancelAllOperations()
-                self?.deleteQueue.cancelAllOperations()
+                self?.importOperationQueue.cancelAllOperations()
+                self?.downloadOperationQueue.cancelAllOperations()
+                self?.deleteOperationQueue.cancelAllOperations()
                 // must resume queues in order to process cancellation events
-                self?.importQueue.isSuspended = false
-                self?.deleteQueue.isSuspended = false
+                self?.importOperationQueue.isSuspended = false
+                self?.deleteOperationQueue.isSuspended = false
             }
         }
     }
@@ -215,7 +215,7 @@ extension AssetManager {
     }
 
     func startBackgroundImports(callback: @escaping ClosureBool) {
-        if importQueue.isSuspended {
+        if importOperationQueue.isSuspended {
             log.debug("import queue is suspended. refreshing network state in an attempt to turn back on")
             networkController?.refresh()
         }
@@ -302,8 +302,8 @@ extension AssetManager {
     }
 
     func cancelBackgroundImports() {
-        importQueue.cancelAllOperations()
-        importQueue.isSuspended = false
+        importOperationQueue.cancelAllOperations()
+        importOperationQueue.isSuspended = false
     }
 }
 
@@ -398,7 +398,7 @@ private extension AssetManager {
                     callback(data, originalUTI)
                 }
             } else {
-                guard !self.downloadQueue.isSuspended else {
+                guard !self.downloadOperationQueue.isSuspended else {
                     DispatchQueue.main.async {
                         callback(nil, originalUTI)
                     }
@@ -438,7 +438,7 @@ private extension AssetManager {
             callback(true)
         } else {
             // not found on disk, so schedule request for later and create a download operation
-            guard !downloadQueue.isSuspended else {
+            guard !downloadOperationQueue.isSuspended else {
                 callback(false)
                 return
             }
@@ -626,11 +626,11 @@ private extension AssetManager {
 
         switch operation {
         case is AssetImportOperation:
-            importQueue.addOperation(operation)
+            importOperationQueue.addOperation(operation)
         case is AssetDownloadOperation:
-            downloadQueue.addOperation(operation)
+            downloadOperationQueue.addOperation(operation)
         case is AssetDeleteOperation:
-            deleteQueue.addOperation(operation)
+            deleteOperationQueue.addOperation(operation)
         default:
             assertionFailure(String(describing: operation))
         }
@@ -668,10 +668,10 @@ private extension AssetManager {
     }
 
     private func handleOperationQueues(status: AppContext.Status) {
-        importQueue.isSuspended = status.diskSpaceLow || status.cloudSpaceLow || status.networkDown
-        deleteQueue.isSuspended = status.networkDown
+        importOperationQueue.isSuspended = status.diskSpaceLow || status.cloudSpaceLow || status.networkDown
+        deleteOperationQueue.isSuspended = status.networkDown
         if status.diskSpaceLow || status.networkDown {
-            downloadQueue.cancelAllOperations()
+            downloadOperationQueue.cancelAllOperations()
         }
     }
 
@@ -782,11 +782,11 @@ private extension AssetManager {
                 case .some(.deletedFromDisk):
                     self.terminate(assets: assets)
                 case .some(.deletedFromServer):
-                    self.deleteQueue.isSuspended = true
+                    self.deleteOperationQueue.isSuspended = true
                     self.queueNewDeleteOperation(for: assets, state: .deletedFromServer)
                     self.checkSystemFull()
                 case .none:
-                    self.deleteQueue.isSuspended = true
+                    self.deleteOperationQueue.isSuspended = true
                     self.queueNewDeleteOperation(for: assets)
                     self.checkSystemFull()
                 }
@@ -826,7 +826,7 @@ private extension AssetManager {
     }
 
     func suspendImports() {
-        importQueue.isSuspended = true
+        importOperationQueue.isSuspended = true
     }
 
     func checkSystem() {
