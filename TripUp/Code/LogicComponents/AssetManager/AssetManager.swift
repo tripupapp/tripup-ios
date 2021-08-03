@@ -95,7 +95,8 @@ class AssetManager {
 
     private let primaryUserID: UUID
     private let liveAssets = Cache<UUID, MutableAsset>()    // used as database cache but also to ensure multiple operations refer to the same asset instance for data consistency
-    private var queuedImports = [Asset]()
+    private var photoImportQueue = [Asset]()
+    private var videoImportQueue = [Asset]()
     private let importOperationQueue = OperationQueue()
     private let downloadOperationQueue = OperationQueue()
     private let deleteOperationQueue = OperationQueue()
@@ -138,9 +139,13 @@ class AssetManager {
                 self.reloadQueuedImports()
             } else {
                 self.assetManagerQueue.async { [weak self] in
-                    if queuedImports.isNotEmpty {
-                        self?.syncTracker.removeTracking(queuedImports.map{ $0.uuid })
-                        queuedImports.removeAll()
+                    if photoImportQueue.isNotEmpty {
+                        self?.syncTracker.removeTracking(photoImportQueue.map{ $0.uuid })
+                        photoImportQueue.removeAll()
+                    }
+                    if videoImportQueue.isNotEmpty {
+                        self?.syncTracker.removeTracking(videoImportQueue.map{ $0.uuid })
+                        videoImportQueue.removeAll()
                     }
                     self?.importOperationQueue.cancelAllOperations()
                     self?.importOperationQueue.isSuspended = false
@@ -544,65 +549,6 @@ private extension AssetManager {
 
 // MARK: operation and queing functions
 private extension AssetManager {
-    private func scheduleNextBatchOfImports() {
-        precondition(.on(assetManagerQueue))
-        let assets = queuedImports.suffix(5)
-        queuedImports = queuedImports.dropLast(5)
-        guard assets.isNotEmpty, UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
-            return
-        }
-
-        mutableAssets(from: assets.map{ $0.uuid }) { [weak self] (mutableAssets) in
-            guard let self = self else {
-                return
-            }
-            let mutableAssetsNotImported = self.filterImported(assets: mutableAssets)
-            guard mutableAssetsNotImported.isNotEmpty else {
-                self.scheduleNextBatchOfImports()
-                return
-            }
-            let operation = AssetImportOperation(assets: mutableAssetsNotImported, delegate: self)
-            operation.completionBlock = { [weak self] in
-                self?.log.debug("Import Operation for \(String(describing: operation.assets.map{ $0.uuid.string })) - finished state: \(String(describing: operation.currentState)), cancelled: \(operation.isCancelled)")
-
-                switch operation.currentState {
-                case .some(is AssetImportOperation.Success):
-                    self?.completed(importOperation: operation, success: true, terminate: nil)
-                    self?.checkSystem()
-                    self?.assetManagerQueue.async {
-                        self?.scheduleNextBatchOfImports()
-                    }
-                case .some(let fatalState as AssetImportOperation.Fatal):
-                    let fatalAssetIDs = fatalState.assets.map{ $0.uuid }
-                    let recoverableAssets = assets.filter{ !fatalAssetIDs.contains($0.uuid) }
-                    self?.completed(importOperation: operation, success: false, terminate: fatalState.assets)
-                    self?.checkSystem()
-                    self?.assetManagerQueue.async {
-                        self?.queuedImports.insert(contentsOf: recoverableAssets, at: 0)
-                        self?.scheduleNextBatchOfImports()
-                    }
-                case .some, .none:
-                    if operation.isCancelled {
-                        self?.completed(importOperation: operation, success: false, terminate: nil)
-                    } else {
-                        self?.suspendImports()
-                        self?.assetManagerQueue.async {
-                            self?.queuedImports.insert(contentsOf: assets, at: 0)
-                            self?.scheduleNextBatchOfImports()
-                        }
-                        self?.checkSystemFull()
-                    }
-                }
-                self?.clear(importOperation: operation)
-            }
-            guard UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
-                return
-            }
-            self.queue(operation: operation)
-            self.syncTracker.startTracking(mutableAssetsNotImported.map{ $0.uuid })
-        }
-    }
-
     private func queue<T>(operation: AssetOperationBatch<T>) where T: MutableAssetProtocol {
         precondition(.on(assetManagerQueue))
         for asset in operation.assets {
@@ -781,10 +727,97 @@ private extension AssetManager {
             guard unimportedAssets.isNotEmpty else {
                 return
             }
+            let photoImports = unimportedAssets.filter{ $0.type == .photo }
+            let videoImports = unimportedAssets.filter{ $0.type == .video }
             self?.assetManagerQueue.async { [weak self] in
-                self?.queuedImports = unimportedAssets
-                self?.scheduleNextBatchOfImports()
+                if let self = self {
+                    self.photoImportQueue = photoImports
+                    self.videoImportQueue = videoImports
+                    self.scheduleNextBatchOfPhotoImports(batchSize: 5)
+                    self.scheduleNextBatchOfVideoImports(batchSize: 1)
+                }
             }
+        }
+    }
+
+    private func scheduleNextBatchOfPhotoImports(batchSize: Int) {
+        precondition(.on(assetManagerQueue))
+        let assets: [Asset] = photoImportQueue.suffix(batchSize)
+        photoImportQueue = photoImportQueue.dropLast(batchSize)
+
+        scheduleBatchOfImports(forAssets: assets, nextBatch: { [weak self] (assetsToRetry) in
+            precondition(.on(self?.assetManagerQueue))
+            if let assetsToRetry = assetsToRetry {
+                self?.photoImportQueue.insert(contentsOf: assetsToRetry, at: 0)
+            }
+            self?.scheduleNextBatchOfPhotoImports(batchSize: batchSize)
+        })
+    }
+
+    private func scheduleNextBatchOfVideoImports(batchSize: Int) {
+        precondition(.on(assetManagerQueue))
+        let assets: [Asset] = videoImportQueue.suffix(batchSize)
+        videoImportQueue = videoImportQueue.dropLast(batchSize)
+
+        scheduleBatchOfImports(forAssets: assets, nextBatch: { [weak self] (assetsToRetry) in
+            precondition(.on(self?.assetManagerQueue))
+            if let assetsToRetry = assetsToRetry {
+                self?.videoImportQueue.insert(contentsOf: assetsToRetry, at: 0)
+            }
+            self?.scheduleNextBatchOfVideoImports(batchSize: batchSize)
+        })
+    }
+
+    private func scheduleBatchOfImports(forAssets assets: [Asset], nextBatch: @escaping (_ assetsToRetry: [Asset]?) -> Void) {
+        guard assets.isNotEmpty, UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
+            return
+        }
+        mutableAssets(from: assets.map{ $0.uuid }) { [weak self] (mutableAssets) in
+            guard let self = self else {
+                return
+            }
+            let mutableAssetsNotImported = self.filterImported(assets: mutableAssets)
+            guard mutableAssetsNotImported.isNotEmpty else {
+                nextBatch(nil)
+                return
+            }
+            let operation = AssetImportOperation(assets: mutableAssetsNotImported, delegate: self)
+            operation.completionBlock = { [weak self] in
+                self?.log.debug("Import Operation for \(String(describing: operation.assets.map{ $0.uuid.string })) - finished state: \(String(describing: operation.currentState)), cancelled: \(operation.isCancelled)")
+
+                switch operation.currentState {
+                case .some(is AssetImportOperation.Success):
+                    self?.completed(importOperation: operation, success: true, terminate: nil)
+                    self?.checkSystem()
+                    self?.assetManagerQueue.async {
+                        nextBatch(nil)
+                    }
+                case .some(let fatalState as AssetImportOperation.Fatal):
+                    let fatalAssetIDs = fatalState.assets.map{ $0.uuid }
+                    let recoverableAssets = assets.filter{ !fatalAssetIDs.contains($0.uuid) }
+                    self?.completed(importOperation: operation, success: false, terminate: fatalState.assets)
+                    self?.checkSystem()
+                    self?.assetManagerQueue.async {
+                        nextBatch(recoverableAssets)
+                    }
+                case .some, .none:
+                    if operation.isCancelled {
+                        self?.completed(importOperation: operation, success: false, terminate: nil)
+                    } else {
+                        self?.suspendImports()
+                        self?.assetManagerQueue.async {
+                            nextBatch(assets)
+                        }
+                        self?.checkSystemFull()
+                    }
+                }
+                self?.clear(importOperation: operation)
+            }
+            guard UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
+                return
+            }
+            self.queue(operation: operation)
+            self.syncTracker.startTracking(mutableAssetsNotImported.map{ $0.uuid })
         }
     }
 
