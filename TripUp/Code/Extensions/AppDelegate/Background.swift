@@ -16,6 +16,9 @@ extension AppDelegate {
         let backgroundProcessingTaskSchedulerIdentifier = "app.tripup.importAssets"
 
         BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundProcessingTaskSchedulerIdentifier, using: nil) { (task) in
+            guard UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) else {
+                return
+            }
             self.log.debug("Background Task Start")
             task.expirationHandler = {
                 self.log.debug("Background Task End - expired")

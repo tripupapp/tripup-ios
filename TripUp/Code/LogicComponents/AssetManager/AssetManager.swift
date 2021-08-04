@@ -220,9 +220,12 @@ extension AssetManager {
     }
 
     func startBackgroundImports(callback: @escaping ClosureBool) {
+        // check system conditions, pause imports if conditions not met (disk, cloud states, and network photo library access)
         if importOperationQueue.isSuspended {
             log.debug("import queue is suspended. refreshing network state in an attempt to turn back on")
-            networkController?.refresh()
+            checkSystemFull()
+        } else {
+            checkSystem()
         }
         assetController.allAssets { [weak self] (allAssets) in
             guard let self = self else {
