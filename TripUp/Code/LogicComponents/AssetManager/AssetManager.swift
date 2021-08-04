@@ -727,6 +727,7 @@ private extension AssetManager {
             guard unimportedAssets.isNotEmpty else {
                 return
             }
+            self?.syncTracker.startTracking(unimportedAssets.map{ $0.uuid })
             let photoImports = unimportedAssets.filter{ $0.type == .photo }
             let videoImports = unimportedAssets.filter{ $0.type == .video }
             self?.assetManagerQueue.async { [weak self] in
@@ -819,7 +820,6 @@ private extension AssetManager {
                 return
             }
             self.queue(operation: operation)
-            self.syncTracker.startTracking(mutableAssetsNotImported.map{ $0.uuid })
         }
     }
 
