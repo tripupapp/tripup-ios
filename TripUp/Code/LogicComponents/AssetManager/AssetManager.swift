@@ -793,7 +793,7 @@ private extension AssetManager {
 
                 switch operation.currentState {
                 case .some(is AssetImportOperation.Success):
-                    self?.completed(importOperation: operation, success: true, terminate: nil)
+                    self?.completed(importOperation: operation, success: true)
                     self?.checkSystem()
                     self?.assetManagerQueue.async {
                         nextBatch(nil)
@@ -808,7 +808,7 @@ private extension AssetManager {
                     }
                 case .some, .none:
                     if operation.isCancelled {
-                        self?.completed(importOperation: operation, success: false, terminate: nil)
+                        self?.completed(importOperation: operation, success: false)
                     } else {
                         self?.suspendImports()
                         self?.assetManagerQueue.async {
@@ -843,7 +843,11 @@ private extension AssetManager {
         }
     }
 
-    private func completed(importOperation operation: AssetImportOperation, success: Bool, terminate: [MutableAsset]?) {
+    private func completed(importOperation operation: AssetImportOperation, success: Bool) {
+        completed(importOperation: operation, success: success, terminate: nil as [MutableAsset]?)
+    }
+
+    private func completed<T>(importOperation operation: AssetImportOperation, success: Bool, terminate: T?) where T: Collection, T.Element == MutableAsset {
         assetManagerQueue.async { [weak self] in
             self?.runCallbacks(for: operation, success: success)
             if let assetsToTerminate = terminate {
@@ -917,11 +921,11 @@ extension AssetManager: AssetImportManager {
 
                 switch operation.currentState {
                 case .some(is AssetImportOperation.Success):
-                    self?.completed(importOperation: operation, success: true, terminate: nil)
+                    self?.completed(importOperation: operation, success: true)
                 case .some(let fatalState as AssetImportOperation.Fatal):
                     self?.completed(importOperation: operation, success: false, terminate: fatalState.assets)
                 case .some, .none:
-                    self?.completed(importOperation: operation, success: false, terminate: nil)
+                    self?.completed(importOperation: operation, success: false)
                 }
                 self?.clear(importOperation: operation)
             }

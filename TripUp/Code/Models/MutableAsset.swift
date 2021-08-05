@@ -142,3 +142,13 @@ extension AssetManager {
         }
     }
 }
+
+extension AssetManager.MutableAsset: Hashable {
+    static func == (lhs: AssetManager.MutableAsset, rhs: AssetManager.MutableAsset) -> Bool {
+        return lhs.uuid == rhs.uuid
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid)
+    }
+}
