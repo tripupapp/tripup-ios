@@ -137,6 +137,7 @@
 		20A6381C233E412F00217E27 /* AssetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A6381B233E412F00217E27 /* AssetController.swift */; };
 		20A796A12466F02300A0CB10 /* PhoneNumberUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A796A02466F02300A0CB10 /* PhoneNumberUtils.swift */; };
 		20A7B0FA24850319004D88F5 /* UniversalLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A7B0F924850319004D88F5 /* UniversalLinks.swift */; };
+		20A9E0F026BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A9E0EF26BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift */; };
 		20ABFF5F22CFABAA00D38019 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20ABFF5E22CFABAA00D38019 /* LocationManager.swift */; };
 		20AD627222B2708C003F4ED4 /* CryptoKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AD627122B2708C003F4ED4 /* CryptoKeyTests.swift */; };
 		20AD627422B27227003F4ED4 /* AsymmetricKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AD627322B27227003F4ED4 /* AsymmetricKey.swift */; };
@@ -399,6 +400,7 @@
 		20A6381B233E412F00217E27 /* AssetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetController.swift; sourceTree = "<group>"; };
 		20A796A02466F02300A0CB10 /* PhoneNumberUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberUtils.swift; sourceTree = "<group>"; };
 		20A7B0F924850319004D88F5 /* UniversalLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalLinks.swift; sourceTree = "<group>"; };
+		20A9E0EF26BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDuplicateCleanupOperation.swift; sourceTree = "<group>"; };
 		20ABFF5E22CFABAA00D38019 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		20AD627122B2708C003F4ED4 /* CryptoKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoKeyTests.swift; sourceTree = "<group>"; };
 		20AD627322B27227003F4ED4 /* AsymmetricKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsymmetricKey.swift; sourceTree = "<group>"; };
@@ -691,6 +693,7 @@
 		2046D1D7258FADBE003B01B1 /* Upgrader */ = {
 			isa = PBXGroup;
 			children = (
+				20A9E0EF26BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift */,
 				20C175362697955100A89BA2 /* MD5FixerOperation.swift */,
 				2046D1DA258FAE39003B01B1 /* Schema0to1UpgradeOperation.swift */,
 				2046D1D8258FADE0003B01B1 /* UpgradeOperation.swift */,
@@ -1627,6 +1630,7 @@
 				202450C025ED87AB0015F3D4 /* SynchronizedStateMachine.swift in Sources */,
 				2066FAF0230B52C400E414BB /* PhotoViewDataModel.swift in Sources */,
 				20AD627622B2742C003F4ED4 /* Keychain.swift in Sources */,
+				20A9E0F026BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift in Sources */,
 				2047DBD323294CFC00598647 /* FullscreenViewCell.swift in Sources */,
 				20E7743A2327178700F2AB0C /* PhotoViewCell.swift in Sources */,
 				2016881F210A553800FA5D53 /* PriorityQueue.swift in Sources */,

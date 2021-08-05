@@ -340,12 +340,12 @@ extension AppDelegate: AppDelegateExtension {
                     return
                 }
 
-                let clientUpgradeSuccessfulBlock = {
+                let clientUpgradeSuccessfulBlock = { (version: String) in
                     // refresh privacy policy
                     self.privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)
 
                     // finally, update local app version number
-                    UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
+                    UserDefaults.standard.set(version, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
                 }
 
                 guard previousVersion > "1.1.2.4" else {
@@ -363,7 +363,7 @@ extension AppDelegate: AppDelegateExtension {
                     md5FixerOperation.completionBlock = {
                         DispatchQueue.main.async {
                             if md5FixerOperation.success {
-                                clientUpgradeSuccessfulBlock()
+                                clientUpgradeSuccessfulBlock("1.1.2.5")
                                 self.presentNextRootViewController(after: upgradeVC)
                             } else {
                                 let alert = UIAlertController(title: "Upgrade failed", message: "There was an error upgrading your data. Please try again. If the problem persists, please contact us.", preferredStyle: .alert)
@@ -375,6 +375,37 @@ extension AppDelegate: AppDelegateExtension {
                         }
                     }
                     upgradeVC.upgradeOperation = md5FixerOperation
+                    loginNavigationController(navigateTo: upgradeVC)
+                    return
+                }
+
+                guard previousVersion > "1.1.2.8" else {
+                    let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
+                    guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
+                        fatalError("primary user key not found")
+                    }
+                    let localDuplicateCleanupOperation = LocalDuplicateCleanupOperation()
+                    localDuplicateCleanupOperation.database = database
+                    localDuplicateCleanupOperation.dataService = dataService
+                    localDuplicateCleanupOperation.api = api
+                    localDuplicateCleanupOperation.user = primaryUser
+                    localDuplicateCleanupOperation.userKey = primaryUserKey
+                    localDuplicateCleanupOperation.keychain = keychain
+                    localDuplicateCleanupOperation.completionBlock = {
+                        DispatchQueue.main.async {
+                            if localDuplicateCleanupOperation.success {
+                                clientUpgradeSuccessfulBlock(currentVersion)
+                                self.presentNextRootViewController(after: upgradeVC)
+                            } else {
+                                let alert = UIAlertController(title: "Upgrade failed", message: "There was an error upgrading your data. Please try again. If the problem persists, please contact us.", preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                                    self.presentNextRootViewController(after: upgradeVC)
+                                }))
+                                upgradeVC.present(alert, animated: true, completion: nil)
+                            }
+                        }
+                    }
+                    upgradeVC.upgradeOperation = localDuplicateCleanupOperation
                     loginNavigationController(navigateTo: upgradeVC)
                     return
                 }
