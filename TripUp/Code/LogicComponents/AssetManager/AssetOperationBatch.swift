@@ -304,7 +304,6 @@ extension AssetManager {
             for dependency in dependencies {
                 if let dependency = dependency as? AssetOperationResult {
                     guard case .success = dependency.result else {
-                        result = dependency.result
                         finish()
                         return
                     }
