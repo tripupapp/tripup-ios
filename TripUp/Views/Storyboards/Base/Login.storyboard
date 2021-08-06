@@ -373,7 +373,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zuv-h3-MCS">
-                                <rect key="frame" x="50" y="316" width="275" height="180"/>
+                                <rect key="frame" x="50" y="316" width="275" height="190"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TxJ-gW-pLw">
                                         <rect key="frame" x="0.0" y="0.0" width="275" height="122"/>
@@ -383,7 +383,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eTI-J4-qDI">
-                                        <rect key="frame" x="61.666666666666686" y="142" width="152" height="38"/>
+                                        <rect key="frame" x="61.666666666666686" y="152" width="152" height="38"/>
                                         <color key="backgroundColor" systemColor="systemIndigoColor"/>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="19"/>
                                         <inset key="contentEdgeInsets" minX="10" minY="7.5" maxX="10" maxY="7.5"/>
@@ -404,7 +404,7 @@
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="TxJ-gW-pLw" secondAttribute="trailing" id="0fZ-md-dZq"/>
                                     <constraint firstItem="TxJ-gW-pLw" firstAttribute="leading" secondItem="Zuv-h3-MCS" secondAttribute="leading" id="53B-fT-XCB"/>
-                                    <constraint firstItem="eTI-J4-qDI" firstAttribute="top" secondItem="TxJ-gW-pLw" secondAttribute="bottom" constant="20" id="SQV-LY-nN3"/>
+                                    <constraint firstItem="eTI-J4-qDI" firstAttribute="top" secondItem="TxJ-gW-pLw" secondAttribute="bottom" constant="30" id="SQV-LY-nN3"/>
                                     <constraint firstAttribute="bottom" secondItem="eTI-J4-qDI" secondAttribute="bottom" id="cfV-sk-Cep"/>
                                     <constraint firstItem="eTI-J4-qDI" firstAttribute="centerX" secondItem="Zuv-h3-MCS" secondAttribute="centerX" id="gK1-26-RqW"/>
                                     <constraint firstItem="TxJ-gW-pLw" firstAttribute="top" secondItem="Zuv-h3-MCS" secondAttribute="top" id="rZE-D5-CSD"/>
