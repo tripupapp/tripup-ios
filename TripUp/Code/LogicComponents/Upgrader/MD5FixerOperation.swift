@@ -19,16 +19,22 @@ class MD5FixerOperation: UpgradeOperation {
         super.main()
 
         guard let database = database, let dataService = dataService, let api = api, let primaryUser = user, let primaryUserKey = userKey, let keychain = keychain else {
+            log.error("missing operation dependency - \(String(describing: self.database)), \(String(describing: self.dataService)), \(String(describing: self.api)), \(String(describing: self.user)), \(String(describing: self.userKey)), \(String(describing: self.keychain))")
             finish(success: false)
             return
         }
         modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
 
         let allAssets = database.allAssets
-        guard let allMutableAssets: [AssetManager.MutableAsset] = try? database.mutableAssets(forAssetIDs: allAssets.keys) else {
+        let allMutableAssets: [AssetManager.MutableAsset]
+        do {
+            allMutableAssets = try database.mutableAssets(forAssetIDs: allAssets.keys)
+        } catch {
+            log.error("no mutable assets - error: \(String(describing: error))")
             finish(success: false)
             return
         }
+
         self.progress = (completed: 0, total: allMutableAssets.count)
         var mutableAssetsToReImport = [UUID: AssetManager.MutableAsset]()
         for mutableAsset in allMutableAssets {
