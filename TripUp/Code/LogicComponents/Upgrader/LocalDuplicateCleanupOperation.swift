@@ -25,54 +25,55 @@ class LocalDuplicateCleanupOperation: UpgradeOperation {
         modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
 
         let allAssetsDict = database.allAssets
-        let allMutableAssets: [AssetManager.MutableAsset]
+        let allAssetsSorted = allAssetsDict.values.sorted(by: { $0.imported && !$1.imported })
+        let assetID2LocalIDMap = database.assetIDLocalIDMap
+
+        var matchedLocalIDs = Set<String>()
+        var duplicateAssetIDs = [UUID]()
+        self.progress = (completed: 0, total: allAssetsSorted.count)
+        for asset in allAssetsSorted {
+            guard let localIdentifier = assetID2LocalIDMap[asset.uuid] else {
+                self.progress = (self.progress.completed + 1, self.progress.total)
+                continue
+            }
+            if asset.ownerID != primaryUser.uuid || !matchedLocalIDs.contains(localIdentifier) {
+                matchedLocalIDs.insert(localIdentifier)
+                self.progress = (self.progress.completed + 1, self.progress.total)
+            } else {
+                duplicateAssetIDs.append(asset.uuid)
+            }
+        }
+
+        guard duplicateAssetIDs.isNotEmpty else {
+            finish(success: true)
+            return
+        }
+
+        let duplicateMutableAssets: [AssetManager.MutableAsset]
         do {
-            allMutableAssets = try database.mutableAssets(forAssetIDs: allAssetsDict.keys)
+            duplicateMutableAssets = try database.mutableAssets(forAssetIDs: duplicateAssetIDs)
         } catch {
             log.error("no mutable assets - error: \(String(describing: error))")
             finish(success: false)
             return
         }
-        allMutableAssets.forEach{ $0.database = modelController }
-        self.progress = (completed: 0, total: allMutableAssets.count)
-
-        let mutableAssetsSorted = allMutableAssets.sorted(by: { $0.imported && !$1.imported })
-
-        var toKeep = Set<AssetManager.MutableAsset>()
-        var duplicates = [AssetManager.MutableAsset]()
-        for mutableAsset in mutableAssetsSorted {
-            guard let localIdentifier = mutableAsset.localIdentifier else {
-                self.progress = (self.progress.completed + 1, self.progress.total)
-                continue
-            }
-            if mutableAsset.ownerID != primaryUser.uuid || !toKeep.contains(where: { $0.localIdentifier == localIdentifier }) {
-                toKeep.insert(mutableAsset)
-                self.progress = (self.progress.completed + 1, self.progress.total)
-            } else {
-                duplicates.append(mutableAsset)
-            }
-        }
-
-        guard duplicates.isNotEmpty else {
-            finish(success: true)
-            return
-        }
+        duplicateMutableAssets.forEach{ $0.database = modelController }
 
         keychainDelegate = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
         assetOperationDelegate = AssetOperationDelegateObject(assetController: modelController!, dataService: dataService, webAPI: api, photoLibrary: PhotoLibrary(), keychainQueue: .global())
         assetOperationDelegate?.keychainDelegate = keychainDelegate
 
-        let deleteOperation = AssetManager.AssetDeleteOperation(assets: duplicates, delegate: assetOperationDelegate!)
+        let deleteOperation = AssetManager.AssetDeleteOperation(assets: duplicateMutableAssets, delegate: assetOperationDelegate!)
         deleteOperation.completionBlock = {
             if deleteOperation.currentState.value == .deletedFromDisk {
-                let fingerprints = duplicates.compactMap{ $0.fingerprint }
+                let fingerprints = duplicateMutableAssets.compactMap{ $0.fingerprint }
                 for fingerprint in fingerprints {
                     if let key = self.keychainDelegate!.assetKey(forFingerprint: fingerprint) {
                         try? self.keychainDelegate!.delete(key: key)
                     }
                 }
-                self.modelController!.remove(assets: duplicates)
-                self.progress = (self.progress.completed + duplicates.count, self.progress.total)
+                self.modelController!.remove(assets: duplicateMutableAssets)
+                self.progress = (self.progress.completed + duplicateMutableAssets.count, self.progress.total)
                 self.finish(success: true)
             } else {
                 self.log.error("unexpected state - \(String(describing: deleteOperation.currentState.value))")
