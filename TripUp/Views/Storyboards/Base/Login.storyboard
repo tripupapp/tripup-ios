@@ -373,17 +373,17 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zuv-h3-MCS">
-                                <rect key="frame" x="50" y="336.33333333333331" width="275" height="139.33333333333331"/>
+                                <rect key="frame" x="50" y="316" width="275" height="180"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TxJ-gW-pLw">
-                                        <rect key="frame" x="0.0" y="0.0" width="275" height="81.333333333333329"/>
-                                        <string key="text">TripUp needs to upgrade some user data. This operation may take a while. Please do not exit the app once the upgrade has started.</string>
+                                        <rect key="frame" x="0.0" y="0.0" width="275" height="122"/>
+                                        <string key="text">TripUp needs to upgrade some user data. This operation may take a while. Please do not exit the app once the upgrade has started. You may be prompted to run further upgrades.</string>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eTI-J4-qDI">
-                                        <rect key="frame" x="61.666666666666686" y="101.33333333333337" width="152" height="38"/>
+                                        <rect key="frame" x="61.666666666666686" y="142" width="152" height="38"/>
                                         <color key="backgroundColor" systemColor="systemIndigoColor"/>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="19"/>
                                         <inset key="contentEdgeInsets" minX="10" minY="7.5" maxX="10" maxY="7.5"/>
@@ -423,6 +423,7 @@
                         <constraints>
                             <constraint firstItem="xga-D7-MKM" firstAttribute="width" relation="lessThanOrEqual" secondItem="xRU-7v-uAe" secondAttribute="width" id="0Pt-QF-4AZ"/>
                             <constraint firstItem="4Tn-Ii-sUz" firstAttribute="centerY" secondItem="cNd-nL-tGU" secondAttribute="centerY" multiplier="0.8" id="1N3-hO-DTM"/>
+                            <constraint firstItem="Zuv-h3-MCS" firstAttribute="top" secondItem="jXb-s9-1bB" secondAttribute="bottom" constant="49.666666666666686" id="5dk-LZ-gcm"/>
                             <constraint firstItem="3yw-AN-jYT" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="8tf-kO-GEU"/>
                             <constraint firstItem="xga-D7-MKM" firstAttribute="top" secondItem="xRU-7v-uAe" secondAttribute="top" constant="18" id="9ux-VA-Bat"/>
                             <constraint firstItem="4Tn-Ii-sUz" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="BhC-7h-sko"/>
@@ -444,7 +445,6 @@
                             <constraint firstItem="Zuv-h3-MCS" firstAttribute="leading" secondItem="cNd-nL-tGU" secondAttribute="leading" constant="50" id="q9j-XP-NRB"/>
                             <constraint firstItem="xga-D7-MKM" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="rgH-Jo-7ZS"/>
                             <constraint firstItem="Jjz-UH-nkl" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="svi-vW-ia0"/>
-                            <constraint firstItem="Zuv-h3-MCS" firstAttribute="centerY" secondItem="cNd-nL-tGU" secondAttribute="centerY" id="tpf-vY-n5I"/>
                             <constraint firstItem="4Tn-Ii-sUz" firstAttribute="top" secondItem="jXb-s9-1bB" secondAttribute="bottom" constant="40" id="w17-Qy-WMh"/>
                             <constraint firstItem="Zuv-h3-MCS" firstAttribute="centerX" secondItem="cNd-nL-tGU" secondAttribute="centerX" id="yVa-om-VZx"/>
                         </constraints>
