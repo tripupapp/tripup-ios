@@ -33,16 +33,17 @@ class LocalDuplicateCleanupOperation: UpgradeOperation {
             finish(success: false)
             return
         }
+        allMutableAssets.forEach{ $0.database = modelController }
 
-        let assetsWithIdentifiers = allMutableAssets.sorted(by: { $0.imported && !$1.imported })
+        let mutableAssetsSorted = allMutableAssets.sorted(by: { $0.imported && !$1.imported })
 
         var toKeep = Set<AssetManager.MutableAsset>()
         var duplicates = [AssetManager.MutableAsset]()
-        for mutableAsset in assetsWithIdentifiers {
-            guard mutableAsset.ownerID == primaryUser.uuid, let localIdentifier = mutableAsset.localIdentifier else {
+        for mutableAsset in mutableAssetsSorted {
+            guard let localIdentifier = mutableAsset.localIdentifier else {
                 continue
             }
-            if !toKeep.contains(where: { $0.localIdentifier == localIdentifier }) {
+            if mutableAsset.ownerID != primaryUser.uuid || !toKeep.contains(where: { $0.localIdentifier == localIdentifier }) {
                 toKeep.insert(mutableAsset)
             } else {
                 duplicates.append(mutableAsset)
