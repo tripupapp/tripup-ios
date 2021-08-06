@@ -49,6 +49,11 @@ class LocalDuplicateCleanupOperation: UpgradeOperation {
             }
         }
 
+        guard duplicates.isNotEmpty else {
+            finish(success: true)
+            return
+        }
+
         keychainDelegate = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
         assetOperationDelegate = AssetOperationDelegateObject(assetController: modelController!, dataService: dataService, webAPI: api, photoLibrary: PhotoLibrary(), keychainQueue: .global())
         assetOperationDelegate?.keychainDelegate = keychainDelegate
