@@ -34,6 +34,7 @@ class LocalDuplicateCleanupOperation: UpgradeOperation {
             return
         }
         allMutableAssets.forEach{ $0.database = modelController }
+        self.progress = (completed: 0, total: allMutableAssets.count)
 
         let mutableAssetsSorted = allMutableAssets.sorted(by: { $0.imported && !$1.imported })
 
@@ -41,10 +42,12 @@ class LocalDuplicateCleanupOperation: UpgradeOperation {
         var duplicates = [AssetManager.MutableAsset]()
         for mutableAsset in mutableAssetsSorted {
             guard let localIdentifier = mutableAsset.localIdentifier else {
+                self.progress = (self.progress.completed + 1, self.progress.total)
                 continue
             }
             if mutableAsset.ownerID != primaryUser.uuid || !toKeep.contains(where: { $0.localIdentifier == localIdentifier }) {
                 toKeep.insert(mutableAsset)
+                self.progress = (self.progress.completed + 1, self.progress.total)
             } else {
                 duplicates.append(mutableAsset)
             }
@@ -69,6 +72,7 @@ class LocalDuplicateCleanupOperation: UpgradeOperation {
                     }
                 }
                 self.modelController!.remove(assets: duplicates)
+                self.progress = (self.progress.completed + duplicates.count, self.progress.total)
                 self.finish(success: true)
             } else {
                 self.log.error("unexpected state - \(String(describing: deleteOperation.currentState.value))")
