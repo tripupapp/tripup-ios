@@ -373,7 +373,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zuv-h3-MCS">
-                                <rect key="frame" x="50" y="338" width="275" height="136.33333333333337"/>
+                                <rect key="frame" x="50" y="336.33333333333331" width="275" height="139.33333333333331"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TxJ-gW-pLw">
                                         <rect key="frame" x="0.0" y="0.0" width="275" height="81.333333333333329"/>
@@ -383,11 +383,18 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eTI-J4-qDI">
-                                        <rect key="frame" x="71.666666666666686" y="101.33333333333331" width="132" height="35"/>
+                                        <rect key="frame" x="61.666666666666686" y="101.33333333333337" width="152" height="38"/>
+                                        <color key="backgroundColor" systemColor="systemIndigoColor"/>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="19"/>
+                                        <inset key="contentEdgeInsets" minX="10" minY="7.5" maxX="10" maxY="7.5"/>
                                         <state key="normal" title="Begin Upgrade">
-                                            <color key="titleColor" systemColor="systemIndigoColor"/>
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="beginUpgrade:" destination="3rD-QD-fpK" eventType="touchUpInside" id="8Uv-2d-FGq"/>
                                         </connections>
