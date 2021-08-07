@@ -335,7 +335,7 @@ extension AppDelegate: AppDelegateExtension {
                 log.info("migrating from \(previousVersion) to \(currentVersion)")
 
                 // reset local app data for legacy versions (<1.0) and versions prior to this fix (<=1.0.0.13)
-                guard previousVersion > "1.0.0.13" else {
+                guard previousVersion.isHigherVersionNumberThan("1.0.0.13") else {
                     presentNextRootViewController(resetApp: true)
                     return
                 }
@@ -348,7 +348,7 @@ extension AppDelegate: AppDelegateExtension {
                     UserDefaults.standard.set(version, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
                 }
 
-                guard previousVersion > "1.1.2.4" else {
+                guard previousVersion.isHigherVersionNumberThan("1.1.2.4") else {
                     let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
                     guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
                         fatalError("primary user key not found")
@@ -379,7 +379,7 @@ extension AppDelegate: AppDelegateExtension {
                     return
                 }
 
-                guard previousVersion > "1.1.2.11" else {
+                guard previousVersion.isHigherVersionNumberThan("1.1.2.12") else {
                     let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
                     guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
                         fatalError("primary user key not found")

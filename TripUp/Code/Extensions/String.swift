@@ -8,6 +8,12 @@
 
 import Foundation
 
+extension String {
+    func isHigherVersionNumberThan(_ version: String) -> Bool {
+        return self.compare(version, options: .numeric) == .orderedDescending
+    }
+}
+
 extension String: Error { }
 
 extension String: LocalizedError {
