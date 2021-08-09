@@ -94,7 +94,6 @@ class AssetManager {
     private weak var networkController: NetworkMonitorController?
 
     private let primaryUserID: UUID
-    private let liveAssets = Cache<UUID, MutableAsset>()    // used as database cache but also to ensure multiple operations refer to the same asset instance for data consistency
     private var photoImportQueue = [Asset]()
     private var videoImportQueue = [Asset]()
     private let importOperationQueue = OperationQueue()
@@ -122,10 +121,6 @@ class AssetManager {
         importOperationQueue.qualityOfService = .utility
         downloadOperationQueue.qualityOfService = .userInitiated
         deleteOperationQueue.qualityOfService = .default
-
-        let cacheDelegate = CacheDelegateAssetManager()
-        cacheDelegate.assetManager = self
-        liveAssets.delegate = cacheDelegate
 
         autoBackupObserverToken = NotificationCenter.default.addObserver(forName: .AutoBackupChanged, object: nil, queue: nil) { [unowned self] notification in
             guard let autoBackup = notification.object as? Bool else {
@@ -449,79 +444,28 @@ private extension AssetManager {
                 }
             }
         }
-        liveAssets.removeObjects(forKeys: assetIDs)
         assetController.remove(assets: assets)
     }
 }
 
 // MARK: AssetManager caching functions
 private extension AssetManager {
-    private class CacheDelegateAssetManager: CacheDelegate<UUID> {
-        weak var assetManager: AssetManager?
-
-        override func isDiscardable<T>(keysToTest: T, callbackWithDiscardableKeys: @escaping (AnyCollection<UUID>) -> Void) where T: Collection, T.Element == UUID {
-            if let assetManager = assetManager {
-                assetManager.isDiscardable(keysToTest: keysToTest, callbackWithDiscardableKeys: callbackWithDiscardableKeys)
-            } else {
-                callbackWithDiscardableKeys(AnyCollection(keysToTest))
-            }
-        }
-    }
-
-    private func isDiscardable<T>(keysToTest: T, callbackWithDiscardableKeys: @escaping (AnyCollection<UUID>) -> Void) where T: Collection, T.Element == UUID {
-        assetManagerQueue.async { [weak self] in
-            if let self = self {
-                let discarcableKeys = keysToTest.filter{ !self.operationsExist(forAssetID: $0) }
-                callbackWithDiscardableKeys(AnyCollection(discarcableKeys))
-            } else {
-                callbackWithDiscardableKeys(AnyCollection(keysToTest))
-            }
-        }
-    }
-
     private func loadMutableAssets<T>(from assetIDs: T, callback: @escaping ([MutableAsset]) -> Void) where T: Collection, T.Element == UUID {
-        DispatchQueue.global().async {
-            var cachedAssets = [MutableAsset]()
-            var assetIDsToRetrieveFromDB = [UUID]()
-            for id in assetIDs {
-                if let asset = self.liveAssets.object(forKey: id) {
-                    cachedAssets.append(asset)
-                } else {
-                    assetIDsToRetrieveFromDB.append(id)
+        assetController.mutableAssets(for: assetIDs) { [weak self] (result) in
+            var mutableAssets = [MutableAsset]()
+            do {
+                let result = try result.get()
+                result.0.forEach{ $0.database = self?.assetDatabase }
+                mutableAssets = result.0
+                if result.1.isNotEmpty {
+                    self?.syncTracker.removeTracking(result.1)
                 }
+            } catch {
+                self?.log.error(String(describing: error))
+                assertionFailure()
             }
-            guard assetIDsToRetrieveFromDB.isNotEmpty else {
-                self.assetManagerQueue.async {
-                    callback(cachedAssets)
-                }
-                return
-            }
-
-            self.assetController.mutableAssets(for: assetIDsToRetrieveFromDB) { [weak self] (result) in
-                guard let self = self else {
-                    return
-                }
-                do {
-                    let result = try result.get()
-                    for asset in result.0 {
-                        do {
-                            try self.liveAssets.setObject(asset, forKey: asset.uuid)
-                            asset.database = self.assetDatabase
-                            cachedAssets.append(asset)
-                        } catch Cache<UUID, MutableAsset>.CacheError.objectExistsForKey(_, let existingAsset) {
-                            cachedAssets.append(existingAsset)
-                        }
-                    }
-                    if result.1.isNotEmpty {
-                        self.syncTracker.removeTracking(result.1)
-                    }
-                } catch {
-                    self.log.error(String(describing: error))
-                    assertionFailure()
-                }
-                self.assetManagerQueue.async {
-                    callback(cachedAssets)
-                }
+            self?.assetManagerQueue.async {
+                callback(mutableAssets)
             }
         }
     }
