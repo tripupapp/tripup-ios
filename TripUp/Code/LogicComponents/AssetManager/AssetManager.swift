@@ -108,7 +108,6 @@ class AssetManager {
     private var autoBackupObserverToken: NSObjectProtocol?
     private var resignActiveObserverToken: NSObjectProtocol?
     private var didBecomeActiveObserverToken: NSObjectProtocol?
-    private var enterBackgroundObserverToken: NSObjectProtocol?
 
     init(primaryUserID: UUID, assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
         self.primaryUserID = primaryUserID
@@ -169,21 +168,6 @@ class AssetManager {
                 self?.downloadOperationQueue.isSuspended = false // always keep download queue unsuspended whenever possible
             }
         }
-
-        enterBackgroundObserverToken = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { [unowned self] (_) in
-            self.log.verbose("received notification - name: \(UIApplication.didEnterBackgroundNotification)")
-            self.assetManagerQueue.async { [weak self] in
-                if let pendingItems = self?.assetOperations.keys, pendingItems.isNotEmpty {
-                    self?.syncTracker.removeTracking(pendingItems)
-                }
-                self?.importOperationQueue.cancelAllOperations()
-                self?.downloadOperationQueue.cancelAllOperations()
-                self?.deleteOperationQueue.cancelAllOperations()
-                // must resume queues in order to process cancellation events
-                self?.importOperationQueue.isSuspended = false
-                self?.deleteOperationQueue.isSuspended = false
-            }
-        }
     }
 
     deinit {
@@ -195,9 +179,6 @@ class AssetManager {
         }
         if let didBecomeActiveObserverToken = didBecomeActiveObserverToken {
             NotificationCenter.default.removeObserver(didBecomeActiveObserverToken, name: UIApplication.didBecomeActiveNotification, object: nil)
-        }
-        if let enterBackgroundObserverToken = enterBackgroundObserverToken {
-            NotificationCenter.default.removeObserver(enterBackgroundObserverToken, name: UIApplication.didEnterBackgroundNotification, object: nil)
         }
     }
 }

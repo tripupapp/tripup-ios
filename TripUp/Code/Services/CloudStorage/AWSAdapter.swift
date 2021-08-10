@@ -99,6 +99,11 @@ class AWSAdapter {
         log.debug("AWSMobileClient signed out – userState: \(String(describing: AWSMobileClient.default().currentUserState))")
     }
 
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+        // Store the completion handler.
+        AWSS3TransferUtility.interceptApplication(application, handleEventsForBackgroundURLSession: identifier, completionHandler: completionHandler)
+    }
+
     private func process(_ userState: UserState) {
         guard let authenticatedUser = authenticatedUser else { log.verbose("authenticatedUser nil"); return }
         switch userState {
