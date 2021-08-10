@@ -103,6 +103,7 @@ extension AppDelegate {
         UniversalLinksService.shared.dynamicLinksDomain = config.firebaseDynamicLinksDomain
 
         do {
+            try resetTmpDir()
             try createTripUpDirs()
         } catch {
             fatalError(String(describing: error))
