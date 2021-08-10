@@ -409,6 +409,8 @@ extension AppDelegate: AppDelegateExtension {
                     loginNavigationController(navigateTo: upgradeVC)
                     return
                 }
+
+                clientUpgradeSuccessfulBlock(currentVersion)
             }
         } else {    // new install
             // download privacy policy – in case it was wiped from previous clearing of app data
