@@ -308,7 +308,7 @@ extension API: UserAPI {
         session.request("\(host)/users/public", method: .post, parameters: params, encoding: JSONEncoding.default).validate().responseJSON(queue: queue) { response in
             switch response.result {
             case .success(let value):
-                self.log.debug("return value: \(value)")
+                self.log.verbose("return value: \(value)")
                 callback(true, value as? [String: [String : Any]])
             case .failure(let error):
                 self.log.error(error)
