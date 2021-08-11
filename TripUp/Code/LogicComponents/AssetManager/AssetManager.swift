@@ -291,10 +291,19 @@ extension AssetManager {
 extension AssetManager {
     func loadData(for asset: Asset, atQuality quality: Quality, callback: @escaping (Data?, AVFileType?) -> Void) {
         precondition(asset.type == .photo)
-        mutableAsset(from: asset.uuid) { [weak self] mutableAsset in     // load mutable asset from live asset cache or database
-            guard let self = self, let mutableAsset = mutableAsset else { DispatchQueue.main.async { callback(nil, nil) }; return }
-            precondition(.on(self.assetManagerQueue))
-            self.loadData(for: mutableAsset, atQuality: quality, callback: callback)
+        load(asset: asset, atQuality: quality) { [weak self] (url, avFileType) in
+            if let url = url {
+                DispatchQueue.global().async {
+                    let data = self?.load(url)
+                    DispatchQueue.main.async {
+                        callback(data, avFileType)
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    callback(nil, avFileType)
+                }
+            }
         }
     }
 
@@ -358,59 +367,6 @@ private extension AssetManager {
             guard let self = self else { return }
             precondition(.on(self.assetManagerQueue))
             callback(mutableAssets.first)
-        }
-    }
-
-    private func loadData(for mutableAsset: MutableAsset, atQuality quality: Quality, callback: @escaping (Data?, AVFileType?) -> Void) {
-        let mutablePhysicalAsset = mutableAsset.physicalAssets[quality]
-        self.loadData(from: mutablePhysicalAsset.localPath) { [weak self] data in    // try to load from disk
-            guard let self = self else {
-                DispatchQueue.main.async {
-                    callback(nil, nil)
-                }
-                return
-            }
-            precondition(.on(self.assetManagerQueue))
-
-            let originalUTI = mutableAsset.originalUTI
-            if let data = data {
-                DispatchQueue.main.async {
-                    callback(data, originalUTI)
-                }
-            } else {
-                guard !self.downloadOperationQueue.isSuspended else {
-                    DispatchQueue.main.async {
-                        callback(nil, originalUTI)
-                    }
-                    return
-                }
-                // not found on disk, so schedule request for later and create a download operation
-                let downloadRequest = { [weak self] (success: Bool) in
-                    guard let self = self else {
-                        DispatchQueue.main.async {
-                            callback(nil, originalUTI)
-                        }
-                        return
-                    }
-                    self.loadData(from: mutablePhysicalAsset.localPath) { data in
-                        DispatchQueue.main.async {
-                            callback(data, originalUTI)
-                        }
-                    }
-                }
-                let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
-                self.schedule(callback: downloadRequest, for: downloadOperationType.lookupKey, onAssetID: mutableAsset.uuid)
-                self.queue(downloadOperationType, for: [mutableAsset])
-            }
-        }
-    }
-
-    private func loadData(from url: URL, callback: @escaping (Data?) -> Void) {
-        DispatchQueue.global(qos: .utility).async {
-            let data = self.load(url)
-            self.assetManagerQueue.async {
-                callback(data)
-            }
         }
     }
 
