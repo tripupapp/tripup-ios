@@ -289,7 +289,7 @@ extension AssetManager {
         }
     }
 
-    class AssetUploadOperation: AssetOperationBatch<AssetManager.MutablePhysicalAsset> {
+    fileprivate class AssetUploadOperation: AssetOperationBatch<AssetManager.MutablePhysicalAsset> {
         private(set) var result: ResultType = .failure(.notRun)
         private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
 
@@ -346,12 +346,17 @@ extension AssetManager {
         }
     }
 
-    class AssetDownloadOperation: AssetOperationBatch<AssetManager.MutablePhysicalAsset> {
+    /*  - let download operation hold strong reference to mutable asset
+        - split download operation into 2 classes, so the lookup key is unique for different qualities - used when determining if an operation has already been queued in AssetManager */
+    class AssetDownloadOperation: AssetOperationBatch<AssetManager.MutableAsset> {
         private(set) var result: ResultType = .failure(.notRun)
         private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
 
-        override func main() {
-            super.main()
+        required override init(assets: [AssetManager.MutableAsset], delegate: AssetOperationDelegate) {
+            super.init(assets: assets, delegate: delegate)
+        }
+
+        fileprivate func download(assets: [MutablePhysicalAsset]) {
             let opDownload = DownloadData(assets: assets, delegate: delegate)
             operations.append(opDownload)
 
@@ -384,7 +389,21 @@ extension AssetManager {
         }
     }
 
-    class BlockOperationWithResult: BlockOperation, AssetOperationResult {
+    class AssetDownloadOriginalOperation: AssetDownloadOperation {
+        override func main() {
+            super.main()
+            download(assets: assets.map{ $0.physicalAssets.original })
+        }
+    }
+
+    class AssetDownloadLowOperation: AssetDownloadOperation {
+        override func main() {
+            super.main()
+            download(assets: assets.map{ $0.physicalAssets.low })
+        }
+    }
+
+    fileprivate class BlockOperationWithResult: BlockOperation, AssetOperationResult {
         fileprivate(set) var result: ResultType = .failure(.notRun)
         private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
     }

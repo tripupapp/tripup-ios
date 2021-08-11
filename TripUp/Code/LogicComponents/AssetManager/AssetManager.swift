@@ -332,7 +332,7 @@ extension AssetManager {
                 callback(nil, nil)
                 return
             }
-            self.fetchResource(forPhysicalAsset: mutableAsset.physicalAssets[quality]) { [weak self] (success) in
+            self.fetchResource(forAsset: mutableAsset, atQuality: quality) { [weak self] (success) in
                 if success {
                     callback(mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
                 } else {
@@ -398,8 +398,9 @@ private extension AssetManager {
                         }
                     }
                 }
-                self.schedule(callback: downloadRequest, for: AssetDownloadOperation.lookupKey, onAssetID: mutablePhysicalAsset.uuid)
-                self.queueNewDownloadOperation(for: [mutablePhysicalAsset])
+                let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
+                self.schedule(callback: downloadRequest, for: downloadOperationType.lookupKey, onAssetID: mutableAsset.uuid)
+                self.queue(downloadOperationType, for: [mutableAsset])
             }
         }
     }
@@ -413,7 +414,8 @@ private extension AssetManager {
         }
     }
 
-    private func fetchResource(forPhysicalAsset physicalAsset: MutablePhysicalAsset, callback: @escaping (Bool) -> Void) {
+    private func fetchResource(forAsset asset: MutableAsset, atQuality quality: Quality, callback: @escaping (Bool) -> Void) {
+        let physicalAsset = asset.physicalAssets[quality]
         if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
             callback(true)
         } else {
@@ -422,8 +424,9 @@ private extension AssetManager {
                 callback(false)
                 return
             }
-            schedule(callback: callback, for: AssetDownloadOperation.lookupKey, onAssetID: physicalAsset.uuid)
-            queueNewDownloadOperation(for: [physicalAsset])
+            let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
+            schedule(callback: callback, for: downloadOperationType.lookupKey, onAssetID: asset.uuid)
+            queue(downloadOperationType, for: [asset])
         }
     }
 
@@ -578,16 +581,16 @@ private extension AssetManager {
         }
     }
 
-    private func queueNewDownloadOperation(for assets: [MutablePhysicalAsset]) {
+    private func queue(_ downloadOperationType: AssetDownloadOperation.Type, for assets: [MutableAsset]) {
         precondition(.on(assetManagerQueue))
-        let assets = assets.filter{ !operationScheduledOrInProgressOfType(AssetDownloadOperation.self, forAsset: $0) }
+        let assets = assets.filter{ !operationScheduledOrInProgressOfType(downloadOperationType, forAsset: $0) }
         guard assets.isNotEmpty else {
             return
         }
-        let operation = AssetDownloadOperation(assets: assets, delegate: self)
-        operation.completionBlock = { [weak self, weak operation] in
-            self?.assetManagerQueue.async { [weak self, weak operation] in
-                guard let self = self, let operation = operation else {
+        let operation = downloadOperationType.init(assets: assets, delegate: self)
+        operation.completionBlock = { [weak self] in
+            self?.assetManagerQueue.async { [weak self] in
+                guard let self = self else {
                     return
                 }
                 var success = false
@@ -612,10 +615,10 @@ private extension AssetManager {
             if let importOperation = findScheduledOrInProgressOperationOfType(AssetImportOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(importOperation)
             }
-            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.low) {
+            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOriginalOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(downloadOperation)
             }
-            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.original) {
+            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadLowOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(downloadOperation)
             }
         }
