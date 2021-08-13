@@ -161,6 +161,28 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
+    func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) throws {
+        try autoreleasepool {
+            let realm = try Realm()
+            guard let oldAssetObject = realm.object(ofType: AssetObject.self, forPrimaryKey: oldAssetID.string) else {
+                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: oldAssetID)
+            }
+            guard let newAssetObject = realm.object(ofType: AssetObject.self, forPrimaryKey: newAssetID.string) else {
+                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: newAssetID)
+            }
+            guard oldAssetObject.localIdentifier == localIdentifier else {
+                throw DatabaseError.recordNotLinked
+            }
+            guard newAssetObject.localIdentifier == nil else {
+                throw DatabaseError.recordAlreadyLinked
+            }
+            try realm.write {
+                oldAssetObject.localIdentifier = nil
+                newAssetObject.localIdentifier = localIdentifier
+            }
+        }
+    }
+
     func md5(forAssetID assetID: UUID) throws -> Data? {
         try autoreleasepool {
             let realm = try Realm()

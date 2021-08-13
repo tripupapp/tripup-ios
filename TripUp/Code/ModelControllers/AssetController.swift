@@ -21,7 +21,7 @@ protocol AssetController: AnyObject, AssetFinder {
     func mutableAssets<T>(for assetIDs: T, callback: @escaping (Result<([AssetManager.MutableAsset], [UUID]), Error>) -> Void) where T: Collection, T.Element == UUID
     func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void)
     func unlinkedAssets(callback: @escaping ([UUID: Asset]?) -> Void)
-    func save(localIdentifier: String?, forAsset asset: Asset)
+    func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID)
     func deletedAssetIDs(callback: @escaping ([UUID]?) -> Void)
 }
 
@@ -60,15 +60,18 @@ extension ModelController {
             var invalidAssetIDs = [UUID]()
 
             for (assetID, asset) in allAssets {
-                guard let localID = assetIDsToLocalIDs[assetID] else { continue }
-                if localIDsforPHAssets.contains(localID) {
-                    previouslyAddedIOSAssetIDs.insert(localID)
-                } else {
-                    if asset.imported {
-                        assetsWithInvalidLocalIDs.append(asset)
+                if let localID = assetIDsToLocalIDs[assetID] {
+                    if localIDsforPHAssets.contains(localID) {
+                        previouslyAddedIOSAssetIDs.insert(localID)
                     } else {
-                        invalidAssetIDs.append(assetID)
+                        if asset.imported {
+                            assetsWithInvalidLocalIDs.append(asset)
+                        } else {
+                            invalidAssetIDs.append(assetID)
+                        }
                     }
+                } else if !asset.imported {
+                    invalidAssetIDs.append(assetID)
                 }
             }
             let newPHAssets = orderedPHAssets.filter{ phasset in !previouslyAddedIOSAssetIDs.contains(phasset.localIdentifier) }
@@ -434,15 +437,12 @@ extension ModelController: AssetController {
         }
     }
 
-    func save(localIdentifier: String?, forAsset asset: Asset) {
+    func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) {
         databaseQueue.async(flags: .barrier) { [weak self] in
-            guard let self = self else {
-                return
-            }
             do {
-                try self.assetDatabase.save(localIdentifier: localIdentifier, forAssetID: asset.uuid)
+                try self?.assetDatabase.switch(localIdentifier: localIdentifier, fromAssetID: oldAssetID, toAssetID: newAssetID)
             } catch {
-                self.log.error(String(describing: error))
+                self?.log.error(String(describing: error))
                 assertionFailure()
             }
         }

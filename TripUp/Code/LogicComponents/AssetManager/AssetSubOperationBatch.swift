@@ -177,7 +177,7 @@ extension AssetManager {
                         }
                         self.delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
                             if let candidateAsset = candidateAsset {
-                                self.delegate.save(localIdentifier: asset.localIdentifier, forAsset: candidateAsset)
+                                self.delegate.switch(localIdentifier: localIdentifier, fromAssetID: asset.uuid, toAssetID: candidateAsset.uuid)
                                 self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
                                 try? FileManager.default.removeItem(at: tempURL)
                                 self.set(error: .fatal, addToFatalSet: asset)   // terminate this asset, as we've linked the image data to another asset

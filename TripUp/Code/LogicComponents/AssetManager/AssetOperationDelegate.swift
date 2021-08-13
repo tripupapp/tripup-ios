@@ -19,7 +19,7 @@ protocol AssetOperationDelegate: AnyObject {
     func key(for asset: AssetManager.MutableAsset) -> CryptoPrivateKey?
 
     func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void)
-    func save(localIdentifier: String?, forAsset asset: Asset)
+    func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID)
     
     func fileExists(at url: URL) -> Bool
     func write(_ data: Data, to url: URL) -> Bool
@@ -75,8 +75,8 @@ class AssetOperationDelegateObject: AssetOperationDelegate {
         assetController.unlinkedAsset(withMD5Hash: md5, callback: callback)
     }
 
-    func save(localIdentifier: String?, forAsset asset: Asset) {
-        assetController.save(localIdentifier: localIdentifier, forAsset: asset)
+    func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) {
+        assetController.switch(localIdentifier: localIdentifier, fromAssetID: oldAssetID, toAssetID: newAssetID)
     }
 
     // MARK: disk functions
@@ -349,8 +349,8 @@ extension AssetManager: AssetOperationDelegate {
         assetOperationDelegate.unlinkedAsset(withMD5Hash: md5, callback: callback)
     }
 
-    func save(localIdentifier: String?, forAsset asset: Asset) {
-        assetOperationDelegate.save(localIdentifier: localIdentifier, forAsset: asset)
+    func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) {
+        assetOperationDelegate.switch(localIdentifier: localIdentifier, fromAssetID: oldAssetID, toAssetID: newAssetID)
     }
 
     func fileExists(at url: URL) -> Bool {
