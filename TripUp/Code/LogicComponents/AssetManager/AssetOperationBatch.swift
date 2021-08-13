@@ -98,40 +98,38 @@ extension AssetManager {
             switch stateMachine.currentStateSynced {
             case .none:
                 opGen = GenerateEncryptionKey(assets: assets, delegate: delegate)
-                opGen?.completionBlock = { [weak self, weak operation = opGen] in
-                    guard let result = operation?.result else {
-                        return
-                    }
-                    switch result {
-                    case .success(_):
-                        self?.stateMachine.enter(KeyGenerated.self)
-                    case .failure(.notRun):
-                        break
-                    case .failure(.recoverable):
-                        break
-                    case .failure(.fatal(let asset)):
-                        self?.stateMachine.state(forClass: Fatal.self)?.assets.insert(asset)
-                        self?.stateMachine.enter(Fatal.self)
+                opGen?.completionBlock = {
+                    if let operation = opGen {
+                        switch operation.result {
+                        case .success(_):
+                            self.stateMachine.enter(KeyGenerated.self)
+                        case .failure(.notRun):
+                            break
+                        case .failure(.recoverable):
+                            break
+                        case .failure(.fatal):
+                            self.stateMachine.state(forClass: Fatal.self)?.assets.formUnion(operation.fatalAssets)
+                            self.stateMachine.enter(Fatal.self)
+                        }
                     }
                 }
                 operations.append(opGen!)
                 fallthrough
             case .some(is KeyGenerated):
                 opFetch = FetchFromIOS(assets: assets, delegate: delegate)
-                opFetch?.completionBlock = { [weak self, weak operation = opFetch] in
-                    guard let result = operation?.result else {
-                        return
-                    }
-                    switch result {
-                    case .success(_):
-                        self?.stateMachine.enter(FetchedFromIOS.self)
-                    case .failure(.notRun):
-                        break
-                    case .failure(.recoverable):
-                        break
-                    case .failure(.fatal(let asset)):
-                        self?.stateMachine.state(forClass: Fatal.self)?.assets.insert(asset)
-                        self?.stateMachine.enter(Fatal.self)
+                opFetch?.completionBlock = {
+                    if let operation = opFetch {
+                        switch operation.result {
+                        case .success(_):
+                            self.stateMachine.enter(FetchedFromIOS.self)
+                        case .failure(.notRun):
+                            break
+                        case .failure(.recoverable):
+                            break
+                        case .failure(.fatal):
+                            self.stateMachine.state(forClass: Fatal.self)?.assets.formUnion(operation.fatalAssets)
+                            self.stateMachine.enter(Fatal.self)
+                        }
                     }
                 }
                 if let opGen = opGen {
@@ -141,10 +139,10 @@ extension AssetManager {
                 fallthrough
             case .some(is FetchedFromIOS):
                 let opDataUploadLow = AssetUploadOperation(assets: assets.map{ $0.physicalAssets.low }, delegate: delegate)
-                opDataUploadLow.completionBlock = { [weak self, weak operation = opDataUploadLow] in
-                    if case .some(.failure(.fatal(let asset))) = operation?.result {
-                        self?.stateMachine.state(forClass: Fatal.self)?.assets.insert(asset)
-                        self?.stateMachine.enter(Fatal.self)
+                opDataUploadLow.completionBlock = {
+                    if case .failure(.fatal) = opDataUploadLow.result {
+                        self.stateMachine.state(forClass: Fatal.self)?.assets.formUnion(opDataUploadLow.fatalAssets)
+                        self.stateMachine.enter(Fatal.self)
                     }
                 }
                 if let opFetch = opFetch {
@@ -153,10 +151,10 @@ extension AssetManager {
                 operations.append(opDataUploadLow)
 
                 let opDataUploadOriginal = AssetUploadOperation(assets: assets.map{ $0.physicalAssets.original }, delegate: delegate)
-                opDataUploadOriginal.completionBlock = { [weak self, weak operation = opDataUploadOriginal] in
-                    if case .some(.failure(.fatal(let asset))) = operation?.result {
-                        self?.stateMachine.state(forClass: Fatal.self)?.assets.insert(asset)
-                        self?.stateMachine.enter(Fatal.self)
+                opDataUploadOriginal.completionBlock = {
+                    if case .failure(.fatal) = opDataUploadOriginal.result {
+                        self.stateMachine.state(forClass: Fatal.self)?.assets.formUnion(opDataUploadOriginal.fatalAssets)
+                        self.stateMachine.enter(Fatal.self)
                     }
                 }
                 if let opFetch = opFetch {
@@ -165,10 +163,10 @@ extension AssetManager {
                 operations.append(opDataUploadOriginal)
 
                 cloudCompletionOp = BlockOperationWithResult()
-                cloudCompletionOp?.addExecutionBlock { [weak self, weak operation = cloudCompletionOp, weak opDataUploadLow, weak opDataUploadOriginal] in
-                    if case .some(.success(_)) = opDataUploadLow?.result, case .some(.success(_)) = opDataUploadOriginal?.result {
-                        operation?.result = .success(nil)
-                        self?.stateMachine.enter(UploadedToCloud.self)
+                cloudCompletionOp?.addExecutionBlock {
+                    if case .success(_) = opDataUploadLow.result, case .success(_) = opDataUploadOriginal.result {
+                        cloudCompletionOp?.result = .success(nil)
+                        self.stateMachine.enter(UploadedToCloud.self)
                     }
                 }
                 cloudCompletionOp?.addDependency(opDataUploadLow)
@@ -178,25 +176,20 @@ extension AssetManager {
                 fallthrough
             case .some(is UploadedToCloud):
                 let createOnServerOp = CreateOnServer(assets: assets, delegate: delegate)
-                createOnServerOp.completionBlock = { [weak self, weak operation = createOnServerOp] in
-                    defer {
-                        self?.log.debug("End Import Operation for \(String(describing: self?.assets.map{ $0.uuid.string }))")
-                        self?.finish()
-                    }
-                    guard let result = operation?.result else {
-                        return
-                    }
-                    switch result {
+                createOnServerOp.completionBlock = {
+                    switch createOnServerOp.result {
                     case .success(_):
-                        self?.stateMachine.enter(Success.self)
+                        self.stateMachine.enter(Success.self)
                     case .failure(.notRun):
                         break
                     case .failure(.recoverable):
                         break
-                    case .failure(.fatal(let asset)):
-                        self?.stateMachine.state(forClass: Fatal.self)?.assets.insert(asset)
-                        self?.stateMachine.enter(Fatal.self)
+                    case .failure(.fatal):
+                        self.stateMachine.state(forClass: Fatal.self)?.assets.formUnion(createOnServerOp.fatalAssets)
+                        self.stateMachine.enter(Fatal.self)
                     }
+                    self.log.debug("End Import Operation for \(String(describing: self.assets.map{ $0.uuid.string }))")
+                    self.finish()
                 }
                 if let cloudCompletionOp = cloudCompletionOp {
                     createOnServerOp.addDependency(cloudCompletionOp)
@@ -297,7 +290,8 @@ extension AssetManager {
     }
 
     class AssetUploadOperation: AssetOperationBatch<AssetManager.MutablePhysicalAsset> {
-        var result: ResultType = .failure(.notRun)
+        private(set) var result: ResultType = .failure(.notRun)
+        private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
 
         override func main() {
             super.main()
@@ -328,16 +322,19 @@ extension AssetManager {
             operations.append(opUpload)
 
             let finalResult = BlockOperation { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                for operation in self.operations {
-                    if let operation = operation as? AssetOperationResult, case .failure(_) = operation.result {
-                        self.result = operation.result
-                        return
+                if let self = self {
+                    var result: ResultType = .success(nil)
+                    for operation in self.operations {
+                        guard let operation = operation as? AssetOperationResult else {
+                            continue
+                        }
+                        if case .failure(_) = operation.result, case .success(nil) = result {
+                            result = operation.result
+                        }
+                        self.fatalAssets.formUnion(operation.fatalAssets)
                     }
+                    self.result = result
                 }
-                self.result = .success(nil)
             }
             finalResult.completionBlock = { [weak self] in
                 self?.finish()
@@ -350,7 +347,8 @@ extension AssetManager {
     }
 
     class AssetDownloadOperation: AssetOperationBatch<AssetManager.MutablePhysicalAsset> {
-        var result: ResultType = .failure(.notRun)
+        private(set) var result: ResultType = .failure(.notRun)
+        private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
 
         override func main() {
             super.main()
@@ -362,16 +360,19 @@ extension AssetManager {
             operations.append(opDecrypt)
 
             let finalResult = BlockOperation { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                for operation in self.operations {
-                    if let operation = operation as? AssetOperationResult, case .failure(_) = operation.result {
-                        self.result = operation.result
-                        return
+                if let self = self {
+                    var result: ResultType = .success(nil)
+                    for operation in self.operations {
+                        guard let operation = operation as? AssetOperationResult else {
+                            continue
+                        }
+                        if case .failure(_) = operation.result, case .success(nil) = result {
+                            result = operation.result
+                        }
+                        self.fatalAssets.formUnion(operation.fatalAssets)
                     }
+                    self.result = result
                 }
-                self.result = .success(nil)
             }
             finalResult.completionBlock = { [weak self] in
                 self?.finish()
@@ -384,7 +385,8 @@ extension AssetManager {
     }
 
     class BlockOperationWithResult: BlockOperation, AssetOperationResult {
-        var result: ResultType = .failure(.notRun)
+        fileprivate(set) var result: ResultType = .failure(.notRun)
+        private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
     }
 }
 

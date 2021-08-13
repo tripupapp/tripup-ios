@@ -12,21 +12,25 @@ import struct AVFoundation.AVFileType
 protocol AssetOperationResult {
     typealias ResultType = Result<Any?, AssetManager.AssetSubOperationError>
     var result: ResultType { get }
+    var fatalAssets: Set<AssetManager.MutableAsset> { get }
 }
 
 extension AssetManager {
     enum AssetSubOperationError: Error {
         case notRun
         case recoverable
-        case fatal(AssetManager.MutableAsset)
+        case fatal
     }
 
     class AssetSubOperationBatch<Asset: MutableAssetProtocol>: AsynchronousOperation {
-        var result: ResultType = .failure(.notRun)
+        private(set) var result: ResultType = .failure(.notRun)
+        private(set) var fatalAssets = Set<AssetManager.MutableAsset>()
 
         fileprivate unowned let delegate: AssetOperationDelegate
         fileprivate let assets: [Asset]
         fileprivate let log = Logger.self
+        private let queue = DispatchQueue(label: String(describing: self), qos: .utility, target: DispatchQueue.global(qos: .utility))
+        private var error: AssetSubOperationError?
 
         init(assets: [Asset], delegate: AssetOperationDelegate) {
             self.assets = assets
@@ -45,9 +49,33 @@ extension AssetManager {
             return true
         }
 
-        fileprivate func finish(_ result: ResultType) {
-            self.result = result
+        override func finish() {
+            queue.async { [weak self] in
+                if let error = self?.error {
+                    self?.result = .failure(error)
+                } else {
+                    self?.result = .success(nil)
+                }
+                self?.super_finish()
+            }
+        }
+
+        // workaround for calling super from closure: https://github.com/lionheart/openradar-mirror/issues/6765#issuecomment-247612381
+        private func super_finish() {
             super.finish()
+        }
+
+        func set(error: AssetSubOperationError, addToFatalSet fatalAsset: AssetManager.MutableAsset? = nil) {
+            queue.async { [weak self] in
+                if let self = self {
+                    if self.error != .fatal {
+                        self.error = error
+                    }
+                    if let fatalAsset = fatalAsset {
+                        self.fatalAssets.insert(fatalAsset)
+                    }
+                }
+            }
         }
 
         fileprivate func tempURLForEncryptedItem(physicalAsset asset: AssetManager.MutablePhysicalAsset) -> URL {
@@ -64,6 +92,7 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
@@ -83,7 +112,7 @@ extension AssetManager {
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                self.finish(.success(nil))
+                self.finish()
             }
         }
     }
@@ -92,13 +121,12 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
-            var error: AssetSubOperationError?
             let dispatchGroup = DispatchGroup()
-
             for asset in assets {
                 guard !delegate.fileExists(at: asset.physicalAssets.original.localPath) || asset.md5 == nil || asset.originalUTI == nil else {
                     continue
@@ -106,44 +134,44 @@ extension AssetManager {
 
                 guard let localIdentifier = asset.localIdentifier else {
                     log.error("\(asset.uuid.string): no localIdentifier found. Terminating...")
-                    error = error ?? .fatal(asset)
-                    return
+                    set(error: .fatal, addToFatalSet: asset)
+                    continue
                 }
 
                 dispatchGroup.enter()
                 delegate.photoLibrary.fetchAsset(withLocalIdentifier: localIdentifier, callbackOn: .global(qos: .utility)) { phAsset in
                     guard !self.isCancelled else {
-                        error = error ?? .notRun
+                        self.set(error: .recoverable)
                         dispatchGroup.leave()
                         return
                     }
                     guard let phAsset = phAsset else {
                         self.log.error("\(asset.uuid.string): unable to find PHAsset! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
-                        error = error ?? .fatal(asset)
+                        self.set(error: .fatal, addToFatalSet: asset)
                         dispatchGroup.leave()
                         return
                     }
                     guard let phAssetResource = self.delegate.photoLibrary.resource(forPHAsset: phAsset, type: asset.type) else {
                         self.log.error("\(asset.uuid.string): unable to find PHAssetResource! Terminating - PHAssetID: \(String(describing: asset.localIdentifier))")
-                        error = error ?? .fatal(asset)
+                        self.set(error: .fatal, addToFatalSet: asset)
                         dispatchGroup.leave()
                         return
                     }
                     let uti = AVFileType(phAssetResource.uniformTypeIdentifier)
                     guard let tempURL = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
-                        error = error ?? .recoverable
+                        self.set(error: .recoverable)
                         dispatchGroup.leave()
                         return
                     }
                     self.delegate.photoLibrary.write(resource: phAssetResource, toURL: tempURL) { (success) in
                         guard success else {
-                            error = error ?? .recoverable
+                            self.set(error: .recoverable)
                             dispatchGroup.leave()
                             return
                         }
                         guard let md5 = self.delegate.md5(ofFileAtURL: tempURL) else {
                             self.log.error("error calculating md5 - assetID: \(asset.uuid.string), inputURL: \(String(describing: tempURL))")
-                            error = error ?? .recoverable
+                            self.set(error: .recoverable)
                             dispatchGroup.leave()
                             return
                         }
@@ -152,7 +180,7 @@ extension AssetManager {
                                 self.delegate.save(localIdentifier: asset.localIdentifier, forAsset: candidateAsset)
                                 self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
                                 try? FileManager.default.removeItem(at: tempURL)
-                                error = error ?? .fatal(asset)     // terminate this asset, as we've linked the image data to another asset
+                                self.set(error: .fatal, addToFatalSet: asset)   // terminate this asset, as we've linked the image data to another asset
                             } else {
                                 asset.md5 = md5
                                 asset.originalUTI = uti
@@ -160,7 +188,7 @@ extension AssetManager {
                                 if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true, overwrite: true)) == nil {
                                     self.log.error("failed to move file - assetID: \(asset.uuid.string), currentURL: \(String(describing: tempURL)), destinationURL: \(String(describing: url))")
                                     try? FileManager.default.removeItem(at: tempURL)
-                                    error = error ?? .recoverable
+                                    self.set(error: .recoverable)
                                 }
                             }
                             dispatchGroup.leave()
@@ -170,11 +198,7 @@ extension AssetManager {
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                if let error = error {
-                    self.finish(.failure(error))
-                } else {
-                    self.finish(.success(nil))
-                }
+                self.finish()
             }
         }
     }
@@ -183,6 +207,7 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
@@ -197,10 +222,11 @@ extension AssetManager {
                             self.delegate.delete(resourceAt: asset.physicalAssets.original.localPath)
                         }
                     }
-                    self.finish(.success(nil))
+                    self.finish()
                 case .failure(let error):
                     self.log.error("\(self.assets.map{ $0.uuid.string }): \(String(describing: error))")
-                    self.finish(.failure(.recoverable))
+                    self.set(error: .recoverable)
+                    self.finish()
                 }
             }
         }
@@ -210,6 +236,7 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
@@ -225,10 +252,11 @@ extension AssetManager {
                         asset.imported = true
                         self.delegate.delete(resourceAt: asset.physicalAssets.original.localPath)
                     }
-                    self.finish(.success(nil))
+                    self.finish()
                 } else {
                     self.log.error("\(self.assets.map{ $0.uuid.string }): something went wrong with upating assets with original quality")
-                    self.finish(.failure(.recoverable))
+                    self.set(error: .recoverable)
+                    self.finish()
                 }
             }
         }
@@ -238,13 +266,14 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
             let assetsToDelete = assets.filter{ $0.physicalAssets.low.remotePath != nil || $0.physicalAssets.original.remotePath != nil }
             guard assetsToDelete.isNotEmpty else {
-                finish(.success(nil))
+                finish()
                 return
             }
             delegate.deleteFromDB(assets: assetsToDelete) { success in
@@ -253,10 +282,11 @@ extension AssetManager {
                         asset.physicalAssets.low.remotePath = nil
                         asset.physicalAssets.original.remotePath = nil
                     }
-                    self.finish(.success(nil))
+                    self.finish()
                 } else {
                     self.log.error("\(assetsToDelete.map{ $0.uuid.string }): something went wrong with deleting assets from server")
-                    self.finish(.failure(.recoverable))
+                    self.set(error: .recoverable)
+                    self.finish()
                 }
             }
         }
@@ -268,13 +298,12 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
-            var error: AssetSubOperationError?
             let dispatchGroup = DispatchGroup()
-
             for asset in assets {
                 precondition(asset.quality == .low)
 
@@ -285,7 +314,7 @@ extension AssetManager {
                 dispatchGroup.enter()
                 DispatchQueue.global(qos: .utility).async {
                     guard !self.isCancelled else {
-                        error = error ?? .notRun
+                        self.set(error: .recoverable)
                         dispatchGroup.leave()
                         return
                     }
@@ -295,7 +324,7 @@ extension AssetManager {
                     case .photo:
                         if !self.delegate.downsample(imageAt: originalPath, originalSize: asset.pixelSize, toScale: 0.5, compress: true, destination: asset.localPath) {
                             self.log.error("\(asset.uuid.string): failed to compress original data")
-                            error = error ?? .recoverable
+                            self.set(error: .recoverable)
                         }
                         dispatchGroup.leave()
                     case .video:
@@ -303,11 +332,11 @@ extension AssetManager {
                             if let tempURL = tempURL {
                                 if (try? FileManager.default.moveItem(at: tempURL, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)) == nil {
                                     try? FileManager.default.removeItem(at: tempURL)
-                                    error = error ?? .recoverable
+                                    self.set(error: .recoverable)
                                 }
                             } else {
                                 self.log.error("\(asset.uuid.string): failed to compress video data")
-                                error = error ?? .recoverable
+                                self.set(error: .recoverable)
                             }
                             dispatchGroup.leave()
                         }
@@ -319,11 +348,7 @@ extension AssetManager {
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                if let error = error {
-                    self.finish(.failure(error))
-                } else {
-                    self.finish(.success(nil))
-                }
+                self.finish()
             }
         }
     }
@@ -332,13 +357,12 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
-            var error: AssetSubOperationError?
             let dispatchGroup = DispatchGroup()
-
             for asset in assets {
                 guard asset.remotePath == nil else {
                     continue
@@ -348,12 +372,16 @@ extension AssetManager {
                 switch asset.logicalAsset.type {
                 case .photo:
                     encryptPhoto(asset: asset) { (returnedError) in
-                        error = error ?? returnedError
+                        if let error = returnedError {
+                            self.set(error: error)
+                        }
                         dispatchGroup.leave()
                     }
                 case .video:
                     encryptVideo(asset: asset) { (returnedError) in
-                        error = error ?? returnedError
+                        if let error = returnedError {
+                            self.set(error: error)
+                        }
                         dispatchGroup.leave()
                     }
                 case .audio, .unknown:
@@ -362,11 +390,7 @@ extension AssetManager {
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                if let error = error {
-                    self.finish(.failure(error))
-                } else {
-                    self.finish(.success(nil))
-                }
+                self.finish()
             }
         }
 
@@ -432,13 +456,12 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
-            var error: AssetSubOperationError?
             let dispatchGroup = DispatchGroup()
-
             for asset in assets {
                 guard asset.remotePath == nil else {
                     continue
@@ -446,8 +469,8 @@ extension AssetManager {
 
                 let fileSource = tempURLForEncryptedItem(physicalAsset: asset)
                 guard delegate.fileExists(at: fileSource) else {
-                    error = error ?? .notRun
-                    break
+                    set(error: .recoverable)
+                    continue
                 }
 
                 // if other asset quality has already uploaded, upload this asset quality with higher priority
@@ -456,25 +479,19 @@ extension AssetManager {
 
                 dispatchGroup.enter()
                 delegate.upload(fileAtURL: fileSource, transferPriority: transferPriority) { remoteURL in
-                    defer {
-                        dispatchGroup.leave()
-                    }
                     if let remoteURL = remoteURL {
                         asset.remotePath = remoteURL
                         self.delegate.delete(resourceAt: fileSource)
                     } else {
                         self.log.error("\(asset.uuid.string): failed to upload file – sourceFilePath: \(String(describing: fileSource.absoluteString)), quality: \(asset.quality)")
-                        error = error ?? .recoverable
+                        self.set(error: .recoverable)
                     }
+                    dispatchGroup.leave()
                 }
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                if let error = error {
-                    self.finish(.failure(error))
-                } else {
-                    self.finish(.success(nil))
-                }
+                self.finish()
             }
         }
     }
@@ -485,42 +502,35 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
-            var error: AssetSubOperationError?
             let dispatchGroup = DispatchGroup()
-
             for asset in assets {
                 guard !delegate.fileExists(at: asset.localPath) else {
                     continue
                 }
                 guard let downloadURL = asset.remotePath else {
                     log.error("\(asset.uuid.string): no download url set")
-                    error = error ?? .fatal(asset.logicalAsset)
-                    break
+                    set(error: .fatal, addToFatalSet: asset.logicalAsset)
+                    continue
                 }
 
                 let tempURL = tempURLForEncryptedItem(physicalAsset: asset)
                 dispatchGroup.enter()
                 delegate.downloadFile(at: downloadURL, to: tempURL, priority: .high) { success in
-                    defer {
-                        dispatchGroup.leave()
-                    }
                     if !success {
                         self.log.error("\(asset.uuid.string): failed to download file – url: \(String(describing: downloadURL)), destination: \(String(describing: tempURL))")
-                        error = error ?? .recoverable
+                        self.set(error: .recoverable)
                     }
+                    dispatchGroup.leave()
                 }
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                if let error = error {
-                    self.finish(.failure(error))
-                } else {
-                    self.finish(.success(nil))
-                }
+                self.finish()
             }
         }
     }
@@ -529,13 +539,12 @@ extension AssetManager {
         override func main() {
             super.main()
             guard dependenciesSucceeded() else {
+                set(error: .notRun)
                 finish()
                 return
             }
 
-            var error: AssetSubOperationError?
             let dispatchGroup = DispatchGroup()
-
             for asset in assets {
                 guard !delegate.fileExists(at: asset.localPath) else {
                     continue
@@ -547,13 +556,17 @@ extension AssetManager {
                 case .photo:
                     decryptPhoto(asset: asset, fileSource: fileSource) { (returnedError) in
                         try? FileManager.default.removeItem(at: fileSource)
-                        error = error ?? returnedError
+                        if let error = returnedError {
+                            self.set(error: error)
+                        }
                         dispatchGroup.leave()
                     }
                 case .video:
                     decryptVideo(asset: asset, fileSource: fileSource) { (returnedError) in
                         try? FileManager.default.removeItem(at: fileSource)
-                        error = error ?? returnedError
+                        if let error = returnedError {
+                            self.set(error: error)
+                        }
                         dispatchGroup.leave()
                     }
                 case .audio, .unknown:
@@ -562,11 +575,7 @@ extension AssetManager {
             }
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
-                if let error = error {
-                    self.finish(.failure(error))
-                } else {
-                    self.finish(.success(nil))
-                }
+                self.finish()
             }
         }
 
