@@ -242,22 +242,22 @@ extension AssetManager {
             switch currentState.value {
             case .none:
                 opDeleteFromDB = DeleteFromDB(assets: assets, delegate: delegate)
-                opDeleteFromDB?.completionBlock = { [weak self, weak operation = opDeleteFromDB] in
-                    if case .some(.success(_)) = operation?.result {
-                        self?.currentState.mutate{ $0 = .deletedFromServer }
+                opDeleteFromDB?.completionBlock = {
+                    if case .some(.success(_)) = opDeleteFromDB?.result {
+                        self.currentState.mutate{ $0 = .deletedFromServer }
                     }
                 }
                 operations.append(opDeleteFromDB!)
                 fallthrough
             case .some(.deletedFromServer):
-                opDeleteFromDisk = BlockOperation(block: { [weak self, weak dependency = opDeleteFromDB] in
+                opDeleteFromDisk = BlockOperation(block: { [weak self] in
                     guard let self = self else {
                         return
                     }
                     defer {
                         self.finish()
                     }
-                    if let dependency = dependency {
+                    if let dependency = opDeleteFromDB {
                         guard case .success(_) = dependency.result else {
                             return
                         }
@@ -336,8 +336,8 @@ extension AssetManager {
                     self.result = result
                 }
             }
-            finalResult.completionBlock = { [weak self] in
-                self?.finish()
+            finalResult.completionBlock = {
+                self.finish()
             }
             finalResult.addDependency(opUpload)
             operations.append(finalResult)
@@ -374,8 +374,8 @@ extension AssetManager {
                     self.result = result
                 }
             }
-            finalResult.completionBlock = { [weak self] in
-                self?.finish()
+            finalResult.completionBlock = {
+                self.finish()
             }
             finalResult.addDependency(opDecrypt)
             operations.append(finalResult)
