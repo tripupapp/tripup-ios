@@ -380,7 +380,7 @@ extension AppDelegate: AppDelegateExtension {
                     return
                 }
 
-                guard previousVersion.isHigherVersionNumberThan("1.1.2.12") else {
+                guard previousVersion.isHigherVersionNumberThan("1.1.2.16") else {
                     let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
                     guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser.fingerprint, keyType: .user) else {
                         fatalError("primary user key not found")
@@ -395,7 +395,7 @@ extension AppDelegate: AppDelegateExtension {
                     localDuplicateCleanupOperation.completionBlock = {
                         DispatchQueue.main.async {
                             if localDuplicateCleanupOperation.success {
-                                clientUpgradeSuccessfulBlock(currentVersion)
+                                clientUpgradeSuccessfulBlock(currentVersion)    // NOTE: don't forget to hard code string if new case is entered later!
                                 self.presentNextRootViewController(after: upgradeVC)
                             } else {
                                 let alert = UIAlertController(title: "Upgrade failed", message: "There was an error upgrading your data. Please try again. If the problem persists, please contact us.", preferredStyle: .alert)
