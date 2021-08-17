@@ -14,7 +14,6 @@
 		2005844523E8AB7800535DA1 /* Security.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2005844423E8AB7800535DA1 /* Security.storyboard */; };
 		2006BB4C2488F17400A87B3F /* GuideBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2006BB4B2488F17400A87B3F /* GuideBox.swift */; };
 		20080CFF21408E0E009BE6C8 /* Audiowide.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 20080CFC21408381009BE6C8 /* Audiowide.ttf */; };
-		200C316A26052324008682F8 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200C316926052324008682F8 /* Cache.swift */; };
 		200D846C246DB8AD00B2A793 /* EmailUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200D846B246DB8AD00B2A793 /* EmailUtils.swift */; };
 		200E12F7233FE2B9003012A2 /* GroupObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12F6233FE2B9003012A2 /* GroupObject.swift */; };
 		200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12F8233FE6C3003012A2 /* AssetObject.swift */; };
@@ -275,7 +274,6 @@
 		2005844423E8AB7800535DA1 /* Security.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Security.storyboard; sourceTree = "<group>"; };
 		2006BB4B2488F17400A87B3F /* GuideBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideBox.swift; sourceTree = "<group>"; };
 		20080CFC21408381009BE6C8 /* Audiowide.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Audiowide.ttf; sourceTree = "<group>"; };
-		200C316926052324008682F8 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		200D846B246DB8AD00B2A793 /* EmailUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailUtils.swift; sourceTree = "<group>"; };
 		200E12F6233FE2B9003012A2 /* GroupObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupObject.swift; sourceTree = "<group>"; };
 		200E12F8233FE6C3003012A2 /* AssetObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetObject.swift; sourceTree = "<group>"; };
@@ -1004,7 +1002,6 @@
 				20258214213D8AA100E40A67 /* AppContext.swift */,
 				2057C78A24EBE80A00718F1C /* AssetManager */,
 				20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */,
-				200C316926052324008682F8 /* Cache.swift */,
 				20C1753E2697A62E00A89BA2 /* MD5Summer.swift */,
 				202450BF25ED87AB0015F3D4 /* SynchronizedStateMachine.swift */,
 				2046D1D7258FADBE003B01B1 /* Upgrader */,
@@ -1625,7 +1622,6 @@
 				2016FC6F256E95F300305F06 /* UpgradeVC.swift in Sources */,
 				207150A923423B5600829C5D /* Array.swift in Sources */,
 				20ABFF5F22CFABAA00D38019 /* LocationManager.swift in Sources */,
-				200C316A26052324008682F8 /* Cache.swift in Sources */,
 				20168821210A553800FA5D53 /* Queue.swift in Sources */,
 				202450C025ED87AB0015F3D4 /* SynchronizedStateMachine.swift in Sources */,
 				2066FAF0230B52C400E414BB /* PhotoViewDataModel.swift in Sources */,
