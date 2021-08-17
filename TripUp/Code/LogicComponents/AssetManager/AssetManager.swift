@@ -94,7 +94,6 @@ class AssetManager {
     private weak var networkController: NetworkMonitorController?
 
     private let primaryUserID: UUID
-    private let liveAssets = Cache<UUID, MutableAsset>()    // used as database cache but also to ensure multiple operations refer to the same asset instance for data consistency
     private var photoImportQueue = [Asset]()
     private var videoImportQueue = [Asset]()
     private let importOperationQueue = OperationQueue()
@@ -122,10 +121,6 @@ class AssetManager {
         importOperationQueue.qualityOfService = .utility
         downloadOperationQueue.qualityOfService = .userInitiated
         deleteOperationQueue.qualityOfService = .default
-
-        let cacheDelegate = CacheDelegateAssetManager()
-        cacheDelegate.assetManager = self
-        liveAssets.delegate = cacheDelegate
 
         autoBackupObserverToken = NotificationCenter.default.addObserver(forName: .AutoBackupChanged, object: nil, queue: nil) { [unowned self] notification in
             guard let autoBackup = notification.object as? Bool else {
@@ -296,10 +291,19 @@ extension AssetManager {
 extension AssetManager {
     func loadData(for asset: Asset, atQuality quality: Quality, callback: @escaping (Data?, AVFileType?) -> Void) {
         precondition(asset.type == .photo)
-        mutableAsset(from: asset.uuid) { [weak self] mutableAsset in     // load mutable asset from live asset cache or database
-            guard let self = self, let mutableAsset = mutableAsset else { DispatchQueue.main.async { callback(nil, nil) }; return }
-            precondition(.on(self.assetManagerQueue))
-            self.loadData(for: mutableAsset, atQuality: quality, callback: callback)
+        load(asset: asset, atQuality: quality) { [weak self] (url, avFileType) in
+            if let url = url {
+                DispatchQueue.global().async {
+                    let data = self?.load(url)
+                    DispatchQueue.main.async {
+                        callback(data, avFileType)
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    callback(nil, avFileType)
+                }
+            }
         }
     }
 
@@ -337,7 +341,7 @@ extension AssetManager {
                 callback(nil, nil)
                 return
             }
-            self.fetchResource(forPhysicalAsset: mutableAsset.physicalAssets[quality]) { [weak self] (success) in
+            self.fetchResource(forAsset: mutableAsset, atQuality: quality) { [weak self] (success) in
                 if success {
                     callback(mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
                 } else {
@@ -366,59 +370,8 @@ private extension AssetManager {
         }
     }
 
-    private func loadData(for mutableAsset: MutableAsset, atQuality quality: Quality, callback: @escaping (Data?, AVFileType?) -> Void) {
-        let mutablePhysicalAsset = mutableAsset.physicalAssets[quality]
-        self.loadData(from: mutablePhysicalAsset.localPath) { [weak self] data in    // try to load from disk
-            guard let self = self else {
-                DispatchQueue.main.async {
-                    callback(nil, nil)
-                }
-                return
-            }
-            precondition(.on(self.assetManagerQueue))
-
-            let originalUTI = mutableAsset.originalUTI
-            if let data = data {
-                DispatchQueue.main.async {
-                    callback(data, originalUTI)
-                }
-            } else {
-                guard !self.downloadOperationQueue.isSuspended else {
-                    DispatchQueue.main.async {
-                        callback(nil, originalUTI)
-                    }
-                    return
-                }
-                // not found on disk, so schedule request for later and create a download operation
-                let downloadRequest = { [weak self] (success: Bool) in
-                    guard let self = self else {
-                        DispatchQueue.main.async {
-                            callback(nil, originalUTI)
-                        }
-                        return
-                    }
-                    self.loadData(from: mutablePhysicalAsset.localPath) { data in
-                        DispatchQueue.main.async {
-                            callback(data, originalUTI)
-                        }
-                    }
-                }
-                self.schedule(callback: downloadRequest, for: AssetDownloadOperation.lookupKey, onAssetID: mutablePhysicalAsset.uuid)
-                self.queueNewDownloadOperation(for: [mutablePhysicalAsset])
-            }
-        }
-    }
-
-    private func loadData(from url: URL, callback: @escaping (Data?) -> Void) {
-        DispatchQueue.global(qos: .utility).async {
-            let data = self.load(url)
-            self.assetManagerQueue.async {
-                callback(data)
-            }
-        }
-    }
-
-    private func fetchResource(forPhysicalAsset physicalAsset: MutablePhysicalAsset, callback: @escaping (Bool) -> Void) {
+    private func fetchResource(forAsset asset: MutableAsset, atQuality quality: Quality, callback: @escaping (Bool) -> Void) {
+        let physicalAsset = asset.physicalAssets[quality]
         if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
             callback(true)
         } else {
@@ -427,8 +380,9 @@ private extension AssetManager {
                 callback(false)
                 return
             }
-            schedule(callback: callback, for: AssetDownloadOperation.lookupKey, onAssetID: physicalAsset.uuid)
-            queueNewDownloadOperation(for: [physicalAsset])
+            let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
+            schedule(callback: callback, for: downloadOperationType.lookupKey, onAssetID: asset.uuid)
+            queue(downloadOperationType, for: [asset])
         }
     }
 
@@ -449,79 +403,28 @@ private extension AssetManager {
                 }
             }
         }
-        liveAssets.removeObjects(forKeys: assetIDs)
         assetController.remove(assets: assets)
     }
 }
 
 // MARK: AssetManager caching functions
 private extension AssetManager {
-    private class CacheDelegateAssetManager: CacheDelegate<UUID> {
-        weak var assetManager: AssetManager?
-
-        override func isDiscardable<T>(keysToTest: T, callbackWithDiscardableKeys: @escaping (AnyCollection<UUID>) -> Void) where T: Collection, T.Element == UUID {
-            if let assetManager = assetManager {
-                assetManager.isDiscardable(keysToTest: keysToTest, callbackWithDiscardableKeys: callbackWithDiscardableKeys)
-            } else {
-                callbackWithDiscardableKeys(AnyCollection(keysToTest))
-            }
-        }
-    }
-
-    private func isDiscardable<T>(keysToTest: T, callbackWithDiscardableKeys: @escaping (AnyCollection<UUID>) -> Void) where T: Collection, T.Element == UUID {
-        assetManagerQueue.async { [weak self] in
-            if let self = self {
-                let discarcableKeys = keysToTest.filter{ !self.operationsExist(forAssetID: $0) }
-                callbackWithDiscardableKeys(AnyCollection(discarcableKeys))
-            } else {
-                callbackWithDiscardableKeys(AnyCollection(keysToTest))
-            }
-        }
-    }
-
     private func loadMutableAssets<T>(from assetIDs: T, callback: @escaping ([MutableAsset]) -> Void) where T: Collection, T.Element == UUID {
-        DispatchQueue.global().async {
-            var cachedAssets = [MutableAsset]()
-            var assetIDsToRetrieveFromDB = [UUID]()
-            for id in assetIDs {
-                if let asset = self.liveAssets.object(forKey: id) {
-                    cachedAssets.append(asset)
-                } else {
-                    assetIDsToRetrieveFromDB.append(id)
+        assetController.mutableAssets(for: assetIDs) { [weak self] (result) in
+            var mutableAssets = [MutableAsset]()
+            do {
+                let result = try result.get()
+                result.0.forEach{ $0.database = self?.assetDatabase }
+                mutableAssets = result.0
+                if result.1.isNotEmpty {
+                    self?.syncTracker.removeTracking(result.1)
                 }
+            } catch {
+                self?.log.error(String(describing: error))
+                assertionFailure()
             }
-            guard assetIDsToRetrieveFromDB.isNotEmpty else {
-                self.assetManagerQueue.async {
-                    callback(cachedAssets)
-                }
-                return
-            }
-
-            self.assetController.mutableAssets(for: assetIDsToRetrieveFromDB) { [weak self] (result) in
-                guard let self = self else {
-                    return
-                }
-                do {
-                    let result = try result.get()
-                    for asset in result.0 {
-                        do {
-                            try self.liveAssets.setObject(asset, forKey: asset.uuid)
-                            asset.database = self.assetDatabase
-                            cachedAssets.append(asset)
-                        } catch Cache<UUID, MutableAsset>.CacheError.objectExistsForKey(_, let existingAsset) {
-                            cachedAssets.append(existingAsset)
-                        }
-                    }
-                    if result.1.isNotEmpty {
-                        self.syncTracker.removeTracking(result.1)
-                    }
-                } catch {
-                    self.log.error(String(describing: error))
-                    assertionFailure()
-                }
-                self.assetManagerQueue.async {
-                    callback(cachedAssets)
-                }
+            self?.assetManagerQueue.async {
+                callback(mutableAssets)
             }
         }
     }
@@ -634,16 +537,16 @@ private extension AssetManager {
         }
     }
 
-    private func queueNewDownloadOperation(for assets: [MutablePhysicalAsset]) {
+    private func queue(_ downloadOperationType: AssetDownloadOperation.Type, for assets: [MutableAsset]) {
         precondition(.on(assetManagerQueue))
-        let assets = assets.filter{ !operationScheduledOrInProgressOfType(AssetDownloadOperation.self, forAsset: $0) }
+        let assets = assets.filter{ !operationScheduledOrInProgressOfType(downloadOperationType, forAsset: $0) }
         guard assets.isNotEmpty else {
             return
         }
-        let operation = AssetDownloadOperation(assets: assets, delegate: self)
-        operation.completionBlock = { [weak self, weak operation] in
-            self?.assetManagerQueue.async { [weak self, weak operation] in
-                guard let self = self, let operation = operation else {
+        let operation = downloadOperationType.init(assets: assets, delegate: self)
+        operation.completionBlock = { [weak self] in
+            self?.assetManagerQueue.async { [weak self] in
+                guard let self = self else {
                     return
                 }
                 var success = false
@@ -668,10 +571,10 @@ private extension AssetManager {
             if let importOperation = findScheduledOrInProgressOperationOfType(AssetImportOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(importOperation)
             }
-            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.low) {
+            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOriginalOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(downloadOperation)
             }
-            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadOperation.self, forAsset: asset.physicalAssets.original) {
+            if let downloadOperation = findScheduledOrInProgressOperationOfType(AssetDownloadLowOperation.self, forAsset: asset) {
                 deleteOperation.addDependency(downloadOperation)
             }
         }
