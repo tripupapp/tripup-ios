@@ -75,7 +75,7 @@ class PreferencesView: UITableViewController {
 
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         switch (indexPath.section, indexPath.item) {
-        case (1, 1):    // Delete online-only content
+        case (1, 2):    // Delete online-only content
             let message = """
             This will remove all photos and videos that aren't present on your phone from your cloud backup.
 
@@ -93,7 +93,7 @@ class PreferencesView: UITableViewController {
 
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         switch (indexPath.section, indexPath.item) {
-        case (1, 0):    // auto backup switch toggle
+        case (1, 1):    // auto backup switch toggle
             return nil
         default:
             return indexPath
@@ -114,10 +114,8 @@ class PreferencesView: UITableViewController {
                 self.view.makeToastieActivity(false)
                 self.tableView.deselectRow(at: indexPath, animated: false)
             }
-        case (1, 1):    // Delete online-only content
+        case (1, 2):    // Delete online-only content
             deleteOnlineOnlyContent()
-            tableView.deselectRow(at: indexPath, animated: false)
-        case (1, 3):    // Purchase Cloud Storage
             tableView.deselectRow(at: indexPath, animated: false)
         case (3, 1):    // Legal
             legal()
