@@ -10,7 +10,6 @@ import Foundation
 
 import AlamofireNetworkActivityIndicator
 import FTLinearActivityIndicator
-import Firebase
 
 import TripUpShared
 
@@ -18,7 +17,7 @@ protocol AppDelegateExtension: AnyObject {
     var autoBackup: Bool? { get set }
     func initialise(_ cloudStorageVC: CloudStorageVC)
     func presentNextRootViewController(after currentViewController: UIViewController?, fadeIn: Bool, resetApp: Bool)
-    func userCredentials(from authenticatedUser: AuthenticatedUser, callback: @escaping LoginLogicController.Callback)
+    func userCredentials(callback: @escaping LoginLogicController.Callback)
 }
 
 extension AppDelegateExtension {
@@ -81,9 +80,9 @@ extension AppDelegate {
     func setup() {
         // configure Logger
         Logger.configure(with: config)
-        
-        // firebase initialisation
-        FirebaseApp.configure()
+
+        // initialization for authentication service
+        authenticationService.initialize()
 
         // configure database – handles schema changes automatically
         database.configure()
@@ -123,7 +122,7 @@ extension AppDelegate {
         if let awsAdapter = dataService as? AWSAdapter {
             awsAdapter.signOut()
         }
-        authenticatedUser = nil
+        authenticationService.signOutAuthenticatedUser()
         context = nil
         try? keychain.clear()
         UserDefaults.standard.dictionaryRepresentation().keys.forEach {
@@ -232,12 +231,12 @@ extension AppDelegate: AppDelegateExtension {
 
     func presentNextRootViewController(after currentViewController: UIViewController? = nil, fadeIn: Bool = false, resetApp: Bool = false) {
         // user logged in
-        guard let authenticatedUser = authenticatedUser, let primaryUser = primaryUser, !resetApp else {
+        guard let authenticatedUser = authenticationService.authenticatedUser, let primaryUser = primaryUser, !resetApp else {
             clearAppData()
             privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)  // download privacy policy, for use in LoginView
             let loginVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "loginvc") as! LoginView
             loginVC.appDelegateExtension = self
-            loginVC.logicController = LoginLogicController(emailAuthenticationFallbackURL: URL(string: config.appStoreURL)!)
+            loginVC.logicController = authenticationService
             loginNavigationController(navigateTo: loginVC, fadeIn: fadeIn)
             return
         }
@@ -421,7 +420,7 @@ extension AppDelegate: AppDelegateExtension {
             UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
         }
 
-        context = AppContext(user: primaryUser, authenticatedUser: authenticatedUser, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService, appDelegate: self)
+        context = AppContext(user: primaryUser, authenticationService: authenticationService, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService, appDelegate: self)
         userNotificationProvider?.receiver = context
         
         let mainVC = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! MainVC
@@ -477,8 +476,8 @@ extension AppDelegate: AppDelegateExtension {
 }
 
 extension AppDelegate {
-    func userCredentials(from authenticatedUser: AuthenticatedUser, callback: @escaping LoginLogicController.Callback) {
-        api.authenticatedUser = authenticatedUser
+    func userCredentials(callback: @escaping LoginLogicController.Callback) {
+        api.authenticatedUser = authenticationService.authenticatedUser
         api.getUUID(callbackOn: .main) { [unowned self] success, userData in
             guard success else { callback(.failed(.apiError)); return }
             if let userData = userData {
@@ -486,13 +485,13 @@ extension AppDelegate {
 
                 if let password = try? self.keychain.retrieveFromiCloud(lookupKey: userData.uuid.string), let key = try? CryptoPrivateKey(key: userData.privateKey, password: password, for: .user) {
                     self.log.debug("password retrieved from iCloud keychain")
-                    self.saveLoginDetails(userID: userData.uuid, userSchemaVersion: userData.schemaVersion, userKey: key, authenticatedUser: authenticatedUser)
+                    self.saveLoginDetails(userID: userData.uuid, userSchemaVersion: userData.schemaVersion, userKey: key)
                     callback(.loggedIn)
                 } else {
                     self.log.debug("password not available. Request from user...")
                     callback(.passwordRequired({ [unowned self] password -> Bool in
                         if let key = self.createAndUnlock(privateKey: userData.privateKey, with: password) {
-                            self.saveLoginDetails(userID: userData.uuid, userSchemaVersion: userData.schemaVersion, userKey: key, authenticatedUser: authenticatedUser)
+                            self.saveLoginDetails(userID: userData.uuid, userSchemaVersion: userData.schemaVersion, userKey: key)
                             return true
                         }
                         return false
@@ -509,7 +508,7 @@ extension AppDelegate {
                         } catch {
                             fatalError("\(error)")
                         }
-                        self.saveLoginDetails(userID: uuid, userSchemaVersion: self.config.serverSchemaVersion, userKey: userKey, authenticatedUser: authenticatedUser)
+                        self.saveLoginDetails(userID: uuid, userSchemaVersion: self.config.serverSchemaVersion, userKey: userKey)
                         callback(.loggedIn)
                     } else {
                         callback(.failed(.apiError))
@@ -530,7 +529,7 @@ extension AppDelegate {
         return nil
     }
 
-    private func saveLoginDetails(userID: UUID, userSchemaVersion: String, userKey: CryptoPrivateKey, authenticatedUser: AuthenticatedUser) {
+    private func saveLoginDetails(userID: UUID, userSchemaVersion: String, userKey: CryptoPrivateKey) {
         do {
             try keychain.savePrivateKey(userKey)   // save to device keychain only
         } catch {
@@ -538,6 +537,5 @@ extension AppDelegate {
         }
         self.primaryUser = User(uuid: userID, fingerprint: userKey.fingerprint, localContact: nil)
         self.serverSchemaVersion = userSchemaVersion
-        self.authenticatedUser = authenticatedUser
     }
 }

@@ -93,7 +93,6 @@ class AWSAdapter {
     }
 
     func signOut() {
-        authenticatedUser = nil
         AWSMobileClient.default().signOut()
         AWSMobileClient.default().invalidateCachedTemporaryCredentials()
         log.debug("AWSMobileClient signed out – userState: \(String(describing: AWSMobileClient.default().currentUserState))")

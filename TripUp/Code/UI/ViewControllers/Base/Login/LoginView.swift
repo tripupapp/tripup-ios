@@ -223,8 +223,8 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             reset(to: .emailInitial)
             self.view.window?.makeToastie("There was an issue when verifying your email address. Please try again.", duration: 10.0, position: .top)
 
-        case .authenticated(let authenticatedUser):
-            appDelegateExtension?.userCredentials(from: authenticatedUser) { [weak self] state in
+        case .authenticated:
+            appDelegateExtension?.userCredentials() { [weak self] state in
                 self?.handle(state)
             }
 

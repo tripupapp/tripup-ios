@@ -19,54 +19,37 @@ struct APIToken: Equatable {
 }
 
 class AuthenticatedUser {
-    private let auth = Auth.auth()
-    let user: FirebaseAuth.User
-    private let log = Logger.self
-
     var id: String {
-        return user.uid
+        return firebaseAuthUser.uid
     }
 
     var phoneNumber: String? {
-        return user.providerData.first(where: { $0.providerID == PhoneAuthProviderID })?.phoneNumber
+        return firebaseAuthUser.providerData.first(where: { $0.providerID == PhoneAuthProviderID })?.phoneNumber
     }
 
     var email: String? {
-        return user.providerData.first(where: { $0.providerID == EmailAuthProviderID })?.email
+        return firebaseAuthUser.providerData.first(where: { $0.providerID == EmailAuthProviderID })?.email
     }
 
     var appleID: String? {
-        return user.providerData.first(where: { $0.providerID == "apple.com" })?.email
+        return firebaseAuthUser.providerData.first(where: { $0.providerID == "apple.com" })?.email
     }
 
-    // can only be initialised after FirebaseApp.configure()
-    init?() {
-        guard let user = auth.currentUser else { return nil }
-        self.user = user
-        token()
+    let firebaseAuthUser: FirebaseAuth.User
+    private let log = Logger.self
+
+    init(firebaseAuthUser: FirebaseAuth.User) {
+        self.firebaseAuthUser = firebaseAuthUser
     }
 
-    init(user: FirebaseAuth.User) {
-        self.user = user
-        token()
-    }
-
-    deinit {
-        do {
-            try auth.signOut()
-        } catch {
-            log.error(String(describing: error))
-        }
-    }
-
-    func token(_ callback: ((APIToken?) -> Void)? = nil) {
-        user.getIDTokenResult { tokenResult, error in
+    func token(callback: @escaping (APIToken?) -> Void) {
+        firebaseAuthUser.getIDTokenResult { [weak self] tokenResult, error in
             if let tokenResult = tokenResult {
-                callback?(APIToken(value: tokenResult.token, expirationDate: tokenResult.expirationDate))
+                callback(APIToken(value: tokenResult.token, expirationDate: tokenResult.expirationDate))
             } else {
-                self.log.error(error!.localizedDescription)
-                self.log.debug(tokenResult.debugDescription)
-                callback?(nil)
+                self?.log.error(error!.localizedDescription)
+                self?.log.debug(tokenResult.debugDescription)
+                callback(nil)
             }
         }
     }

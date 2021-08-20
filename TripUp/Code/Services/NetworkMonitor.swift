@@ -84,7 +84,7 @@ class NetworkMonitor {
     }
 
     private func checkTripUpServerConnectivity() {
-        authenticatedUser.token({ [weak self] (token) in
+        authenticatedUser.token { [weak self] (token) in
             guard let token = token, token.notExpired else {
                 self?.observers(notify: .notConnected)
                 return
@@ -93,7 +93,7 @@ class NetworkMonitor {
             self?.tripupServerConnectivity.checkConnectivity(completion: { [weak self] (connectivity) in
                 self?.observers(notify: connectivity.status)
             })
-        })
+        }
     }
 
     private func observers(notify status: ConnectivityStatus) {

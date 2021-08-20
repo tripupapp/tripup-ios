@@ -128,8 +128,7 @@ extension AppContext: DependencyInjector {
     }
 
     func initialise(authenticationView: AuthenticationView) {
-        let loginLC = LoginLogicController(emailAuthenticationFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
-        authenticationView.initialise(authenticatedUser: authenticatedUser, loginLogicController: loginLC, api: webAPI)
+        authenticationView.initialise(loginLogicController: authenticationService, api: webAPI)
     }
 
     func initialise(securityView: SecurityView) {
@@ -199,7 +198,7 @@ class AppContext {
         }
     }
     private let webAPI: API
-    private let authenticatedUser: AuthenticatedUser
+    private let authenticationService: LoginLogicController
 
     private let modelController: ModelController
     private let purchasesController: PurchasesController
@@ -211,9 +210,9 @@ class AppContext {
     private var contextObservers = [ObjectIdentifier: AppContextObserverWrapper]()
     private var cloudReloadInProgress: Bool = false
 
-    init(user: User, authenticatedUser: AuthenticatedUser, webAPI: API, keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, database: Database, config: AppConfig, purchasesController: PurchasesController, dataService: DataService, appDelegate: AppDelegate) {
+    init(user: User, authenticationService: LoginLogicController, webAPI: API, keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, database: Database, config: AppConfig, purchasesController: PurchasesController, dataService: DataService, appDelegate: AppDelegate) {
         self.appDelegate = appDelegate
-        self.authenticatedUser = authenticatedUser
+        self.authenticationService = authenticationService
         self.webAPI = webAPI
         self.keychain = keychain
 
@@ -251,7 +250,7 @@ class AppContext {
         modelController.groupControllerDelegate = self
         modelController.addObserver(self)
 
-        networkMonitor = NetworkMonitor(host: config.apiBaseURL, authenticatedUser: authenticatedUser)
+        networkMonitor = NetworkMonitor(host: config.apiBaseURL, authenticatedUser: authenticationService.authenticatedUser!)
         networkMonitor?.addObserver(self)
     }
 
@@ -315,10 +314,9 @@ class AppContext {
     }
 
     private func handleEmailAuth(link: URL) -> Bool {
-        let loginLogicController = LoginLogicController(emailAuthenticationFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
-        guard loginLogicController.isMagicSignInLink(link) else { return false }
+        guard authenticationService.isMagicSignInLink(link) else { return false }
         guard let loginProgressEncoded = UserDefaults.standard.data(forKey: UserDefaultsKey.LoginInProgress.rawValue), let email = String(data: loginProgressEncoded, encoding: .utf8) else { return false }
-        loginLogicController.link(email: email, toAuthenticatedUser: authenticatedUser, verificationLink: link, api: webAPI) { [weak self] success in
+        authenticationService.link(email: email, verificationLink: link, api: webAPI) { [weak self] success in
             guard let self = self else { return }
             UserDefaults.standard.removeObject(forKey: UserDefaultsKey.LoginInProgress.rawValue)
             if success {
