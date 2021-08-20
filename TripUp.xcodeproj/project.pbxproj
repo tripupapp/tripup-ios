@@ -566,7 +566,6 @@
 			isa = PBXGroup;
 			children = (
 				2016880B210A54C300FA5D53 /* API.swift */,
-				201943E5220B7AAB0035F1AE /* AuthenticatedUser.swift */,
 				20C4F60023D3701D00B041B2 /* AuthenticationService.swift */,
 				20168814210A54F100FA5D53 /* CloudStorage */,
 				20764E5222AEBE8E004BFE62 /* Crypto */,
@@ -591,6 +590,7 @@
 			children = (
 				201C251B253A0190009D95CE /* Album.swift */,
 				20168827210A554A00FA5D53 /* Asset.swift */,
+				201943E5220B7AAB0035F1AE /* AuthenticatedUser.swift */,
 				2057C77A24EBD69300718F1C /* Crypto */,
 				200E12F5233FE25D003012A2 /* Database */,
 				20168823210A554900FA5D53 /* Group.swift */,
