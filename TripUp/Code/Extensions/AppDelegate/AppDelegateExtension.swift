@@ -17,7 +17,7 @@ protocol AppDelegateExtension: AnyObject {
     var autoBackup: Bool? { get set }
     func initialise(_ cloudStorageVC: CloudStorageVC)
     func presentNextRootViewController(after currentViewController: UIViewController?, fadeIn: Bool, resetApp: Bool)
-    func userCredentials(callback: @escaping LoginLogicController.Callback)
+    func userCredentials(callback: @escaping AuthenticationService.Callback)
 }
 
 extension AppDelegateExtension {
@@ -236,7 +236,7 @@ extension AppDelegate: AppDelegateExtension {
             privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)  // download privacy policy, for use in LoginView
             let loginVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "loginvc") as! LoginView
             loginVC.appDelegateExtension = self
-            loginVC.logicController = authenticationService
+            loginVC.authenticationService = authenticationService
             loginNavigationController(navigateTo: loginVC, fadeIn: fadeIn)
             return
         }
@@ -476,7 +476,7 @@ extension AppDelegate: AppDelegateExtension {
 }
 
 extension AppDelegate {
-    func userCredentials(callback: @escaping LoginLogicController.Callback) {
+    func userCredentials(callback: @escaping AuthenticationService.Callback) {
         api.authenticatedUser = authenticationService.authenticatedUser
         api.getUUID(callbackOn: .main) { [unowned self] success, userData in
             guard success else { callback(.failed(.apiError)); return }

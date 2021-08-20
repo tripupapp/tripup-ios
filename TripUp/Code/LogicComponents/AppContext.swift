@@ -128,7 +128,7 @@ extension AppContext: DependencyInjector {
     }
 
     func initialise(authenticationView: AuthenticationView) {
-        authenticationView.initialise(loginLogicController: authenticationService, api: webAPI)
+        authenticationView.initialise(authenticationService: authenticationService, api: webAPI)
     }
 
     func initialise(securityView: SecurityView) {
@@ -198,7 +198,7 @@ class AppContext {
         }
     }
     private let webAPI: API
-    private let authenticationService: LoginLogicController
+    private let authenticationService: AuthenticationService
 
     private let modelController: ModelController
     private let purchasesController: PurchasesController
@@ -210,7 +210,7 @@ class AppContext {
     private var contextObservers = [ObjectIdentifier: AppContextObserverWrapper]()
     private var cloudReloadInProgress: Bool = false
 
-    init(user: User, authenticationService: LoginLogicController, webAPI: API, keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, database: Database, config: AppConfig, purchasesController: PurchasesController, dataService: DataService, appDelegate: AppDelegate) {
+    init(user: User, authenticationService: AuthenticationService, webAPI: API, keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, database: Database, config: AppConfig, purchasesController: PurchasesController, dataService: DataService, appDelegate: AppDelegate) {
         self.appDelegate = appDelegate
         self.authenticationService = authenticationService
         self.webAPI = webAPI

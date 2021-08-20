@@ -1,5 +1,5 @@
 //
-//  LoginLogicController.swift
+//  AuthenticationService.swift
 //  TripUp
 //
 //  Created by Vinoth Ramiah on 18/01/2020.
@@ -52,7 +52,7 @@ struct SecureKeyExport {
     let name: String
 }
 
-class LoginLogicController {
+class AuthenticationService {
     typealias Callback = (LoginState) -> Void
 
     let phoneVerificationCodeLength = 6
@@ -69,14 +69,14 @@ class LoginLogicController {
     }
 }
 
-extension LoginLogicController {
+extension AuthenticationService {
     func initialize() {
         FirebaseApp.configure()
         if let firebaseUser = Auth.auth().currentUser {
             authenticatedUser = AuthenticatedUser(firebaseAuthUser: firebaseUser)
         }
     }
-    
+
     func signOutAuthenticatedUser() {
         do {
             try Auth.auth().signOut()
@@ -89,7 +89,7 @@ extension LoginLogicController {
     }
 }
 
-extension LoginLogicController {
+extension AuthenticationService {
     func isMagicSignInLink(_ link: URL) -> Bool {
         return Auth.auth().isSignIn(withEmailLink: link.absoluteString)
     }
@@ -268,7 +268,7 @@ extension LoginLogicController {
 }
 
 @available(iOS 13.0, *)
-extension LoginLogicController {
+extension AuthenticationService {
     class AppleAuthContext: NSObject, ASAuthorizationControllerDelegate {
         var callback: ((ASAuthorization?, Error?) -> Void)?
 

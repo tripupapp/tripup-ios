@@ -155,7 +155,7 @@
 		20C175372697955100A89BA2 /* MD5FixerOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C175362697955100A89BA2 /* MD5FixerOperation.swift */; };
 		20C1753F2697A62E00A89BA2 /* MD5Summer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C1753E2697A62E00A89BA2 /* MD5Summer.swift */; };
 		20C17EE325D6F67800279AEF /* UserNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C17EE225D6F67800279AEF /* UserNotifications.swift */; };
-		20C4F60123D3701D00B041B2 /* LoginLogicController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C4F60023D3701D00B041B2 /* LoginLogicController.swift */; };
+		20C4F60123D3701D00B041B2 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C4F60023D3701D00B041B2 /* AuthenticationService.swift */; };
 		20C547AD24EC4C7400CE5325 /* Library.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 20C547AC24EC4C7400CE5325 /* Library.storyboard */; };
 		20C547AF24EC4D3B00CE5325 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 20C547AE24EC4D3B00CE5325 /* Main.storyboard */; };
 		20C6418A2152ADCF00809173 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C641892152ADCF00809173 /* NetworkMonitor.swift */; };
@@ -417,7 +417,7 @@
 		20C175362697955100A89BA2 /* MD5FixerOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MD5FixerOperation.swift; sourceTree = "<group>"; };
 		20C1753E2697A62E00A89BA2 /* MD5Summer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MD5Summer.swift; sourceTree = "<group>"; };
 		20C17EE225D6F67800279AEF /* UserNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotifications.swift; sourceTree = "<group>"; };
-		20C4F60023D3701D00B041B2 /* LoginLogicController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginLogicController.swift; sourceTree = "<group>"; };
+		20C4F60023D3701D00B041B2 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 		20C547AC24EC4C7400CE5325 /* Library.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Library.storyboard; sourceTree = "<group>"; };
 		20C547AE24EC4D3B00CE5325 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		20C641892152ADCF00809173 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
@@ -567,6 +567,7 @@
 			children = (
 				2016880B210A54C300FA5D53 /* API.swift */,
 				201943E5220B7AAB0035F1AE /* AuthenticatedUser.swift */,
+				20C4F60023D3701D00B041B2 /* AuthenticationService.swift */,
 				20168814210A54F100FA5D53 /* CloudStorage */,
 				20764E5222AEBE8E004BFE62 /* Crypto */,
 				20435BEA21BABC6C007E4CE8 /* Database */,
@@ -575,7 +576,6 @@
 				203A6606245488D200A3F4B4 /* Keyboard.swift */,
 				20ABFF5E22CFABAA00D38019 /* LocationManager.swift */,
 				2057B78D2306149C00F41BB2 /* Logger.swift */,
-				20C4F60023D3701D00B041B2 /* LoginLogicController.swift */,
 				20C641892152ADCF00809173 /* NetworkMonitor.swift */,
 				20A796A02466F02300A0CB10 /* PhoneNumberUtils.swift */,
 				208671AE24F53D5B002A58F2 /* PhotoLibrary.swift */,
@@ -1582,7 +1582,7 @@
 				20712E10233AC9C70036C373 /* RealmDatabase.swift in Sources */,
 				20717EDE24FE884F00653C91 /* Assert+Precondition.swift in Sources */,
 				20588AE722207B9300D88C4D /* String.swift in Sources */,
-				20C4F60123D3701D00B041B2 /* LoginLogicController.swift in Sources */,
+				20C4F60123D3701D00B041B2 /* AuthenticationService.swift in Sources */,
 				20168828210A554A00FA5D53 /* Date.swift in Sources */,
 				203A6607245488D200A3F4B4 /* Keyboard.swift in Sources */,
 				20C0065D24EAAEC40084B4C0 /* AssetSyncTracker.swift in Sources */,

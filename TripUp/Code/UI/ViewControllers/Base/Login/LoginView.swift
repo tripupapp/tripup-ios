@@ -43,7 +43,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
     weak var appDelegateExtension: AppDelegateExtension?
     var transparent: Bool = true
     var navigationBarHidden: Bool = true
-    var logicController: LoginLogicController!
+    var authenticationService: AuthenticationService!
 
     private let log_ = Logger.self
     private let verificationCodeLength_ = 6
@@ -281,7 +281,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             guard let phoneNumber = phoneNumberUtils.phoneNumber(from: text) else { return }
 
             phoneNumberField.text = phoneNumber
-            logicController.login(withNumber: phoneNumber) { [unowned self] state in
+            authenticationService.login(withNumber: phoneNumber) { [unowned self] state in
                 self.handle(state)
                 self.activity_view.stopAnimating()
             }
@@ -294,7 +294,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             guard verificationCode.count == verificationCodeLength_ else { return }
 
             let loginPhoneNumber = try! JSONDecoder().decode(LoginPhoneNumber.self, from: data)
-            logicController.verifyNumber(id: loginPhoneNumber.verificationID, withCode: verificationCode) { [unowned self] state in
+            authenticationService.verifyNumber(id: loginPhoneNumber.verificationID, withCode: verificationCode) { [unowned self] state in
                 self.handle(state)
             }
 
@@ -305,7 +305,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             guard let text = emailAddressField.text else { return }  // can reach here via "Done" keyboard toolbar button or return key
             guard emailUtils.isEmail(text) else { return }
 
-            logicController.login(withEmail: text) { [unowned self] state in
+            authenticationService.login(withEmail: text) { [unowned self] state in
                 self.handle(state)
                 self.activity_view.stopAnimating()
             }
@@ -328,21 +328,21 @@ class LoginView: UIViewController, UIViewControllerTransparent {
 
     @available(iOS 13, *)
     @IBAction func authenticateWithAppleID() {
-        logicController.loginWithApple(presentingController: self) { [unowned self] state in
+        authenticationService.loginWithApple(presentingController: self) { [unowned self] state in
             self.handle(state)
         }
         activity_view.startAnimating()
     }
 
     func handle(link emailVerificationLink: URL) -> Bool {
-        guard logicController.isMagicSignInLink(emailVerificationLink) else {
+        guard authenticationService.isMagicSignInLink(emailVerificationLink) else {
             return false
         }
         guard let loginProgressEncoded = UserDefaults.standard.data(forKey: UserDefaultsKey.LoginInProgress.rawValue), let email = String(data: loginProgressEncoded, encoding: .utf8) else {
             return false
         }
         let closure = { [weak self] in
-            self?.logicController.verify(email: email, withLink: emailVerificationLink) { [weak self] state in
+            self?.authenticationService.verify(email: email, withLink: emailVerificationLink) { [weak self] state in
                 self?.handle(state)
             }
 

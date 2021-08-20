@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let database: Database = RealmDatabase()
     let purchasesController: PurchasesController
     let api: API
-    let authenticationService: LoginLogicController
+    let authenticationService: AuthenticationService
 
     var privacyPolicyLoader: WebDocumentLoader? = nil
     var window: UIWindow?   // DO NOT DELETE - required for AppDelegate (https://developer.apple.com/library/archive/referencelibrary/GettingStarted/DevelopiOSAppsSwift/BuildABasicUI.html) - causes black window if not present
@@ -69,7 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
         api = API(host: config.apiBaseURL)
         purchasesController = PurchasesController(apiKey: config.revenuecatAPIKey)
-        authenticationService = LoginLogicController(emailAuthenticationFallbackURL: URL(string: config.appStoreURL)!)
+        authenticationService = AuthenticationService(emailAuthenticationFallbackURL: URL(string: config.appStoreURL)!)
 
         super.init()
     }

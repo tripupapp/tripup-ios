@@ -36,12 +36,12 @@ class AuthenticationView: UITableViewController {
     private let phoneNumberUtils = PhoneNumberService()
     private let emailUtils = EmailService()
 
-    private var loginLogicController: LoginLogicController!
+    private var authenticationService: AuthenticationService!
     private var authInProgress: Any?
     private var api: LoginAPI?
 
-    func initialise(loginLogicController: LoginLogicController, api: LoginAPI?) {
-        self.loginLogicController = loginLogicController
+    func initialise(authenticationService: AuthenticationService, api: LoginAPI?) {
+        self.authenticationService = authenticationService
         self.api = api
     }
 
@@ -115,9 +115,9 @@ class AuthenticationView: UITableViewController {
     }
 
     func handle(link emailVerificationLink: URL) -> Bool {
-        guard loginLogicController.isMagicSignInLink(emailVerificationLink) else { return false }
+        guard authenticationService.isMagicSignInLink(emailVerificationLink) else { return false }
         guard let email = authInProgress as? String, emailUtils.isEmail(email) else { return false }
-        loginLogicController.link(email: email, verificationLink: emailVerificationLink, api: api) { [unowned self] success in
+        authenticationService.link(email: email, verificationLink: emailVerificationLink, api: api) { [unowned self] success in
             if success {
                 UserDefaults.standard.removeObject(forKey: UserDefaultsKey.LoginInProgress.rawValue)
                 self.tableView.performBatchUpdates({
@@ -147,7 +147,7 @@ class AuthenticationView: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch (indexPath.section, indexPath.row) {
         case (0, 0):
-            if let number = loginLogicController.authenticatedUser?.phoneNumber {
+            if let number = authenticationService.authenticatedUser?.phoneNumber {
                 addPhoneNumberLabel.isHidden = true
                 phoneNumberField.isHidden = false
                 phoneNumberField.text = number
@@ -168,7 +168,7 @@ class AuthenticationView: UITableViewController {
                 nextPhoneNumberButton.isHidden = true
             }
         case (1, 0):
-            if let email = loginLogicController.authenticatedUser?.email {
+            if let email = authenticationService.authenticatedUser?.email {
                 addEmailLabel.isHidden = true
                 emailField.isHidden = false
                 emailField.text = email
@@ -189,7 +189,7 @@ class AuthenticationView: UITableViewController {
                 nextEmailButton.isHidden = true
             }
         case (2, 0):
-            if let appleID = loginLogicController.authenticatedUser?.appleID {
+            if let appleID = authenticationService.authenticatedUser?.appleID {
                 appleButtonContainer.isHidden = true
                 appleIDLabel.isHidden = false
                 appleIDLabel.text = appleID
@@ -259,7 +259,7 @@ class AuthenticationView: UITableViewController {
         switch (sender, sender.text) {
         case (phoneNumberField, .some(let text)) where phoneNumberUtils.isPhoneNumber(text):
             nextPhoneNumberButton.isEnabled = true
-        case (phoneNumberVerificationField, .some(let code)) where code.count == loginLogicController.phoneVerificationCodeLength:
+        case (phoneNumberVerificationField, .some(let code)) where code.count == authenticationService.phoneVerificationCodeLength:
             verifyPhoneNumberButton.isEnabled = true
         case (emailField, .some(let text)):
             let trimmedText = text.trimmingCharacters(in: .whitespaces)
@@ -273,7 +273,7 @@ class AuthenticationView: UITableViewController {
 
     @IBAction func nextActionPhoneNumber() {
         guard let text = phoneNumberField.text else { return }  // can reach here via keyboard toolbar button
-        guard let authenticatedUser = loginLogicController.authenticatedUser else {
+        guard let authenticatedUser = authenticationService.authenticatedUser else {
             return
         }
 
@@ -281,7 +281,7 @@ class AuthenticationView: UITableViewController {
             guard let phoneNumber = phoneNumberUtils.phoneNumber(from: text) else { return }
             phoneNumberField.text = phoneNumber
             phoneNumberField.enabled = false
-            loginLogicController.login(withNumber: phoneNumber) { [unowned self] state in
+            authenticationService.login(withNumber: phoneNumber) { [unowned self] state in
                 if case LoginState.pendingNumberVerification(let phoneNumber, let verificationID) = state {
                     let loginPhoneNumber = LoginPhoneNumber(phoneNumber: phoneNumber, verificationID: verificationID)
                     let loginPhoneNumberEncoded = try! JSONEncoder().encode(loginPhoneNumber)
@@ -310,7 +310,7 @@ class AuthenticationView: UITableViewController {
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
                 self.phoneNumberFieldActivity.startAnimating()
                 self.nextPhoneNumberButton.isHidden = true
-                self.loginLogicController.unlinkNumber(api: self.api) { [unowned self] success in
+                self.authenticationService.unlinkNumber(api: self.api) { [unowned self] success in
                     if success {
                         self.tableView.performBatchUpdates({
                             self.tableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .none)
@@ -329,11 +329,11 @@ class AuthenticationView: UITableViewController {
 
     @IBAction func verifyActionPhoneNumber() {
         guard let verificationCode = phoneNumberVerificationField.text else { return }    // can reach here via keyboard toolbar button
-        guard verificationCode.count == loginLogicController.phoneVerificationCodeLength else { return }
+        guard verificationCode.count == authenticationService.phoneVerificationCodeLength else { return }
         guard let loginPhoneNumber = authInProgress as? LoginPhoneNumber else { return }
         phoneNumberVerificationField.enabled = false
 
-        loginLogicController.linkNumber(id: loginPhoneNumber.verificationID, verificationCode: verificationCode, api: api) { [unowned self] success in
+        authenticationService.linkNumber(id: loginPhoneNumber.verificationID, verificationCode: verificationCode, api: api) { [unowned self] success in
             if success {
                 UserDefaults.standard.removeObject(forKey: UserDefaultsKey.LoginInProgress.rawValue)
                 self.tableView.performBatchUpdates({
@@ -369,13 +369,13 @@ class AuthenticationView: UITableViewController {
     }
 
     @IBAction func nextActionEmail() {
-        guard let authenticatedUser = loginLogicController.authenticatedUser else {
+        guard let authenticatedUser = authenticationService.authenticatedUser else {
             return
         }
         if authenticatedUser.email == nil {
             guard let email = emailField.text, emailUtils.isEmail(email) else { return }  // can reach here via keyboard toolbar button
             emailField.enabled = false
-            loginLogicController.login(withEmail: email) { [unowned self] state in
+            authenticationService.login(withEmail: email) { [unowned self] state in
                 if case LoginState.pendingEmailVerification(let email) = state {
                     UserDefaults.standard.set(email.data(using: .utf8)!, forKey: UserDefaultsKey.LoginInProgress.rawValue)
                     self.tableView.performBatchUpdates({
@@ -402,7 +402,7 @@ class AuthenticationView: UITableViewController {
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
                 self.emailFieldActivity.startAnimating()
                 self.nextEmailButton.isHidden = true
-                self.loginLogicController.unlinkEmail(api: self.api) { [unowned self] success in
+                self.authenticationService.unlinkEmail(api: self.api) { [unowned self] success in
                     if success {
                         self.tableView.performBatchUpdates({
                             self.tableView.reloadRows(at: [IndexPath(row: 0, section: 1)], with: .none)
@@ -428,12 +428,12 @@ class AuthenticationView: UITableViewController {
     }
 
     @IBAction func signInWithApple() {
-        guard let authenticatedUser = loginLogicController.authenticatedUser else {
+        guard let authenticatedUser = authenticationService.authenticatedUser else {
             return
         }
         if authenticatedUser.appleID == nil {
             guard #available(iOS 13.0, *) else { preconditionFailure() }
-            loginLogicController.linkApple(api: api, presentingController: self) { [unowned self] success in
+            authenticationService.linkApple(api: api, presentingController: self) { [unowned self] success in
                 if success {
                     self.tableView.reloadRows(at: [IndexPath(row: 0, section: 2)], with: .none)
                 } else {
@@ -451,7 +451,7 @@ class AuthenticationView: UITableViewController {
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { [unowned self] _ in
                 self.appleActivityView.startAnimating()
                 self.appleUnlinkButton.isHidden = true
-                self.loginLogicController.unlinkApple(api: self.api) { [unowned self] success in
+                self.authenticationService.unlinkApple(api: self.api) { [unowned self] success in
                     if success {
                         self.tableView.reloadRows(at: [IndexPath(row: 0, section: 2)], with: .none)
                     } else {
@@ -473,7 +473,7 @@ extension AuthenticationView: UITextFieldDelegate {
         switch textField {
         case phoneNumberVerificationField:
             let newLength = text.count + string.count - range.length
-            return newLength <= loginLogicController.phoneVerificationCodeLength
+            return newLength <= authenticationService.phoneVerificationCodeLength
         default:
             return true
         }
