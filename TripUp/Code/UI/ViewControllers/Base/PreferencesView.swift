@@ -19,14 +19,12 @@ class PreferencesView: UITableViewController {
 
     private weak var appDelegateExtension: AppDelegateExtension?
     private var primaryUser: User!
-    private var apiUser: APIUser!
     private var appContextInfo: AppContextInfo?
     private var purchasesController: PurchasesController!
     private var dependencyInjector: DependencyInjector!
 
-    func initialise(primaryUser: User, apiUser: APIUser, appContextInfo: AppContextInfo?, purchasesController: PurchasesController, appDelegateExtension: AppDelegateExtension?, dependencyInjector: DependencyInjector) {
+    func initialise(primaryUser: User, appContextInfo: AppContextInfo?, purchasesController: PurchasesController, appDelegateExtension: AppDelegateExtension?, dependencyInjector: DependencyInjector) {
         self.primaryUser = primaryUser
-        self.apiUser = apiUser
         self.appContextInfo = appContextInfo
         self.purchasesController = purchasesController
         self.appDelegateExtension = appDelegateExtension

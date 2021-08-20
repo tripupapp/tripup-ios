@@ -124,12 +124,12 @@ extension AppContext: DependencyInjector {
     }
 
     func initialise(preferencesView: PreferencesView) {
-        preferencesView.initialise(primaryUser: primaryUser, apiUser: apiUser, appContextInfo: self, purchasesController: purchasesController, appDelegateExtension: appDelegate, dependencyInjector: self)
+        preferencesView.initialise(primaryUser: primaryUser, appContextInfo: self, purchasesController: purchasesController, appDelegateExtension: appDelegate, dependencyInjector: self)
     }
 
     func initialise(authenticationView: AuthenticationView) {
         let loginLC = LoginLogicController(emailAuthFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
-        authenticationView.initialise(authUser: apiUser, loginLogicController: loginLC, api: webAPI)
+        authenticationView.initialise(authenticatedUser: authenticatedUser, loginLogicController: loginLC, api: webAPI)
     }
 
     func initialise(securityView: SecurityView) {
@@ -199,7 +199,7 @@ class AppContext {
         }
     }
     private let webAPI: API
-    private let apiUser: APIUser
+    private let authenticatedUser: AuthenticatedUser
 
     private let modelController: ModelController
     private let purchasesController: PurchasesController
@@ -211,9 +211,9 @@ class AppContext {
     private var contextObservers = [ObjectIdentifier: AppContextObserverWrapper]()
     private var cloudReloadInProgress: Bool = false
 
-    init(user: User, apiUser: APIUser, webAPI: API, keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, database: Database, config: AppConfig, purchasesController: PurchasesController, dataService: DataService, appDelegate: AppDelegate) {
+    init(user: User, authenticatedUser: AuthenticatedUser, webAPI: API, keychain: Keychain<CryptoPublicKey, CryptoPrivateKey>, database: Database, config: AppConfig, purchasesController: PurchasesController, dataService: DataService, appDelegate: AppDelegate) {
         self.appDelegate = appDelegate
-        self.apiUser = apiUser
+        self.authenticatedUser = authenticatedUser
         self.webAPI = webAPI
         self.keychain = keychain
 
@@ -240,7 +240,7 @@ class AppContext {
         purchasesController.addObserver(self)
 
 //        let dataManager = DataManager(dataService: dataService, simultaneousTransfers: 4)
-        self.assetManager = AssetManager(primaryUserID: primaryUser.uuid, assetController: modelController, assetDatabase: modelController, photoLibrary: photoLibrary, keychainDelegate: keychainDelegateObject, apiUser: apiUser, webAPI: webAPI, dataService: dataService, networkController: networkMonitor)
+        self.assetManager = AssetManager(primaryUserID: primaryUser.uuid, assetController: modelController, assetDatabase: modelController, photoLibrary: photoLibrary, keychainDelegate: keychainDelegateObject, webAPI: webAPI, dataService: dataService, networkController: networkMonitor)
         assetManager.triggerStatusNotification = { [weak self] in
             self?.generateStatusNotification()
         }
@@ -251,7 +251,7 @@ class AppContext {
         modelController.groupControllerDelegate = self
         modelController.addObserver(self)
 
-        networkMonitor = NetworkMonitor(host: config.apiBaseURL, apiUser: apiUser)
+        networkMonitor = NetworkMonitor(host: config.apiBaseURL, authenticatedUser: authenticatedUser)
         networkMonitor?.addObserver(self)
     }
 
@@ -318,7 +318,7 @@ class AppContext {
         let loginLogicController = LoginLogicController(emailAuthFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
         guard loginLogicController.isSignIn(link: link) else { return false }
         guard let loginProgressEncoded = UserDefaults.standard.data(forKey: UserDefaultsKey.LoginInProgress.rawValue), let email = String(data: loginProgressEncoded, encoding: .utf8) else { return false }
-        loginLogicController.link(email: email, withLink: link, toUser: apiUser, api: webAPI) { [weak self] success in
+        loginLogicController.link(email: email, toAuthenticatedUser: authenticatedUser, verificationLink: link, api: webAPI) { [weak self] success in
             guard let self = self else { return }
             UserDefaults.standard.removeObject(forKey: UserDefaultsKey.LoginInProgress.rawValue)
             if success {

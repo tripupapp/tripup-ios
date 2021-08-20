@@ -30,7 +30,7 @@ enum LoginError: Error {
 enum LoginState {
     case pendingNumberVerification(String, String)
     case pendingEmailVerification(String)
-    case authenticated(APIUser)
+    case authenticated(AuthenticatedUser)
     case loggedIn
     case passwordRequired((String) -> Bool)
     case failed(LoginError)
@@ -102,7 +102,7 @@ class LoginLogicController {
             if let credential = credential {
                 Auth.auth().signIn(with: credential) { (authResult, error) in
                     if let authResult = authResult {
-                        callback(.authenticated(APIUser(user: authResult.user)))
+                        callback(.authenticated(AuthenticatedUser(user: authResult.user)))
                     } else {
                         log.error(error?.localizedDescription ?? "unable to sign in to firebase with apple")
                         callback(.failed(.appleError))
@@ -121,7 +121,7 @@ class LoginLogicController {
                 self.log.error(error.localizedDescription)
                 callback(.failed(.verificationCodeError))
             } else {
-                callback(.authenticated(APIUser(user: authResult!.user)))
+                callback(.authenticated(AuthenticatedUser(user: authResult!.user)))
             }
         }
     }
@@ -129,7 +129,7 @@ class LoginLogicController {
     func verify(email: String, withLink verificationLink: URL, callback: @escaping Callback) {
         Auth.auth().signIn(withEmail: email, link: verificationLink.absoluteString) { (authResult, error) in
             if let authResult = authResult {
-                callback(.authenticated(APIUser(user: authResult.user)))
+                callback(.authenticated(AuthenticatedUser(user: authResult.user)))
             } else {
                 self.log.error(error?.localizedDescription ?? "Unable to sign in with email")
                 callback(.failed(.emailVerificationError))
@@ -137,7 +137,7 @@ class LoginLogicController {
         }
     }
 
-    func linkNumber(id: String, code: String, toUser user: APIUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+    func linkNumber(id: String, code: String, toUser user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
         let credential = PhoneAuthProvider.provider().credential(withVerificationID: id, verificationCode: code)
         user.user.link(with: credential) { (authResult, error) in
             if let _ = authResult {
@@ -150,9 +150,9 @@ class LoginLogicController {
         }
     }
 
-    func link(email: String, withLink verificationLink: URL, toUser user: APIUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+    func link(email: String, toAuthenticatedUser authenticatedUser: AuthenticatedUser, verificationLink: URL, api: LoginAPI?, callback: @escaping ClosureBool) {
         let credential = EmailAuthProvider.credential(withEmail: email, link: verificationLink.absoluteString)
-        user.user.link(with: credential) { (authResult, error) in
+        authenticatedUser.user.link(with: credential) { (authResult, error) in
             if let _ = authResult {
                 callback(true)
                 api?.updateContactDetails()
@@ -164,7 +164,7 @@ class LoginLogicController {
     }
 
     @available(iOS 13, *)
-    func linkApple(toUser user: APIUser, api: LoginAPI?, presentingController: ASAuthorizationControllerPresentationContextProviding, callback: @escaping ClosureBool) {
+    func linkApple(toUser user: AuthenticatedUser, api: LoginAPI?, presentingController: ASAuthorizationControllerPresentationContextProviding, callback: @escaping ClosureBool) {
         signInWithApple(presentingController: presentingController) { [log] credential in
             if let credential = credential {
                 user.user.link(with: credential) { (_, error) in
@@ -182,7 +182,7 @@ class LoginLogicController {
         }
     }
 
-    func unlinkEmail(from user: APIUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+    func unlinkEmail(from user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
         precondition(user.phoneNumber != nil || user.appleID != nil)
         user.user.unlink(fromProvider: EmailAuthProviderID) { [log] _, error in
             if let error = error {
@@ -195,7 +195,7 @@ class LoginLogicController {
         }
     }
 
-    func unlinkNumber(from user: APIUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+    func unlinkNumber(from user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
         precondition(user.email != nil || user.appleID != nil)
         user.user.unlink(fromProvider: PhoneAuthProviderID) { [log] _, error in
             if let error = error {
@@ -208,7 +208,7 @@ class LoginLogicController {
         }
     }
 
-    func unlinkApple(from user: APIUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+    func unlinkApple(from user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
         precondition(user.phoneNumber != nil || user.email != nil)
         user.user.unlink(fromProvider: "apple.com") { [log] _, error in
             if let error = error {

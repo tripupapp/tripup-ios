@@ -1,5 +1,5 @@
 //
-//  APIUser.swift
+//  AuthenticatedUser.swift
 //  TripUp
 //
 //  Created by Vinoth Ramiah on 06/02/2019.
@@ -18,7 +18,7 @@ struct APIToken: Equatable {
     }
 }
 
-class APIUser {
+class AuthenticatedUser {
     private let auth = Auth.auth()
     let user: FirebaseAuth.User
     private let log = Logger.self

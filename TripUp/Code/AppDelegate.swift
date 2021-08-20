@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?   // DO NOT DELETE - required for AppDelegate (https://developer.apple.com/library/archive/referencelibrary/GettingStarted/DevelopiOSAppsSwift/BuildABasicUI.html) - causes black window if not present
     var context: AppContext?
-    var authenticatedUser: APIUser?
+    var authenticatedUser: AuthenticatedUser?
     var dataService: DataService?
     var userNotificationProvider: UserNotificationProvider?
 
@@ -80,7 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // initialise
         setup()
-        authenticatedUser = APIUser()
+        authenticatedUser = AuthenticatedUser()
         dataService = AWSAdapter()
         userNotificationProvider = UserNotificationProvider(appID: config.onesignalAppID, didFinishLaunchingWithOptions: launchOptions)
         log.debug(config)

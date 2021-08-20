@@ -18,7 +18,7 @@ protocol AppDelegateExtension: AnyObject {
     var autoBackup: Bool? { get set }
     func initialise(_ cloudStorageVC: CloudStorageVC)
     func presentNextRootViewController(after currentViewController: UIViewController?, fadeIn: Bool, resetApp: Bool)
-    func userCredentials(from authenticatedUser: APIUser, callback: @escaping LoginLogicController.Callback)
+    func userCredentials(from authenticatedUser: AuthenticatedUser, callback: @escaping LoginLogicController.Callback)
 }
 
 extension AppDelegateExtension {
@@ -421,7 +421,7 @@ extension AppDelegate: AppDelegateExtension {
             UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
         }
 
-        context = AppContext(user: primaryUser, apiUser: authenticatedUser, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService, appDelegate: self)
+        context = AppContext(user: primaryUser, authenticatedUser: authenticatedUser, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService, appDelegate: self)
         userNotificationProvider?.receiver = context
         
         let mainVC = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! MainVC
@@ -477,7 +477,7 @@ extension AppDelegate: AppDelegateExtension {
 }
 
 extension AppDelegate {
-    func userCredentials(from authenticatedUser: APIUser, callback: @escaping LoginLogicController.Callback) {
+    func userCredentials(from authenticatedUser: AuthenticatedUser, callback: @escaping LoginLogicController.Callback) {
         api.authenticatedUser = authenticatedUser
         api.getUUID(callbackOn: .main) { [unowned self] success, userData in
             guard success else { callback(.failed(.apiError)); return }
@@ -530,7 +530,7 @@ extension AppDelegate {
         return nil
     }
 
-    private func saveLoginDetails(userID: UUID, userSchemaVersion: String, userKey: CryptoPrivateKey, authenticatedUser: APIUser) {
+    private func saveLoginDetails(userID: UUID, userSchemaVersion: String, userKey: CryptoPrivateKey, authenticatedUser: AuthenticatedUser) {
         do {
             try keychain.savePrivateKey(userKey)   // save to device keychain only
         } catch {

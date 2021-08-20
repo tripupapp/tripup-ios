@@ -43,7 +43,7 @@ class AWSAdapter {
         }
     }
 
-    weak var authenticatedUser: APIUser? {
+    weak var authenticatedUser: AuthenticatedUser? {
         didSet {
             process(AWSMobileClient.default().currentUserState)
         }
@@ -118,7 +118,7 @@ class AWSAdapter {
                     return
                 }
                 guard let token = token, token.notExpired else {
-                    self.log.error("token from APIUser is invalid")
+                    self.log.error("token from authenticatedUser is invalid")
                     return
                 }
                 AWSMobileClient.default().federatedSignIn(providerName: federationProviderName, token: token.value) { [log = self.log] federatedState, federatedError in
