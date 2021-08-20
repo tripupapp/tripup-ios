@@ -39,13 +39,13 @@ class NetworkMonitor {
 
     private let generalNetworkConnectivity: Connectivity = Connectivity()
     private let tripupServerConnectivity: Connectivity = Connectivity()
-    private let apiUser: APIUser
+    private let authenticatedUser: AuthenticatedUser
     private var networkObservers = [ObjectIdentifier: NetworkObserverWrapper]()
     private var autoBackupObserverToken: NSObjectProtocol?
     private var started: Bool = false
 
-    init?(host hostCandidate: String, apiUser: APIUser) {
-        self.apiUser = apiUser
+    init?(host hostCandidate: String, authenticatedUser: AuthenticatedUser) {
+        self.authenticatedUser = authenticatedUser
         self.autoBackupObserverToken = NotificationCenter.default.addObserver(forName: .AutoBackupChanged, object: nil, queue: nil) { [weak self] _ in
             if let self = self, !self.tripupServerConnectivity.isConnected {
                 self.generalNetworkConnectivity.checkConnectivity()
@@ -84,7 +84,7 @@ class NetworkMonitor {
     }
 
     private func checkTripUpServerConnectivity() {
-        apiUser.token({ [weak self] (token) in
+        authenticatedUser.token { [weak self] (token) in
             guard let token = token, token.notExpired else {
                 self?.observers(notify: .notConnected)
                 return
@@ -93,7 +93,7 @@ class NetworkMonitor {
             self?.tripupServerConnectivity.checkConnectivity(completion: { [weak self] (connectivity) in
                 self?.observers(notify: connectivity.status)
             })
-        })
+        }
     }
 
     private func observers(notify status: ConnectivityStatus) {

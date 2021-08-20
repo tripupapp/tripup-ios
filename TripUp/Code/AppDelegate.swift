@@ -33,11 +33,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let database: Database = RealmDatabase()
     let purchasesController: PurchasesController
     let api: API
-    var privacyPolicyLoader: WebDocumentLoader? = nil
+    let authenticationService: AuthenticationService
 
+    var privacyPolicyLoader: WebDocumentLoader? = nil
     var window: UIWindow?   // DO NOT DELETE - required for AppDelegate (https://developer.apple.com/library/archive/referencelibrary/GettingStarted/DevelopiOSAppsSwift/BuildABasicUI.html) - causes black window if not present
     var context: AppContext?
-    var authenticatedUser: APIUser?
     var dataService: DataService?
     var userNotificationProvider: UserNotificationProvider?
 
@@ -69,6 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
         api = API(host: config.apiBaseURL)
         purchasesController = PurchasesController(apiKey: config.revenuecatAPIKey)
+        authenticationService = AuthenticationService(emailAuthenticationFallbackURL: URL(string: config.appStoreURL)!)
 
         super.init()
     }
@@ -80,7 +81,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // initialise
         setup()
-        authenticatedUser = APIUser()
         dataService = AWSAdapter()
         userNotificationProvider = UserNotificationProvider(appID: config.onesignalAppID, didFinishLaunchingWithOptions: launchOptions)
         log.debug(config)

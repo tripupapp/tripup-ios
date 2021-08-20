@@ -108,7 +108,7 @@ class AssetManager {
     private var resignActiveObserverToken: NSObjectProtocol?
     private var didBecomeActiveObserverToken: NSObjectProtocol?
 
-    init(primaryUserID: UUID, assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, apiUser: APIUser, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
+    init(primaryUserID: UUID, assetController: AssetController, assetDatabase: MutableAssetDatabase, photoLibrary: PhotoLibrary, keychainDelegate: KeychainDelegate, webAPI: API, dataService: DataService, networkController: NetworkMonitorController?) {
         self.primaryUserID = primaryUserID
         self.assetController = assetController
         self.assetDatabase = assetDatabase

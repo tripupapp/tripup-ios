@@ -43,7 +43,7 @@ class AWSAdapter {
         }
     }
 
-    weak var authenticatedUser: APIUser? {
+    weak var authenticatedUser: AuthenticatedUser? {
         didSet {
             process(AWSMobileClient.default().currentUserState)
         }
@@ -93,7 +93,6 @@ class AWSAdapter {
     }
 
     func signOut() {
-        authenticatedUser = nil
         AWSMobileClient.default().signOut()
         AWSMobileClient.default().invalidateCachedTemporaryCredentials()
         log.debug("AWSMobileClient signed out – userState: \(String(describing: AWSMobileClient.default().currentUserState))")
@@ -118,7 +117,7 @@ class AWSAdapter {
                     return
                 }
                 guard let token = token, token.notExpired else {
-                    self.log.error("token from APIUser is invalid")
+                    self.log.error("token from authenticatedUser is invalid")
                     return
                 }
                 AWSMobileClient.default().federatedSignIn(providerName: federationProviderName, token: token.value) { [log = self.log] federatedState, federatedError in

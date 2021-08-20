@@ -17,7 +17,7 @@ class API {
             case tokenExpired
         }
 
-        weak var authenticatedUser: APIUser?
+        weak var authenticatedUser: AuthenticatedUser?
         var host: String
         private let log = Logger.self
         private let retryPolicy: RetryPolicy = {
@@ -31,7 +31,7 @@ class API {
         }
     }
 
-    weak var authenticatedUser: APIUser? {
+    weak var authenticatedUser: AuthenticatedUser? {
         get {
             return (session.interceptor as? Adapter)?.authenticatedUser
         }
