@@ -57,20 +57,20 @@ class LoginLogicController {
     let phoneVerificationCodeLength = 6
 
     private let log = Logger.self
-    private let emailAuthFallbackURL: URL
+    private let emailAuthenticationFallbackURL: URL
 
     @available(iOS 13.0, *)
     private lazy var appleAuthContext = AppleAuthContext()
 
-    init(emailAuthFallbackURL: URL) {
-        self.emailAuthFallbackURL = emailAuthFallbackURL
+    init(emailAuthenticationFallbackURL: URL) {
+        self.emailAuthenticationFallbackURL = emailAuthenticationFallbackURL
     }
 
-    func isSignIn(link: URL) -> Bool {
+    func isMagicSignInLink(_ link: URL) -> Bool {
         return Auth.auth().isSignIn(withEmailLink: link.absoluteString)
     }
 
-    func login(number: String, callback: @escaping Callback) {
+    func login(withNumber number: String, callback: @escaping Callback) {
         PhoneAuthProvider.provider().verifyPhoneNumber(number, uiDelegate: nil) { (verificationID, error) in
             if let error = error {
                 self.log.error(error.localizedDescription)
@@ -81,9 +81,9 @@ class LoginLogicController {
         }
     }
 
-    func login(email: String, callback: @escaping Callback) {
+    func login(withEmail email: String, callback: @escaping Callback) {
         let actionCodeSettings = ActionCodeSettings()
-        actionCodeSettings.url = emailAuthFallbackURL
+        actionCodeSettings.url = emailAuthenticationFallbackURL
         actionCodeSettings.handleCodeInApp = true   // must be true for email link authentication (sdk crash specifically for this otherwise)
         actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
         Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
@@ -114,7 +114,7 @@ class LoginLogicController {
         }
     }
 
-    func verifyNumber(id: String, code: String, callback: @escaping Callback) {
+    func verifyNumber(id: String, withCode code: String, callback: @escaping Callback) {
         let credential = PhoneAuthProvider.provider().credential(withVerificationID: id, verificationCode: code)
         Auth.auth().signIn(with: credential) { (authResult, error) in
             if let error = error {
@@ -137,9 +137,9 @@ class LoginLogicController {
         }
     }
 
-    func linkNumber(id: String, code: String, toUser user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
-        let credential = PhoneAuthProvider.provider().credential(withVerificationID: id, verificationCode: code)
-        user.user.link(with: credential) { (authResult, error) in
+    func linkNumber(id: String, toAuthenticatedUser authenticatedUser: AuthenticatedUser, verificationCode: String, api: LoginAPI?, callback: @escaping ClosureBool) {
+        let credential = PhoneAuthProvider.provider().credential(withVerificationID: id, verificationCode: verificationCode)
+        authenticatedUser.user.link(with: credential) { (authResult, error) in
             if let _ = authResult {
                 callback(true)
                 api?.updateContactDetails()
@@ -164,10 +164,10 @@ class LoginLogicController {
     }
 
     @available(iOS 13, *)
-    func linkApple(toUser user: AuthenticatedUser, api: LoginAPI?, presentingController: ASAuthorizationControllerPresentationContextProviding, callback: @escaping ClosureBool) {
+    func linkApple(toAuthenticatedUser authenticatedUser: AuthenticatedUser, api: LoginAPI?, presentingController: ASAuthorizationControllerPresentationContextProviding, callback: @escaping ClosureBool) {
         signInWithApple(presentingController: presentingController) { [log] credential in
             if let credential = credential {
-                user.user.link(with: credential) { (_, error) in
+                authenticatedUser.user.link(with: credential) { (_, error) in
                     if let error = error {
                         log.error(error.localizedDescription)
                         callback(false)
@@ -182,9 +182,9 @@ class LoginLogicController {
         }
     }
 
-    func unlinkEmail(from user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
-        precondition(user.phoneNumber != nil || user.appleID != nil)
-        user.user.unlink(fromProvider: EmailAuthProviderID) { [log] _, error in
+    func unlinkEmail(fromAuthenticatedUser authenticatedUser: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+        precondition(authenticatedUser.phoneNumber != nil || authenticatedUser.appleID != nil)
+        authenticatedUser.user.unlink(fromProvider: EmailAuthProviderID) { [log] _, error in
             if let error = error {
                 log.error(error.localizedDescription)
                 callback(false)
@@ -195,9 +195,9 @@ class LoginLogicController {
         }
     }
 
-    func unlinkNumber(from user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
-        precondition(user.email != nil || user.appleID != nil)
-        user.user.unlink(fromProvider: PhoneAuthProviderID) { [log] _, error in
+    func unlinkNumber(fromAuthenticatedUser authenticatedUser: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+        precondition(authenticatedUser.email != nil || authenticatedUser.appleID != nil)
+        authenticatedUser.user.unlink(fromProvider: PhoneAuthProviderID) { [log] _, error in
             if let error = error {
                 log.error(error.localizedDescription)
                 callback(false)
@@ -208,9 +208,9 @@ class LoginLogicController {
         }
     }
 
-    func unlinkApple(from user: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
-        precondition(user.phoneNumber != nil || user.email != nil)
-        user.user.unlink(fromProvider: "apple.com") { [log] _, error in
+    func unlinkApple(fromAuthenticatedUser authenticatedUser: AuthenticatedUser, api: LoginAPI?, callback: @escaping ClosureBool) {
+        precondition(authenticatedUser.phoneNumber != nil || authenticatedUser.email != nil)
+        authenticatedUser.user.unlink(fromProvider: "apple.com") { [log] _, error in
             if let error = error {
                 log.error(error.localizedDescription)
                 callback(false)

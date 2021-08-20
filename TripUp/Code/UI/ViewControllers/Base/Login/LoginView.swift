@@ -281,7 +281,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             guard let phoneNumber = phoneNumberUtils.phoneNumber(from: text) else { return }
 
             phoneNumberField.text = phoneNumber
-            logicController.login(number: phoneNumber) { [unowned self] state in
+            logicController.login(withNumber: phoneNumber) { [unowned self] state in
                 self.handle(state)
                 self.activity_view.stopAnimating()
             }
@@ -294,7 +294,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             guard verificationCode.count == verificationCodeLength_ else { return }
 
             let loginPhoneNumber = try! JSONDecoder().decode(LoginPhoneNumber.self, from: data)
-            logicController.verifyNumber(id: loginPhoneNumber.verificationID, code: verificationCode) { [unowned self] state in
+            logicController.verifyNumber(id: loginPhoneNumber.verificationID, withCode: verificationCode) { [unowned self] state in
                 self.handle(state)
             }
 
@@ -305,7 +305,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
             guard let text = emailAddressField.text else { return }  // can reach here via "Done" keyboard toolbar button or return key
             guard emailUtils.isEmail(text) else { return }
 
-            logicController.login(email: text) { [unowned self] state in
+            logicController.login(withEmail: text) { [unowned self] state in
                 self.handle(state)
                 self.activity_view.stopAnimating()
             }
@@ -335,7 +335,7 @@ class LoginView: UIViewController, UIViewControllerTransparent {
     }
 
     func handle(link emailVerificationLink: URL) -> Bool {
-        guard logicController.isSignIn(link: emailVerificationLink) else {
+        guard logicController.isMagicSignInLink(emailVerificationLink) else {
             return false
         }
         guard let loginProgressEncoded = UserDefaults.standard.data(forKey: UserDefaultsKey.LoginInProgress.rawValue), let email = String(data: loginProgressEncoded, encoding: .utf8) else {

@@ -117,7 +117,7 @@ class AuthenticationView: UITableViewController {
     }
 
     func handle(link emailVerificationLink: URL) -> Bool {
-        guard loginLogicController.isSignIn(link: emailVerificationLink) else { return false }
+        guard loginLogicController.isMagicSignInLink(emailVerificationLink) else { return false }
         guard let email = authInProgress as? String, emailUtils.isEmail(email) else { return false }
         loginLogicController.link(email: email, toAuthenticatedUser: authenticatedUser, verificationLink: emailVerificationLink, api: api) { [unowned self] success in
             if success {
@@ -280,7 +280,7 @@ class AuthenticationView: UITableViewController {
             guard let phoneNumber = phoneNumberUtils.phoneNumber(from: text) else { return }
             phoneNumberField.text = phoneNumber
             phoneNumberField.enabled = false
-            loginLogicController.login(number: phoneNumber) { [unowned self] state in
+            loginLogicController.login(withNumber: phoneNumber) { [unowned self] state in
                 if case LoginState.pendingNumberVerification(let phoneNumber, let verificationID) = state {
                     let loginPhoneNumber = LoginPhoneNumber(phoneNumber: phoneNumber, verificationID: verificationID)
                     let loginPhoneNumberEncoded = try! JSONEncoder().encode(loginPhoneNumber)
@@ -309,7 +309,7 @@ class AuthenticationView: UITableViewController {
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
                 self.phoneNumberFieldActivity.startAnimating()
                 self.nextPhoneNumberButton.isHidden = true
-                self.loginLogicController.unlinkNumber(from: self.authenticatedUser, api: self.api) { [unowned self] success in
+                self.loginLogicController.unlinkNumber(fromAuthenticatedUser: self.authenticatedUser, api: self.api) { [unowned self] success in
                     if success {
                         self.tableView.performBatchUpdates({
                             self.tableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .none)
@@ -332,7 +332,7 @@ class AuthenticationView: UITableViewController {
         guard let loginPhoneNumber = authInProgress as? LoginPhoneNumber else { return }
         phoneNumberVerificationField.enabled = false
 
-        loginLogicController.linkNumber(id: loginPhoneNumber.verificationID, code: verificationCode, toUser: authenticatedUser, api: api) { [unowned self] success in
+        loginLogicController.linkNumber(id: loginPhoneNumber.verificationID, toAuthenticatedUser: authenticatedUser, verificationCode: verificationCode, api: api) { [unowned self] success in
             if success {
                 UserDefaults.standard.removeObject(forKey: UserDefaultsKey.LoginInProgress.rawValue)
                 self.tableView.performBatchUpdates({
@@ -371,7 +371,7 @@ class AuthenticationView: UITableViewController {
         if authenticatedUser.email == nil {
             guard let email = emailField.text, emailUtils.isEmail(email) else { return }  // can reach here via keyboard toolbar button
             emailField.enabled = false
-            loginLogicController.login(email: email) { [unowned self] state in
+            loginLogicController.login(withEmail: email) { [unowned self] state in
                 if case LoginState.pendingEmailVerification(let email) = state {
                     UserDefaults.standard.set(email.data(using: .utf8)!, forKey: UserDefaultsKey.LoginInProgress.rawValue)
                     self.tableView.performBatchUpdates({
@@ -398,7 +398,7 @@ class AuthenticationView: UITableViewController {
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
                 self.emailFieldActivity.startAnimating()
                 self.nextEmailButton.isHidden = true
-                self.loginLogicController.unlinkEmail(from: self.authenticatedUser, api: self.api) { [unowned self] success in
+                self.loginLogicController.unlinkEmail(fromAuthenticatedUser: self.authenticatedUser, api: self.api) { [unowned self] success in
                     if success {
                         self.tableView.performBatchUpdates({
                             self.tableView.reloadRows(at: [IndexPath(row: 0, section: 1)], with: .none)
@@ -426,7 +426,7 @@ class AuthenticationView: UITableViewController {
     @IBAction func signInWithApple() {
         if authenticatedUser.appleID == nil {
             guard #available(iOS 13.0, *) else { preconditionFailure() }
-            loginLogicController.linkApple(toUser: authenticatedUser, api: api, presentingController: self) { [unowned self] success in
+            loginLogicController.linkApple(toAuthenticatedUser: authenticatedUser, api: api, presentingController: self) { [unowned self] success in
                 if success {
                     self.tableView.reloadRows(at: [IndexPath(row: 0, section: 2)], with: .none)
                 } else {
@@ -444,7 +444,7 @@ class AuthenticationView: UITableViewController {
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { [unowned self] _ in
                 self.appleActivityView.startAnimating()
                 self.appleUnlinkButton.isHidden = true
-                self.loginLogicController.unlinkApple(from: self.authenticatedUser, api: self.api) { [unowned self] success in
+                self.loginLogicController.unlinkApple(fromAuthenticatedUser: self.authenticatedUser, api: self.api) { [unowned self] success in
                     if success {
                         self.tableView.reloadRows(at: [IndexPath(row: 0, section: 2)], with: .none)
                     } else {

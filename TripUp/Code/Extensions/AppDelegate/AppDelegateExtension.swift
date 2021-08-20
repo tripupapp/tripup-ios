@@ -237,7 +237,7 @@ extension AppDelegate: AppDelegateExtension {
             privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)  // download privacy policy, for use in LoginView
             let loginVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "loginvc") as! LoginView
             loginVC.appDelegateExtension = self
-            loginVC.logicController = LoginLogicController(emailAuthFallbackURL: URL(string: config.appStoreURL)!)
+            loginVC.logicController = LoginLogicController(emailAuthenticationFallbackURL: URL(string: config.appStoreURL)!)
             loginNavigationController(navigateTo: loginVC, fadeIn: fadeIn)
             return
         }

@@ -128,7 +128,7 @@ extension AppContext: DependencyInjector {
     }
 
     func initialise(authenticationView: AuthenticationView) {
-        let loginLC = LoginLogicController(emailAuthFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
+        let loginLC = LoginLogicController(emailAuthenticationFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
         authenticationView.initialise(authenticatedUser: authenticatedUser, loginLogicController: loginLC, api: webAPI)
     }
 
@@ -315,8 +315,8 @@ class AppContext {
     }
 
     private func handleEmailAuth(link: URL) -> Bool {
-        let loginLogicController = LoginLogicController(emailAuthFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
-        guard loginLogicController.isSignIn(link: link) else { return false }
+        let loginLogicController = LoginLogicController(emailAuthenticationFallbackURL: URL(string: appDelegate.config.appStoreURL)!)
+        guard loginLogicController.isMagicSignInLink(link) else { return false }
         guard let loginProgressEncoded = UserDefaults.standard.data(forKey: UserDefaultsKey.LoginInProgress.rawValue), let email = String(data: loginProgressEncoded, encoding: .utf8) else { return false }
         loginLogicController.link(email: email, toAuthenticatedUser: authenticatedUser, verificationLink: link, api: webAPI) { [weak self] success in
             guard let self = self else { return }
