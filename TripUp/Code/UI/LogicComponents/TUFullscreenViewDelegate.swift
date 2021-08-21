@@ -290,13 +290,17 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
         case bottomToolbarItems![0]: // TOGGLE SHARE STATE
             if group.album.sharedAssets[asset.uuid] == nil {
                 groupManager?.shareAssets([asset], withGroup: group) { success in
-                    if !success {
+                    if success {
+                        fullscreenVC.view.makeToastie("Item is now visible to the rest of the group 🤳", position: .top)
+                    } else {
                         fullscreenVC.view.makeToastie("There was a problem sharing this photo with the group", position: .top)
                     }
                 }
             } else {
                 groupManager?.unshareAssets([asset], fromGroup: group) { success in
-                    if !success {
+                    if success {
+                        fullscreenVC.view.makeToastie("Item is no longer visible to the rest of the group 🤫", position: .top)
+                    } else {
                         fullscreenVC.view.makeToastie("There was a problem unsharing this photo from the group", position: .top)
                     }
                 }
