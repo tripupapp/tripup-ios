@@ -17,10 +17,6 @@ extension AssetManager {
         private struct ObserverWrapper {
             weak var observer: AssetSyncObserver?
         }
-        
-        var syncInProgress: Bool {
-            return completed < total
-        }
 
         private var unsyncedAssets = Set<UUID>()
         private var syncedAssets = Set<UUID>()

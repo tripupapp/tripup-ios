@@ -77,6 +77,12 @@ class AssetManager {
         let uti: AVFileType?
     }
 
+    var imports: (inProgress: Bool, containsManualImports: Bool) {
+        // not thread safe access!
+        let operations = assetOperations.map({ $0.value.map{ $0.value } }).flatMap{ $0 }
+        return (operations.isNotEmpty, operations.contains(where: { $0 is AssetManualImportOperation }))
+    }
+
     unowned let keychainDelegate: KeychainDelegate
     unowned let assetController: AssetController
 
@@ -795,7 +801,7 @@ extension AssetManager: AssetImportManager {
                 callback(allSuccess)
             }
 
-            let operation = AssetImportOperation(assets: mutableAssetsNotImported, delegate: self)
+            let operation = AssetManualImportOperation(assets: mutableAssetsNotImported, delegate: self)
             operation.completionBlock = { [weak self] in
                 self?.log.debug("Manual Import Operation for \(String(describing: operation.assets.map{ $0.uuid.string })) - finished state: \(String(describing: operation.currentState)), cancelled: \(operation.isCancelled)")
 

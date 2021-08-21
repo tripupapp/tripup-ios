@@ -211,6 +211,8 @@ extension AssetManager {
         }
     }
 
+    class AssetManualImportOperation: AssetImportOperation {}
+
     class AssetDeleteOperation: AssetOperationBatch<AssetManager.MutableAsset> {
         enum State {
             case deletedFromServer
