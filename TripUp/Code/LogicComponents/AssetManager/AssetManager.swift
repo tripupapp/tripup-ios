@@ -337,22 +337,30 @@ extension AssetManager {
     }
 
     func load(asset: Asset, atQuality quality: Quality, callback: @escaping (URL?, AVFileType?) -> Void) {
-        mutableAsset(from: asset.uuid) { [weak self] (mutableAsset) in
-            guard let self = self else {
-                callback(nil, nil)
+        load(assets: [asset], atQuality: quality) { (returnedAsset, url, uti) in
+            precondition(returnedAsset == asset)
+            callback(url, uti)
+        }
+    }
+
+    func load(assets: [Asset], atQuality quality: Quality, callback: @escaping (Asset, URL?, AVFileType?) -> Void) {
+        let assetsDict = assets.reduce(into: [UUID: Asset]()) {
+            $0[$1.uuid] = $1
+        }
+        mutableAssets(from: assetsDict.keys) { [weak self] (mutableAssets) in
+            guard let self = self, mutableAssets.isNotEmpty else {
                 return
             }
-            guard let mutableAsset = mutableAsset else {
-                self.log.verbose("\(asset.uuid): mutableAsset not found")
-                callback(nil, nil)
-                return
-            }
-            self.fetchResource(forAsset: mutableAsset, atQuality: quality) { [weak self] (success) in
+            self.fetchResources(forAssets: mutableAssets, atQuality: quality) { [weak self] (mutableAsset, success) in
+                guard let asset = assetsDict[mutableAsset.uuid] else {
+                    assertionFailure()
+                    return
+                }
                 if success {
-                    callback(mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
+                    callback(asset, mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
                 } else {
                     self?.log.verbose("\(asset.uuid): failed to fetch resource - quality: \(String(describing: quality))")
-                    callback(nil, nil)
+                    callback(asset, nil, nil)
                 }
             }
         }
@@ -376,19 +384,25 @@ private extension AssetManager {
         }
     }
 
-    private func fetchResource(forAsset asset: MutableAsset, atQuality quality: Quality, callback: @escaping (Bool) -> Void) {
-        let physicalAsset = asset.physicalAssets[quality]
-        if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
-            callback(true)
-        } else {
-            // not found on disk, so schedule request for later and create a download operation
-            guard !downloadOperationQueue.isSuspended else {
-                callback(false)
-                return
+    private func fetchResources(forAssets assets: [MutableAsset], atQuality quality: Quality, callback: @escaping (MutableAsset, Bool) -> Void) {
+        precondition(.on(assetManagerQueue))
+        let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
+        var assetsToDownload = [MutableAsset]()
+        for asset in assets {
+            let physicalAsset = asset.physicalAssets[quality]
+            if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
+                callback(asset, true)
+            } else if !downloadOperationQueue.isSuspended {
+                schedule(callback: ({ (downloaded: Bool) in
+                    callback(asset, downloaded)
+                }), for: downloadOperationType.lookupKey, onAssetID: asset.uuid)
+                assetsToDownload.append(asset)
+            } else {
+                callback(asset, false)
             }
-            let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
-            schedule(callback: callback, for: downloadOperationType.lookupKey, onAssetID: asset.uuid)
-            queue(downloadOperationType, for: [asset])
+        }
+        if assetsToDownload.isNotEmpty {
+            queue(downloadOperationType, for: assetsToDownload)
         }
     }
 
