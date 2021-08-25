@@ -65,19 +65,40 @@ class TUFullscreenViewDelegate {
     }
 
     fileprivate func fullscreenSaveToDevice(_ fullscreenVC: FullscreenViewController, assetManager: AssetManager?, forAsset asset: Asset) {
-        fullscreenVC.view.makeToastieActivity(true)
-        assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
-            fullscreenVC.view.makeToastieActivity(false)
-            let message: String
-            if wasAlreadySaved {
-                message = "\(asset.type.rawValue.capitalized) already saved to device photo library."
-            } else if saved {
-                message = "Saved to device photo library."
-            } else {
-                message = "Unable to save to device photo library. Check your network connection and try again."
+        var operationID: UUID?
+        let alert = UIAlertController(title: nil, message: "Saving to Photos App", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            if let operationID = operationID {
+                assetManager?.cancelSaveOperation(id: operationID)
             }
-            fullscreenVC.view.makeToastie(message, duration: 5.0, position: .top)
-        }
+        }))
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.gray
+        loadingIndicator.startAnimating()
+
+        alert.view.addSubview(loadingIndicator)
+        fullscreenVC.present(alert, animated: true, completion: {
+            operationID = assetManager?.save(asset: asset, callback: { [weak alert, weak fullscreenVC] (result) in
+                alert?.dismiss(animated: true, completion: nil)
+                var message: String?
+                switch result {
+                case .success(true):
+                    message = "\(asset.type.rawValue.capitalized) already saved to Photos App"
+                case .success(false):
+                    message = "Saved to Photos App"
+                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
+                    Logger.self.verbose("save cancelled - assetid: \(asset.uuid.string)")
+                case .failure(let error):
+                    message = "Failed to save to Photos App"
+                    Logger.self.error("error saving asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
+                }
+                if let message = message {
+                    fullscreenVC?.view.makeToastie(message, duration: 5.0, position: .top)
+                }
+            })
+        })
     }
 }
 

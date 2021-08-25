@@ -42,6 +42,7 @@ protocol AssetDatabase: class {
     func save(uti: String, forAssetID assetID: UUID) throws
     func localIdentifier(forAssetID assetID: UUID) throws -> String?
     func save(localIdentifier: String?, forAssetID assetID: UUID) throws
+    func saveLocalIdentifiers(assetIDs2LocalIDs: [String: String]) throws
     func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) throws
     func md5(forAssetID assetID: UUID) throws -> Data?
     func save(md5: Data, forAssetID assetID: UUID) throws

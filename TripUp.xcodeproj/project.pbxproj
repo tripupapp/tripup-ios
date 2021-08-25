@@ -141,6 +141,7 @@
 		20AD627222B2708C003F4ED4 /* CryptoKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AD627122B2708C003F4ED4 /* CryptoKeyTests.swift */; };
 		20AD627422B27227003F4ED4 /* AsymmetricKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AD627322B27227003F4ED4 /* AsymmetricKey.swift */; };
 		20AD627622B2742C003F4ED4 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AD627522B2742C003F4ED4 /* Keychain.swift */; };
+		20B2727026D6C5D700D77F60 /* PHAssetResourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B2726F26D6C5D700D77F60 /* PHAssetResourceType.swift */; };
 		20B40E0425DFE73900706811 /* TripUpViews.h in Headers */ = {isa = PBXBuildFile; fileRef = 20B40E0225DFE73900706811 /* TripUpViews.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20B40E0025DFE73900706811 /* TripUpViews.framework */; };
 		20B40E0825DFE73900706811 /* TripUpViews.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 20B40E0025DFE73900706811 /* TripUpViews.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -162,6 +163,7 @@
 		20C9F6F425F3CA85009D28F0 /* AsynchronousOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */; };
 		20CE35AB265C2F4700683AD6 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 20CE35AA265C2F4700683AD6 /* Realm */; };
 		20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 20CE35AC265C2F4700683AD6 /* RealmSwift */; };
+		20CE93E826D7C11B00C26BC1 /* SaveToLibraryOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */; };
 		20D75169229C39FF00F1D37D /* FullscreenVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D75168229C39FF00F1D37D /* FullscreenVC.swift */; };
 		20E3F68D23F0390300E25E3E /* SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3F68C23F0390300E25E3E /* SecureEnclave.swift */; };
 		20E7743A2327178700F2AB0C /* PhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E774392327178700F2AB0C /* PhotoViewCell.swift */; };
@@ -403,6 +405,7 @@
 		20AD627122B2708C003F4ED4 /* CryptoKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoKeyTests.swift; sourceTree = "<group>"; };
 		20AD627322B27227003F4ED4 /* AsymmetricKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsymmetricKey.swift; sourceTree = "<group>"; };
 		20AD627522B2742C003F4ED4 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		20B2726F26D6C5D700D77F60 /* PHAssetResourceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PHAssetResourceType.swift; sourceTree = "<group>"; };
 		20B40E0025DFE73900706811 /* TripUpViews.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TripUpViews.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		20B40E0225DFE73900706811 /* TripUpViews.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TripUpViews.h; sourceTree = "<group>"; };
 		20B40E0325DFE73900706811 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -422,6 +425,7 @@
 		20C547AE24EC4D3B00CE5325 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		20C641892152ADCF00809173 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsynchronousOperation.swift; sourceTree = "<group>"; };
+		20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveToLibraryOperation.swift; sourceTree = "<group>"; };
 		20D56E532395298C0058FC4A /* UILabelIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelIcon.swift; sourceTree = "<group>"; };
 		20D75168229C39FF00F1D37D /* FullscreenVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenVC.swift; sourceTree = "<group>"; };
 		20E3F68C23F0390300E25E3E /* SecureEnclave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclave.swift; sourceTree = "<group>"; };
@@ -729,6 +733,7 @@
 				20B8A9FD2680DC170022EBA7 /* FileManager.swift */,
 				202D5ED7239BC63100906723 /* LocalizedError.swift */,
 				20E98639250F626C00A5F6EE /* Notification.swift */,
+				20B2726F26D6C5D700D77F60 /* PHAssetResourceType.swift */,
 				207150AA23423B8800829C5D /* Set.swift */,
 				20588AE622207B9300D88C4D /* String.swift */,
 				20662F73267A130000BBE5ED /* TimeInterval.swift */,
@@ -857,6 +862,7 @@
 				2057C78F24EBEC6F00718F1C /* AssetOperationDelegate.swift */,
 				20351D8B25E56B2400A1FE9F /* AssetSubOperationBatch.swift */,
 				20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */,
+				20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */,
 			);
 			path = AssetManager;
 			sourceTree = "<group>";
@@ -1579,6 +1585,7 @@
 				205E038F238EE16300DC4D9D /* SupportView.swift in Sources */,
 				200D846C246DB8AD00B2A793 /* EmailUtils.swift in Sources */,
 				2055054422CE873900B391C1 /* TULocation.pb.swift in Sources */,
+				20B2727026D6C5D700D77F60 /* PHAssetResourceType.swift in Sources */,
 				20712E10233AC9C70036C373 /* RealmDatabase.swift in Sources */,
 				20717EDE24FE884F00653C91 /* Assert+Precondition.swift in Sources */,
 				20588AE722207B9300D88C4D /* String.swift in Sources */,
@@ -1623,6 +1630,7 @@
 				207150A923423B5600829C5D /* Array.swift in Sources */,
 				20ABFF5F22CFABAA00D38019 /* LocationManager.swift in Sources */,
 				20168821210A553800FA5D53 /* Queue.swift in Sources */,
+				20CE93E826D7C11B00C26BC1 /* SaveToLibraryOperation.swift in Sources */,
 				202450C025ED87AB0015F3D4 /* SynchronizedStateMachine.swift in Sources */,
 				2066FAF0230B52C400E414BB /* PhotoViewDataModel.swift in Sources */,
 				20AD627622B2742C003F4ED4 /* Keychain.swift in Sources */,

@@ -162,6 +162,48 @@ extension PhotoLibrary {
     }
 }
 
+extension PhotoLibrary {
+    func save(data: [Asset: (url: URL, uti: AVFileType?)], callback: @escaping (Result<[Asset: String], Error>) -> Void) {
+        enum PhotoLibrarySaveError: Error {
+            case invalidAssetType(Asset)
+        }
+
+        var invalidAsset: Asset?
+        let assetResourceTypes = data.keys.reduce(into: [Asset: PHAssetResourceType]()) {
+            if let assetResourceType = PHAssetResourceType($1) {
+                $0[$1] = assetResourceType
+            } else {
+                invalidAsset = $1
+            }
+        }
+        if let invalidAsset = invalidAsset {
+            callback(.failure(PhotoLibrarySaveError.invalidAssetType(invalidAsset)))
+            return
+        }
+        var placeholders = [Asset: PHObjectPlaceholder?]()
+        PHPhotoLibrary.shared().performChanges {
+            for (asset, assetData) in data {
+                let options = PHAssetResourceCreationOptions()
+                options.uniformTypeIdentifier = assetData.uti?.rawValue
+                options.shouldMoveFile = true
+                let newAsset = PHAssetCreationRequest.forAsset()
+                newAsset.addResource(with: assetResourceTypes[asset]!, fileURL: assetData.url, options: options)
+                newAsset.creationDate = asset.creationDate
+                newAsset.location = asset.location?.coreLocation
+                newAsset.isFavorite = asset.favourite
+                placeholders[asset] = newAsset.placeholderForCreatedAsset
+            }
+        } completionHandler: { (success, error) in
+            if let error = error {
+                callback(.failure(error))
+            } else {
+                let savedAssets = placeholders.mapValues{ $0!.localIdentifier }
+                callback(.success(savedAssets))
+            }
+        }
+    }
+}
+
 //extension PhotoLibary: PHPhotoLibraryChangeObserver {
 //    func photoLibraryDidChange(_ changeInstance: PHChange) {
 //        queue.async(flags: .barrier) { [weak self] in

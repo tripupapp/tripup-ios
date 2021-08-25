@@ -11,7 +11,11 @@ import RealmSwift
 
 class RealmDatabase {
     func query<T, U>(_ ids: T, from realm: Realm, exact: Bool = true) throws -> Results<U> where T: Collection, T.Element == UUID, U: Object {
-        let objects = realm.objects(U.self).filter(NSPredicate(format: "uuid IN %@", ids.map{ $0.string }))
+        return try query(ids.map{ $0.string }, from: realm, exact: exact)
+    }
+
+    func query<T, U>(_ ids: T, from realm: Realm, exact: Bool = true) throws -> Results<U> where T: Collection, T.Element == String, U: Object {
+        let objects = realm.objects(U.self).filter(NSPredicate(format: "uuid IN %@", Array(ids)))
         if exact, objects.count != ids.count {
             throw DatabaseError.recordCountMismatch(expected: ids.count, actual: objects.count)
         }

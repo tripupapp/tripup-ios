@@ -161,6 +161,16 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
+    func saveLocalIdentifiers(assetIDs2LocalIDs: [String: String]) throws {
+        try autoreleasepool {
+            let realm = try Realm()
+            let assetObjects: Results<AssetObject> = try query(assetIDs2LocalIDs.keys, from: realm)
+            try realm.write {
+                assetObjects.forEach{ $0.localIdentifier = assetIDs2LocalIDs[$0.uuid] }
+            }
+        }
+    }
+
     func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) throws {
         try autoreleasepool {
             let realm = try Realm()
