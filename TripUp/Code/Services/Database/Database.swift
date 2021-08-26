@@ -40,7 +40,7 @@ protocol AssetDatabase: class {
     func save(fingerprint: String, forAssetID assetID: UUID) throws
     func uti(forAssetID assetID: UUID) throws -> String?
     func save(uti: String, forAssetID assetID: UUID) throws
-    func localIdentifier(forAssetID assetID: UUID) throws -> String?
+    func localIdentifiers<T>(forAssetIDs assetIDs: T) throws -> [UUID: String] where T: Collection, T.Element == UUID
     func save(localIdentifier: String?, forAssetID assetID: UUID) throws
     func saveLocalIdentifiers(assetIDs2LocalIDs: [String: String]) throws
     func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID) throws

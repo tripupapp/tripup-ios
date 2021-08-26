@@ -48,13 +48,13 @@ extension PhotoLibrary {
         }
     }
 
-    func fetchAssets(withLocalIdentifiers localIdentifiers: [String], callback: @escaping ([PHAsset]) -> Void) {
+    func fetchAssets<T>(withLocalIdentifiers localIdentifiers: T, callback: @escaping ([String: PHAsset]) -> Void) where T: Collection, T.Element == String {
         DispatchQueue.global().async {
-            let result = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: self.fetchOptions)
-            var assets = [PHAsset]()
+            let result = PHAsset.fetchAssets(withLocalIdentifiers: Array(localIdentifiers), options: self.fetchOptions)
+            var assets = [String: PHAsset]()
             assets.reserveCapacity(result.count)
             result.enumerateObjects { (asset, _, _) in
-                assets.append(asset)
+                assets[asset.localIdentifier] = asset
             }
             DispatchQueue.main.async {
                 callback(assets)

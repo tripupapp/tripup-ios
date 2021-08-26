@@ -12,6 +12,7 @@
 		2005843D23E8254F00535DA1 /* Preferences.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2005843C23E8254F00535DA1 /* Preferences.storyboard */; };
 		2005844323E8A45500535DA1 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2005844223E8A45500535DA1 /* PreferencesView.swift */; };
 		2005844523E8AB7800535DA1 /* Security.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2005844423E8AB7800535DA1 /* Security.storyboard */; };
+		2005E2BD26D92CA70074D056 /* RequestOriginalFileOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2005E2BC26D92CA70074D056 /* RequestOriginalFileOperation.swift */; };
 		2006BB4C2488F17400A87B3F /* GuideBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2006BB4B2488F17400A87B3F /* GuideBox.swift */; };
 		20080CFF21408E0E009BE6C8 /* Audiowide.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 20080CFC21408381009BE6C8 /* Audiowide.ttf */; };
 		200D846C246DB8AD00B2A793 /* EmailUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200D846B246DB8AD00B2A793 /* EmailUtils.swift */; };
@@ -274,6 +275,7 @@
 		2005843C23E8254F00535DA1 /* Preferences.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Preferences.storyboard; sourceTree = "<group>"; };
 		2005844223E8A45500535DA1 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		2005844423E8AB7800535DA1 /* Security.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Security.storyboard; sourceTree = "<group>"; };
+		2005E2BC26D92CA70074D056 /* RequestOriginalFileOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestOriginalFileOperation.swift; sourceTree = "<group>"; };
 		2006BB4B2488F17400A87B3F /* GuideBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideBox.swift; sourceTree = "<group>"; };
 		20080CFC21408381009BE6C8 /* Audiowide.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Audiowide.ttf; sourceTree = "<group>"; };
 		200D846B246DB8AD00B2A793 /* EmailUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailUtils.swift; sourceTree = "<group>"; };
@@ -862,6 +864,7 @@
 				2057C78F24EBEC6F00718F1C /* AssetOperationDelegate.swift */,
 				20351D8B25E56B2400A1FE9F /* AssetSubOperationBatch.swift */,
 				20C0065C24EAAEC40084B4C0 /* AssetSyncTracker.swift */,
+				2005E2BC26D92CA70074D056 /* RequestOriginalFileOperation.swift */,
 				20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */,
 			);
 			path = AssetManager;
@@ -1635,6 +1638,7 @@
 				2066FAF0230B52C400E414BB /* PhotoViewDataModel.swift in Sources */,
 				20AD627622B2742C003F4ED4 /* Keychain.swift in Sources */,
 				20A9E0F026BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift in Sources */,
+				2005E2BD26D92CA70074D056 /* RequestOriginalFileOperation.swift in Sources */,
 				2047DBD323294CFC00598647 /* FullscreenViewCell.swift in Sources */,
 				20E7743A2327178700F2AB0C /* PhotoViewCell.swift in Sources */,
 				2016881F210A553800FA5D53 /* PriorityQueue.swift in Sources */,

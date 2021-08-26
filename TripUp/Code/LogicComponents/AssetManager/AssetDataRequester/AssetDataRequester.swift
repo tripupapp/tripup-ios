@@ -7,75 +7,55 @@
 //
 
 import Foundation
-import Photos.PHAsset
 import struct AVFoundation.AVFileType
 
 protocol AssetDataRequester: AssetImageRequester, AssetAVRequester {
-    func requestOriginalFile(forAsset asset: Asset, callback: @escaping (URL?) -> Void)
+    func requestOriginalFile(forAsset asset: Asset, callback: @escaping (Result<URL, Error>) -> Void) -> UUID
+    func requestOriginalFiles(forAssets assets: [Asset], callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID
+    func cancelRequestOriginalOperation(id: UUID)
 }
 
 extension AssetManager: AssetDataRequester {
-    func requestOriginalFile(forAsset asset: Asset, callback: @escaping (URL?) -> Void) {
-        let callbackOnMain = { (url: URL?) -> Void in
+    func requestOriginalFiles(forAssets assets: [Asset], callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID {
+        let operation = RequestOriginalFileOperation()
+        operation.assetController = assetController
+        operation.assetManager = self
+        operation.photoLibrary = photoLibrary
+        operation.assets = assets
+        operation.progressHandler = progressHandler
+        operation.completionBlock = {
             DispatchQueue.main.async {
-                callback(url)
+                if let error = operation.error {
+                    callback(.failure(error))
+                } else if operation.isCancelled {
+                    callback(.failure(OperationError.cancelled))
+                } else {
+                    callback(.success(operation.result))
+                }
             }
         }
-        if asset.imported {
-            load(asset: asset, atQuality: .original) { (url, _) in
-                callbackOnMain(url)
-            }
-        } else {
-            switch asset.type {
-            case .photo:    // using URLs for photo sharing as UIImage/Data cause memory exhaustion when sharing 30+ photos
-                assetToPHAsset(asset) { [photoLibrary] (phAsset) in
-                    guard let phAsset = phAsset,
-                          let phAssetResource = photoLibrary.resource(forPHAsset: phAsset, type: .photo),
-                          let url = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: AVFileType(phAssetResource.uniformTypeIdentifier).fileExtension ?? "") else {
-                        callbackOnMain(nil)
-                        return
-                    }
-                    photoLibrary.write(resource: phAssetResource, toURL: url) { (success) in
-                        if success {
-                            callbackOnMain(url)
-                        } else {
-                            callbackOnMain(nil)
-                        }
-                    }
-                }
-
-            case .video:
-                assetToPHAsset(asset) { [photoLibrary] (phAsset) in
-                    guard let phAsset = phAsset else {
-                        callbackOnMain(nil)
-                        return
-                    }
-                    photoLibrary.transcodeVideoToMP4(forPHAsset: phAsset) { (output) in
-                        callbackOnMain(output?.0)
-                    }
-                }
-
-            case .audio, .unknown:
-                fatalError()
-            }
-        }
+        generalOperationQueue.addOperation(operation)
+        return operation.id
     }
 
-    func assetToPHAsset(_ asset: Asset, callback: @escaping (PHAsset?) -> Void) {
-        assetController.localIdentifier(forAsset: asset) { [weak self] (id) in
-            guard let id = id else {
-                self?.log.error("assetid: \(asset.uuid.string) - localIdentifier missing")
-                callback(nil)
-                return
+    func requestOriginalFile(forAsset asset: Asset, callback: @escaping (Result<URL, Error>) -> Void) -> UUID {
+        return requestOriginalFiles(forAssets: [asset], callback: { (result) in
+            switch result {
+            case .success(let dict):
+                callback(.success(dict.first!.value))
+            case .failure(let error):
+                callback(.failure(error))
             }
-            self?.photoLibrary.fetchAsset(withLocalIdentifier: id, callbackOn: .global()) { (phAsset) in
-                if let phAsset = phAsset {
-                    callback(phAsset)
-                } else {
-                    self?.log.error("assetid: \(asset.uuid.string) - phAsset missing")
-                    callback(nil)
-                }
+        }, progressHandler: nil)
+    }
+
+    func cancelRequestOriginalOperation(id: UUID) {
+        let requestOperation = generalOperationQueue.operations.first { (operation) -> Bool in
+            if let requestOperation = operation as? RequestOriginalFileOperation {
+                return requestOperation.id == id
             }
+            return false
         }
+        requestOperation?.cancel()
     }
 }

@@ -91,6 +91,7 @@ class AssetManager {
     unowned let keychainDelegate: KeychainDelegate
     unowned let assetController: AssetController
 
+    let generalOperationQueue = OperationQueue()
     let assetOperationDelegate: AssetOperationDelegateObject
     let photoLibrary: PhotoLibrary
     let iosImageManager = PHImageManager.default()
@@ -110,7 +111,6 @@ class AssetManager {
     private let importOperationQueue = OperationQueue()
     private let downloadOperationQueue = OperationQueue()
     private let deleteOperationQueue = OperationQueue()
-    private let generalOperationQueue = OperationQueue()
     /** [assetid: [operationid: operation]] */
     private var assetOperations = [UUID: [UUID: Operation]]()
     /** [assetid: [operationname: [callback]] */
@@ -349,7 +349,7 @@ extension AssetManager {
         }
     }
 
-    func load(assets: ArraySlice<Asset>, atQuality quality: Quality, callback: @escaping (Asset, URL?, AVFileType?) -> Void) {
+    func load<T>(assets: T, atQuality quality: Quality, callback: @escaping (Asset, URL?, AVFileType?) -> Void) where T: Collection, T.Element == Asset {
         let assetsDict = assets.reduce(into: [UUID: Asset]()) {
             $0[$1.uuid] = $1
         }
@@ -915,7 +915,7 @@ extension AssetManager: AssetUIManager {
             }
             if localIDs.isNotEmpty {
                 self.photoLibrary.fetchAssets(withLocalIdentifiers: localIDs) { iosAssets in
-                    let iosAssets = iosAssets.compactMap{ $0 }
+                    let iosAssets = iosAssets.values.compactMap{ $0 }
                     guard iosAssets.isNotEmpty else { return }
                     PHPhotoLibrary.shared().performChanges({
                         PHAssetChangeRequest.deleteAssets(iosAssets as NSArray)
