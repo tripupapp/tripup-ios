@@ -50,8 +50,14 @@ protocol AssetUIManager {
     func delete<T>(_ assets: T) where T: Collection, T.Element == Asset
     func save(asset: Asset, callback: @escaping (Result<Bool, Error>) -> Void) -> UUID
     func save(assets: [Asset], callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID
+    func saveAllAssets(initialCallback: @escaping (Int) -> Void, finalCallback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: @escaping ((Int) -> Void)) -> UUID
+    func cancelOperation(id: UUID)
     func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void)
     func removeAssets<T>(ids: T) where T: Collection, T.Element == UUID
+}
+
+protocol AssetManagerOperation: Operation {
+    var id: UUID { get }
 }
 
 class AssetManager {
@@ -115,6 +121,7 @@ class AssetManager {
     private var assetOperations = [UUID: [UUID: Operation]]()
     /** [assetid: [operationname: [callback]] */
     private var callbacksForAssetOperations = [UUID: [String: [ClosureBool]]]()
+    private var generalOperations = [UUID: AssetManagerOperation]()
 
     private var autoBackupObserverToken: NSObjectProtocol?
     private var resignActiveObserverToken: NSObjectProtocol?
@@ -786,6 +793,70 @@ private extension AssetManager {
     }
 }
 
+// MARK: other operation functions
+extension AssetManager {
+    func createSaveOperation(callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> SaveToLibraryOperation {
+        let operation = SaveToLibraryOperation()
+        operation.assetController = assetController
+        operation.assetManager = self
+        operation.photoLibrary = photoLibrary
+        operation.progressHandler = progressHandler
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                if let error = operation.error {
+                    callback(.failure(error))
+                } else if operation.isCancelled {
+                    callback(.failure(OperationError.cancelled))
+                } else {
+                    callback(.success(operation.alreadySavedAssets))
+                }
+            }
+            self.clearOperation(id: operation.id)
+        }
+        return operation
+    }
+
+    func createRequestOperation(callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> RequestOriginalFileOperation {
+        let operation = RequestOriginalFileOperation()
+        operation.assetController = assetController
+        operation.assetManager = self
+        operation.photoLibrary = photoLibrary
+        operation.progressHandler = progressHandler
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                if let error = operation.error {
+                    callback(.failure(error))
+                } else if operation.isCancelled {
+                    callback(.failure(OperationError.cancelled))
+                } else {
+                    callback(.success(operation.result))
+                }
+            }
+            self.clearOperation(id: operation.id)
+        }
+        return operation
+    }
+
+    func saveOperation(_ operation: AssetManagerOperation) {
+        assetManagerQueue.async { [weak self] in
+            self?.generalOperations[operation.id] = operation
+        }
+    }
+
+    func clearOperation(id: UUID) {
+        assetManagerQueue.async { [weak self] in
+            self?.generalOperations[id] = nil
+        }
+    }
+
+    func cancelOperation(id: UUID) {
+        assetManagerQueue.async { [weak self] in
+            self?.generalOperations[id]?.cancel()
+        }
+    }
+}
+
+
 extension AssetManager: AssetImportManager {
     func priorityImport<T>(_ assets: T, callback: @escaping ClosureBool) where T: Collection, T.Element == Asset {
         let unimportedAssetIDs = assets.filter{ !$0.imported }.map{ $0.uuid }
@@ -937,35 +1008,24 @@ extension AssetManager: AssetUIManager {
     }
 
     func save(assets: [Asset], callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID {
-        let operation = SaveToLibraryOperation()
-        operation.assetController = assetController
-        operation.assetManager = self
-        operation.photoLibrary = photoLibrary
+        let operation = createSaveOperation(callback: callback, progressHandler: progressHandler)
         operation.assets = assets
-        operation.progressHandler = progressHandler
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                if let error = operation.error {
-                    callback(.failure(error))
-                } else if operation.isCancelled {
-                    callback(.failure(OperationError.cancelled))
-                } else {
-                    callback(.success(operation.alreadySavedAssets))
-                }
-            }
-        }
+        saveOperation(operation)
         generalOperationQueue.addOperation(operation)
         return operation.id
     }
 
-    func cancelSaveOperation(id: UUID) {
-        let saveOperation = generalOperationQueue.operations.first { (operation) -> Bool in
-            if let saveOperation = operation as? SaveToLibraryOperation {
-                return saveOperation.id == id
+    func saveAllAssets(initialCallback: @escaping (Int) -> Void, finalCallback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: @escaping ((Int) -> Void)) -> UUID {
+        let operation = createSaveOperation(callback: finalCallback, progressHandler: progressHandler)
+        saveOperation(operation)
+        assetController.allAssets { [weak self] (allAssets) in
+            DispatchQueue.main.async {
+                initialCallback(allAssets.count)
             }
-            return false
+            operation.assets = Array(allAssets.values)
+            self?.generalOperationQueue.addOperation(operation)
         }
-        saveOperation?.cancel()
+        return operation.id
     }
 
     func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void) {

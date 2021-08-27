@@ -9,7 +9,7 @@
 import Foundation
 import struct AVFoundation.AVFileType
 
-class RequestOriginalFileOperation: AsynchronousOperation {
+class RequestOriginalFileOperation: AsynchronousOperation, AssetManagerOperation {
     enum RequestOriginalFileOperationError: Error {
         case tooManyItems(requested: Int, maxItems: Int)
         case requestError(forAsset: Asset)

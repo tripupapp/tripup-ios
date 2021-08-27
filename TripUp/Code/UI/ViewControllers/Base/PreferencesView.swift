@@ -117,6 +117,9 @@ class PreferencesView: UITableViewController {
         case (1, 2):    // Delete online-only content
             deleteOnlineOnlyContent()
             tableView.deselectRow(at: indexPath, animated: false)
+        case (1, 3):    // Save all to Photos App
+            presentSaveAllAlert()
+            tableView.deselectRow(at: indexPath, animated: false)
         case (3, 1):    // Legal
             legal()
             tableView.deselectRow(at: indexPath, animated: false)
@@ -152,6 +155,71 @@ class PreferencesView: UITableViewController {
             }))
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
             self?.present(alert, animated: true, completion: nil)
+        })
+    }
+
+    private func presentSaveAllAlert() {
+        let alert = UIAlertController(title: "Save all media in TripUp to the Photos App?", message: nil, preferredStyle: .alert)
+        let saveAction = UIAlertAction(title: "Yes", style: .default) { [weak self] (_) in
+            self?.saveAllToPhotosApp()
+        }
+        alert.addAction(saveAction)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+
+    private func saveAllToPhotosApp() {
+        var operationID: UUID?
+        let alert = UIAlertController(title: nil, message: "Saving to Photos App", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { [weak self] (action) in
+            if let operationID = operationID {
+                self?.appContextInfo?.assetUIManager.cancelOperation(id: operationID)
+            }
+        }))
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.gray
+        loadingIndicator.startAnimating()
+        alert.view.addSubview(loadingIndicator)
+
+        let progressBar = UIProgressView(progressViewStyle: .default)
+        alert.view.addSubview(progressBar)
+
+        var total: Int = 0
+        var completed: Int = 0
+        present(alert, animated: true, completion: { [weak self] in
+            // configure progress view – must be done after alert is presented
+            let margin: CGFloat = 16.0
+            let rect = CGRect(x: margin, y: 50.0, width: alert.view.frame.width - margin * 2.0, height: 2.0)
+            progressBar.frame = rect
+
+            operationID = self?.appContextInfo?.assetUIManager.saveAllAssets(initialCallback: { (count) in
+                total = count
+                progressBar.setProgress(Float(completed)/Float(total), animated: true)
+            }, finalCallback: { [weak self, weak alert] (result) in
+                alert?.dismiss(animated: true, completion: nil)
+                var message: String?
+                var errorMessage: String?
+                switch result {
+                case .success(_):
+                    message = "Saved all media to the Photos App"
+                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
+                    Logger.self.verbose("save all cancelled")
+                case .failure(let error):
+                    message = "Failed to save all media to the Photos App"
+                    errorMessage = String(describing: error)
+                    Logger.self.error("error saving all assets - error: \(errorMessage!)")
+                }
+                if let message = message {
+                    let completionAlert = UIAlertController(title: message, message: errorMessage, preferredStyle: .alert)
+                    completionAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self?.present(completionAlert, animated: true, completion: nil)
+                }
+            }, progressHandler: { (justCompleted) in
+                completed += justCompleted
+                progressBar.setProgress(Float(completed)/Float(total), animated: true)
+            })
         })
     }
 

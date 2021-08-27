@@ -9,7 +9,7 @@
 import Foundation
 import struct AVFoundation.AVFileType
 
-class SaveToLibraryOperation: AsynchronousOperation {
+class SaveToLibraryOperation: AsynchronousOperation, AssetManagerOperation {
     enum SaveToLibraryOperationError: Error {
         case encounteredLoadingError(forAsset: Asset)
         case saveToPhotoLibraryError(forAssets: [Asset])
