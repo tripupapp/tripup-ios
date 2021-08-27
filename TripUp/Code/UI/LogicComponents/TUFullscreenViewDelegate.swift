@@ -50,7 +50,7 @@ class TUFullscreenViewDelegate {
         let alert = UIAlertController(title: nil, message: "Retrieving \(asset.type.rawValue)", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             if let operationID = operationID {
-                self.assetRequester?.cancelRequestOriginalOperation(id: operationID)
+                self.assetRequester?.cancelOperation(id: operationID)
             }
         }))
 
@@ -89,7 +89,7 @@ class TUFullscreenViewDelegate {
         let alert = UIAlertController(title: nil, message: "Saving to Photos App", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             if let operationID = operationID {
-                assetManager?.cancelSaveOperation(id: operationID)
+                assetManager?.cancelOperation(id: operationID)
             }
         }))
 

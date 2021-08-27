@@ -12,28 +12,14 @@ import struct AVFoundation.AVFileType
 protocol AssetDataRequester: AssetImageRequester, AssetAVRequester {
     func requestOriginalFile(forAsset asset: Asset, callback: @escaping (Result<URL, Error>) -> Void) -> UUID
     func requestOriginalFiles(forAssets assets: [Asset], callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID
-    func cancelRequestOriginalOperation(id: UUID)
+    func cancelOperation(id: UUID)
 }
 
 extension AssetManager: AssetDataRequester {
     func requestOriginalFiles(forAssets assets: [Asset], callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID {
-        let operation = RequestOriginalFileOperation()
-        operation.assetController = assetController
-        operation.assetManager = self
-        operation.photoLibrary = photoLibrary
+        let operation = createRequestOperation(callback: callback, progressHandler: progressHandler)
         operation.assets = assets
-        operation.progressHandler = progressHandler
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                if let error = operation.error {
-                    callback(.failure(error))
-                } else if operation.isCancelled {
-                    callback(.failure(OperationError.cancelled))
-                } else {
-                    callback(.success(operation.result))
-                }
-            }
-        }
+        saveOperation(operation)
         generalOperationQueue.addOperation(operation)
         return operation.id
     }
@@ -47,15 +33,5 @@ extension AssetManager: AssetDataRequester {
                 callback(.failure(error))
             }
         }, progressHandler: nil)
-    }
-
-    func cancelRequestOriginalOperation(id: UUID) {
-        let requestOperation = generalOperationQueue.operations.first { (operation) -> Bool in
-            if let requestOperation = operation as? RequestOriginalFileOperation {
-                return requestOperation.id == id
-            }
-            return false
-        }
-        requestOperation?.cancel()
     }
 }
