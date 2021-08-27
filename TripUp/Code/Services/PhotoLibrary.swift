@@ -48,13 +48,13 @@ extension PhotoLibrary {
         }
     }
 
-    func fetchAssets(withLocalIdentifiers localIdentifiers: [String], callback: @escaping ([PHAsset]) -> Void) {
+    func fetchAssets<T>(withLocalIdentifiers localIdentifiers: T, callback: @escaping ([String: PHAsset]) -> Void) where T: Collection, T.Element == String {
         DispatchQueue.global().async {
-            let result = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: self.fetchOptions)
-            var assets = [PHAsset]()
+            let result = PHAsset.fetchAssets(withLocalIdentifiers: Array(localIdentifiers), options: self.fetchOptions)
+            var assets = [String: PHAsset]()
             assets.reserveCapacity(result.count)
             result.enumerateObjects { (asset, _, _) in
-                assets.append(asset)
+                assets[asset.localIdentifier] = asset
             }
             DispatchQueue.main.async {
                 callback(assets)
@@ -158,6 +158,48 @@ extension PhotoLibrary {
                     callback(nil)
                 }
             })
+        }
+    }
+}
+
+extension PhotoLibrary {
+    func save(data: [Asset: (url: URL, uti: AVFileType?)], callback: @escaping (Result<[Asset: String], Error>) -> Void) {
+        enum PhotoLibrarySaveError: Error {
+            case invalidAssetType(Asset)
+        }
+
+        var invalidAsset: Asset?
+        let assetResourceTypes = data.keys.reduce(into: [Asset: PHAssetResourceType]()) {
+            if let assetResourceType = PHAssetResourceType($1) {
+                $0[$1] = assetResourceType
+            } else {
+                invalidAsset = $1
+            }
+        }
+        if let invalidAsset = invalidAsset {
+            callback(.failure(PhotoLibrarySaveError.invalidAssetType(invalidAsset)))
+            return
+        }
+        var placeholders = [Asset: PHObjectPlaceholder?]()
+        PHPhotoLibrary.shared().performChanges {
+            for (asset, assetData) in data {
+                let options = PHAssetResourceCreationOptions()
+                options.uniformTypeIdentifier = assetData.uti?.rawValue
+                options.shouldMoveFile = true
+                let newAsset = PHAssetCreationRequest.forAsset()
+                newAsset.addResource(with: assetResourceTypes[asset]!, fileURL: assetData.url, options: options)
+                newAsset.creationDate = asset.creationDate
+                newAsset.location = asset.location?.coreLocation
+                newAsset.isFavorite = asset.favourite
+                placeholders[asset] = newAsset.placeholderForCreatedAsset
+            }
+        } completionHandler: { (success, error) in
+            if let error = error {
+                callback(.failure(error))
+            } else {
+                let savedAssets = placeholders.mapValues{ $0!.localIdentifier }
+                callback(.success(savedAssets))
+            }
         }
     }
 }

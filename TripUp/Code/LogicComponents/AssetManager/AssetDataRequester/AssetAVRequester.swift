@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Photos.PHAsset
 import class AVFoundation.AVPlayerItem
 
 protocol AssetAVRequester {
@@ -42,6 +43,24 @@ extension AssetManager: AssetAVRequester {
                     photoLibrary.requestAVPlayerItem(forPHAsset: phAsset, format: format, callback: callbackOnMain)
                 } else {
                     callbackOnMain(nil, nil)
+                }
+            }
+        }
+    }
+
+    private func assetToPHAsset(_ asset: Asset, callback: @escaping (PHAsset?) -> Void) {
+        assetController.localIdentifier(forAsset: asset) { [weak self] (id) in
+            guard let id = id else {
+                self?.log.error("assetid: \(asset.uuid.string) - localIdentifier missing")
+                callback(nil)
+                return
+            }
+            self?.photoLibrary.fetchAsset(withLocalIdentifier: id, callbackOn: .global()) { (phAsset) in
+                if let phAsset = phAsset {
+                    callback(phAsset)
+                } else {
+                    self?.log.error("assetid: \(asset.uuid.string) - phAsset missing")
+                    callback(nil)
                 }
             }
         }

@@ -139,13 +139,13 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
-    func localIdentifier(forAssetID assetID: UUID) throws -> String? {
+    func localIdentifiers<T>(forAssetIDs assetIDs: T) throws -> [UUID: String] where T: Collection, T.Element == UUID {
         try autoreleasepool {
             let realm = try Realm()
-            guard let imageObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
-                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
+            let assetObjects: Results<AssetObject> = try query(assetIDs, from: realm)
+            return assetObjects.reduce(into: [UUID: String]()) {
+                $0[UUID(uuidString: $1.uuid)!] = $1.localIdentifier
             }
-            return imageObject.localIdentifier
         }
     }
 
@@ -157,6 +157,16 @@ extension RealmDatabase: AssetDatabase {
             }
             try realm.write {
                 imageObject.localIdentifier = localIdentifier
+            }
+        }
+    }
+
+    func saveLocalIdentifiers(assetIDs2LocalIDs: [String: String]) throws {
+        try autoreleasepool {
+            let realm = try Realm()
+            let assetObjects: Results<AssetObject> = try query(assetIDs2LocalIDs.keys, from: realm)
+            try realm.write {
+                assetObjects.forEach{ $0.localIdentifier = assetIDs2LocalIDs[$0.uuid] }
             }
         }
     }

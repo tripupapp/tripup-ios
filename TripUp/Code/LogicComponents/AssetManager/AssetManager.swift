@@ -48,7 +48,8 @@ protocol AssetSyncManager: AnyObject {
 
 protocol AssetUIManager {
     func delete<T>(_ assets: T) where T: Collection, T.Element == Asset
-    func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void)
+    func save(asset: Asset, callback: @escaping (Result<Bool, Error>) -> Void) -> UUID
+    func save(assets: [Asset], callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID
     func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void)
     func removeAssets<T>(ids: T) where T: Collection, T.Element == UUID
 }
@@ -72,6 +73,10 @@ class AssetManager {
         case fast
     }
 
+    enum OperationError: Error {
+        case cancelled
+    }
+
     struct ResultInfo {
         let final: Bool
         let uti: AVFileType?
@@ -86,6 +91,7 @@ class AssetManager {
     unowned let keychainDelegate: KeychainDelegate
     unowned let assetController: AssetController
 
+    let generalOperationQueue = OperationQueue()
     let assetOperationDelegate: AssetOperationDelegateObject
     let photoLibrary: PhotoLibrary
     let iosImageManager = PHImageManager.default()
@@ -337,22 +343,30 @@ extension AssetManager {
     }
 
     func load(asset: Asset, atQuality quality: Quality, callback: @escaping (URL?, AVFileType?) -> Void) {
-        mutableAsset(from: asset.uuid) { [weak self] (mutableAsset) in
-            guard let self = self else {
-                callback(nil, nil)
+        load(assets: [asset], atQuality: quality) { (returnedAsset, url, uti) in
+            precondition(returnedAsset == asset)
+            callback(url, uti)
+        }
+    }
+
+    func load<T>(assets: T, atQuality quality: Quality, callback: @escaping (Asset, URL?, AVFileType?) -> Void) where T: Collection, T.Element == Asset {
+        let assetsDict = assets.reduce(into: [UUID: Asset]()) {
+            $0[$1.uuid] = $1
+        }
+        mutableAssets(from: assetsDict.keys) { [weak self] (mutableAssets) in
+            guard let self = self, mutableAssets.isNotEmpty else {
                 return
             }
-            guard let mutableAsset = mutableAsset else {
-                self.log.verbose("\(asset.uuid): mutableAsset not found")
-                callback(nil, nil)
-                return
-            }
-            self.fetchResource(forAsset: mutableAsset, atQuality: quality) { [weak self] (success) in
+            self.fetchResources(forAssets: mutableAssets, atQuality: quality) { [weak self] (mutableAsset, success) in
+                guard let asset = assetsDict[mutableAsset.uuid] else {
+                    assertionFailure()
+                    return
+                }
                 if success {
-                    callback(mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
+                    callback(asset, mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
                 } else {
                     self?.log.verbose("\(asset.uuid): failed to fetch resource - quality: \(String(describing: quality))")
-                    callback(nil, nil)
+                    callback(asset, nil, nil)
                 }
             }
         }
@@ -376,19 +390,25 @@ private extension AssetManager {
         }
     }
 
-    private func fetchResource(forAsset asset: MutableAsset, atQuality quality: Quality, callback: @escaping (Bool) -> Void) {
-        let physicalAsset = asset.physicalAssets[quality]
-        if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
-            callback(true)
-        } else {
-            // not found on disk, so schedule request for later and create a download operation
-            guard !downloadOperationQueue.isSuspended else {
-                callback(false)
-                return
+    private func fetchResources(forAssets assets: [MutableAsset], atQuality quality: Quality, callback: @escaping (MutableAsset, Bool) -> Void) {
+        precondition(.on(assetManagerQueue))
+        let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
+        var assetsToDownload = [MutableAsset]()
+        for asset in assets {
+            let physicalAsset = asset.physicalAssets[quality]
+            if let isReachable = try? physicalAsset.localPath.checkResourceIsReachable(), isReachable {
+                callback(asset, true)
+            } else if !downloadOperationQueue.isSuspended {
+                schedule(callback: ({ (downloaded: Bool) in
+                    callback(asset, downloaded)
+                }), for: downloadOperationType.lookupKey, onAssetID: asset.uuid)
+                assetsToDownload.append(asset)
+            } else {
+                callback(asset, false)
             }
-            let downloadOperationType = quality == .original ? AssetDownloadOriginalOperation.self : AssetDownloadLowOperation.self
-            schedule(callback: callback, for: downloadOperationType.lookupKey, onAssetID: asset.uuid)
-            queue(downloadOperationType, for: [asset])
+        }
+        if assetsToDownload.isNotEmpty {
+            queue(downloadOperationType, for: assetsToDownload)
         }
     }
 
@@ -895,7 +915,7 @@ extension AssetManager: AssetUIManager {
             }
             if localIDs.isNotEmpty {
                 self.photoLibrary.fetchAssets(withLocalIdentifiers: localIDs) { iosAssets in
-                    let iosAssets = iosAssets.compactMap{ $0 }
+                    let iosAssets = iosAssets.values.compactMap{ $0 }
                     guard iosAssets.isNotEmpty else { return }
                     PHPhotoLibrary.shared().performChanges({
                         PHAssetChangeRequest.deleteAssets(iosAssets as NSArray)
@@ -905,62 +925,47 @@ extension AssetManager: AssetUIManager {
         }
     }
 
-    func saveToIOS(asset: Asset, callback: @escaping (_ success: Bool, _ wasAlreadySaved: Bool) -> Void) {
-        let callbackOnMain = { (_ success: Bool, _ wasAlreadySaved: Bool) -> Void in
+    func save(asset: Asset, callback: @escaping (Result<Bool, Error>) -> Void) -> UUID {
+        return save(assets: [asset], callback: { (result) in
+            switch result {
+            case .success(let alreadySavedAssets):
+                callback(.success(alreadySavedAssets.isNotEmpty))
+            case .failure(let error):
+                callback(.failure(error))
+            }
+        }, progressHandler: nil)
+    }
+
+    func save(assets: [Asset], callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID {
+        let operation = SaveToLibraryOperation()
+        operation.assetController = assetController
+        operation.assetManager = self
+        operation.photoLibrary = photoLibrary
+        operation.assets = assets
+        operation.progressHandler = progressHandler
+        operation.completionBlock = {
             DispatchQueue.main.async {
-                callback(success, wasAlreadySaved)
-            }
-        }
-        guard asset.imported else {
-            callbackOnMain(false, true)
-            return
-        }
-        let phAssetResourceType: PHAssetResourceType
-        switch asset.type {
-        case .photo:
-            phAssetResourceType = .photo
-        case .video:
-            phAssetResourceType = .video
-        case .audio, .unknown:
-            assertionFailure()
-            callbackOnMain(false, false)
-            return
-        }
-        assetController.localIdentifier(forAsset: asset) { [weak self] (existinglocalIdentifier) in
-            guard existinglocalIdentifier == nil else {
-                callbackOnMain(false, true)
-                return
-            }
-            self?.load(asset: asset, atQuality: .original) { (url, uti) in
-                guard let url = url else {
-                    callbackOnMain(false, false)
-                    return
-                }
-                var newAssetPlaceholder: PHObjectPlaceholder?
-                PHPhotoLibrary.shared().performChanges({
-                    let options = PHAssetResourceCreationOptions()
-                    options.uniformTypeIdentifier = uti?.rawValue
-                    let newAsset = PHAssetCreationRequest.forAsset()
-                    newAssetPlaceholder = newAsset.placeholderForCreatedAsset
-                    newAsset.addResource(with: phAssetResourceType, fileURL: url, options: options)
-                    newAsset.creationDate = asset.creationDate
-                    newAsset.location = asset.location?.coreLocation
-                    newAsset.isFavorite = asset.favourite
-                }) { (successfullySavedToLibrary, _) in
-                    guard successfullySavedToLibrary, let localIdentifier = newAssetPlaceholder?.localIdentifier else {
-                        callbackOnMain(false, false)
-                        return
-                    }
-                    // write localIdentifier to local database
-                    self?.mutableAsset(from: asset.uuid) { (mutableAsset) in
-                        if let mutableAsset = mutableAsset {
-                            mutableAsset.localIdentifier = localIdentifier
-                        }
-                        callbackOnMain(true, false)
-                    }
+                if let error = operation.error {
+                    callback(.failure(error))
+                } else if operation.isCancelled {
+                    callback(.failure(OperationError.cancelled))
+                } else {
+                    callback(.success(operation.alreadySavedAssets))
                 }
             }
         }
+        generalOperationQueue.addOperation(operation)
+        return operation.id
+    }
+
+    func cancelSaveOperation(id: UUID) {
+        let saveOperation = generalOperationQueue.operations.first { (operation) -> Bool in
+            if let saveOperation = operation as? SaveToLibraryOperation {
+                return saveOperation.id == id
+            }
+            return false
+        }
+        saveOperation?.cancel()
     }
 
     func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void) {

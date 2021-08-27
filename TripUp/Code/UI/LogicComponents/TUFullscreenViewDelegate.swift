@@ -46,38 +46,79 @@ class TUFullscreenViewDelegate {
     func bottomToolbarAction(_ fullscreenVC: FullscreenViewController, button: UIBarButtonItem, itemIndex: Int) {}
 
     fileprivate func fullscreenShareSheet(_ fullscreenVC: FullscreenViewController, forAsset asset: Asset) {
-        fullscreenVC.view.makeToastieActivity(true)
-        assetRequester?.requestOriginalFile(forAsset: asset, callback: { (url) in
-            fullscreenVC.view.makeToastieActivity(false)
-            guard let url = url else {
-                fullscreenVC.view.makeToastie("Failed to download the original asset data. Check your internet connection and try again.", duration: 7.5, position: .top)
-                return
+        var operationID: UUID?
+        let alert = UIAlertController(title: nil, message: "Retrieving \(asset.type.rawValue)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            if let operationID = operationID {
+                self.assetRequester?.cancelRequestOriginalOperation(id: operationID)
             }
-            let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-            activityController.completionWithItemsHandler = { _, _, _, error in
-                if error != nil {
-                    Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
+        }))
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.gray
+        loadingIndicator.startAnimating()
+
+        alert.view.addSubview(loadingIndicator)
+        fullscreenVC.present(alert, animated: true, completion: {
+            operationID = self.assetRequester?.requestOriginalFile(forAsset: asset, callback: { [weak alert, weak fullscreenVC] (result) in
+                alert?.dismiss(animated: true, completion: nil)
+                switch result {
+                case .success(let url):
+                    let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    activityController.completionWithItemsHandler = { [weak fullscreenVC] _, _, _, error in
+                        if let error = error {
+                            fullscreenVC?.view.makeToastie("Failed to share item", duration: 5.0, position: .top)
+                            Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
+                        }
+                    }
+                    activityController.excludedActivityTypes = [.saveToCameraRoll]
+                    fullscreenVC?.present(activityController, animated: true, completion: nil)
+                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
+                    Logger.self.verbose("share cancelled - assetid: \(asset.uuid.string)")
+                case .failure(let error):
+                    fullscreenVC?.view.makeToastie("Failed to retrieve \(asset.type.rawValue)", duration: 7.5, position: .top)
+                    Logger.self.error("error requesting original asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
                 }
-            }
-            activityController.excludedActivityTypes = [.saveToCameraRoll]
-            fullscreenVC.present(activityController, animated: true, completion: nil)
+            })
         })
     }
 
     fileprivate func fullscreenSaveToDevice(_ fullscreenVC: FullscreenViewController, assetManager: AssetManager?, forAsset asset: Asset) {
-        fullscreenVC.view.makeToastieActivity(true)
-        assetManager?.saveToIOS(asset: asset) { (saved, wasAlreadySaved) in
-            fullscreenVC.view.makeToastieActivity(false)
-            let message: String
-            if wasAlreadySaved {
-                message = "\(asset.type.rawValue.capitalized) already saved to device photo library."
-            } else if saved {
-                message = "Saved to device photo library."
-            } else {
-                message = "Unable to save to device photo library. Check your network connection and try again."
+        var operationID: UUID?
+        let alert = UIAlertController(title: nil, message: "Saving to Photos App", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            if let operationID = operationID {
+                assetManager?.cancelSaveOperation(id: operationID)
             }
-            fullscreenVC.view.makeToastie(message, duration: 5.0, position: .top)
-        }
+        }))
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.gray
+        loadingIndicator.startAnimating()
+
+        alert.view.addSubview(loadingIndicator)
+        fullscreenVC.present(alert, animated: true, completion: {
+            operationID = assetManager?.save(asset: asset, callback: { [weak alert, weak fullscreenVC] (result) in
+                alert?.dismiss(animated: true, completion: nil)
+                var message: String?
+                switch result {
+                case .success(true):
+                    message = "\(asset.type.rawValue.capitalized) already saved to Photos App"
+                case .success(false):
+                    message = "Saved to Photos App"
+                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
+                    Logger.self.verbose("save cancelled - assetid: \(asset.uuid.string)")
+                case .failure(let error):
+                    message = "Failed to save to Photos App"
+                    Logger.self.error("error saving asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
+                }
+                if let message = message {
+                    fullscreenVC?.view.makeToastie(message, duration: 5.0, position: .top)
+                }
+            })
+        })
     }
 }
 
