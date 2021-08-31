@@ -17,6 +17,8 @@ protocol MutableAssetProtocol: AnyObject {
 protocol MutableAssetDatabase: AnyObject {
     func fingerprint(for asset: AssetManager.MutableAsset) -> String?
     func save(fingerprint: String, for asset: AssetManager.MutableAsset)
+    func filename(for asset: AssetManager.MutableAsset) -> String?
+    func save(filename: String, for asset: AssetManager.MutableAsset)
     func uti(for asset: AssetManager.MutableAsset) -> String?
     func save(uti: String, for asset: AssetManager.MutableAsset)
     func localIdentifier(for asset: AssetManager.MutableAsset) -> String?
@@ -310,7 +312,7 @@ extension AssetManager {
 extension AssetManager {
     func loadData(for asset: Asset, atQuality quality: Quality, callback: @escaping (Data?, AVFileType?) -> Void) {
         precondition(asset.type == .photo)
-        load(asset: asset, atQuality: quality) { [weak self] (url, avFileType) in
+        load(asset: asset, atQuality: quality) { [weak self] (url, _, avFileType) in
             if let url = url {
                 DispatchQueue.global().async {
                     let data = self?.load(url)
@@ -328,7 +330,7 @@ extension AssetManager {
 
     func generateStillImage(forAsset asset: Asset, maxSize: CGSize = .zero, callback: @escaping (UIImage?, AVFileType?) -> Void) {
         precondition(asset.type == .video)
-        load(asset: asset, atQuality: .low) { [weak self] (url, uti) in
+        load(asset: asset, atQuality: .low) { [weak self] (url, _, uti) in
             guard let url = url else {
                 self?.log.error("\(asset.uuid): unable to fetch resource - quality: low")
                 callback(nil, uti)
@@ -349,14 +351,14 @@ extension AssetManager {
         }
     }
 
-    func load(asset: Asset, atQuality quality: Quality, callback: @escaping (URL?, AVFileType?) -> Void) {
-        load(assets: [asset], atQuality: quality) { (returnedAsset, url, uti) in
+    func load(asset: Asset, atQuality quality: Quality, callback: @escaping (URL?, String?, AVFileType?) -> Void) {
+        load(assets: [asset], atQuality: quality) { (returnedAsset, url, originalFilename, uti) in
             precondition(returnedAsset == asset)
-            callback(url, uti)
+            callback(url, originalFilename, uti)
         }
     }
 
-    func load<T>(assets: T, atQuality quality: Quality, callback: @escaping (Asset, URL?, AVFileType?) -> Void) where T: Collection, T.Element == Asset {
+    func load<T>(assets: T, atQuality quality: Quality, callback: @escaping (Asset, URL?, String?, AVFileType?) -> Void) where T: Collection, T.Element == Asset {
         let assetsDict = assets.reduce(into: [UUID: Asset]()) {
             $0[$1.uuid] = $1
         }
@@ -370,10 +372,10 @@ extension AssetManager {
                     return
                 }
                 if success {
-                    callback(asset, mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalUTI)
+                    callback(asset, mutableAsset.physicalAssets[quality].localPath, mutableAsset.originalFilename, mutableAsset.originalUTI)
                 } else {
                     self?.log.verbose("\(asset.uuid): failed to fetch resource - quality: \(String(describing: quality))")
-                    callback(asset, nil, nil)
+                    callback(asset, nil, nil, nil)
                 }
             }
         }

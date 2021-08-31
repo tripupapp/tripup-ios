@@ -67,7 +67,7 @@ extension AssetManager: AssetAVRequester {
     }
 
     private func loadAVPlayerItem(forAsset asset: Asset, quality: Quality, finalCallback: Bool = true, callback: @escaping (AVPlayerItem?, ResultInfo?) -> Void) {
-        load(asset: asset, atQuality: quality) { (url, uti) in
+        load(asset: asset, atQuality: quality) { (url, _, uti) in
             if let url = url {
                 let playerItem = AVPlayerItem(url: url)
                 callback(playerItem, ResultInfo(final: finalCallback, uti: uti))

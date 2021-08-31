@@ -70,6 +70,8 @@
 		203510FA25D9EC4900569712 /* TripUpShared.h in Headers */ = {isa = PBXBuildFile; fileRef = 203510EA25D9EC4800569712 /* TripUpShared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2035110B25D9EC5B00569712 /* UserNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2035110A25D9EC5B00569712 /* UserNotifications.swift */; };
 		20351D8C25E56B2400A1FE9F /* AssetSubOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20351D8B25E56B2400A1FE9F /* AssetSubOperationBatch.swift */; };
+		2035758A26DE98CA00DD20CF /* ImportOriginalFilenameOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2035758926DE98CA00DD20CF /* ImportOriginalFilenameOperation.swift */; };
+		2035759226DEBBBB00DD20CF /* Upgrades.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2035759126DEBBBB00DD20CF /* Upgrades.swift */; };
 		203A6607245488D200A3F4B4 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203A6606245488D200A3F4B4 /* Keyboard.swift */; };
 		203A66092454906900A3F4B4 /* Toastie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203A66082454906900A3F4B4 /* Toastie.swift */; };
 		20418454203CB727007F87A8 /* info_preprocesser_generator.sh in Resources */ = {isa = PBXBuildFile; fileRef = 20418453203CB727007F87A8 /* info_preprocesser_generator.sh */; };
@@ -336,6 +338,8 @@
 		203510F925D9EC4900569712 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2035110A25D9EC5B00569712 /* UserNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotifications.swift; sourceTree = "<group>"; };
 		20351D8B25E56B2400A1FE9F /* AssetSubOperationBatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetSubOperationBatch.swift; sourceTree = "<group>"; };
+		2035758926DE98CA00DD20CF /* ImportOriginalFilenameOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOriginalFilenameOperation.swift; sourceTree = "<group>"; };
+		2035759126DEBBBB00DD20CF /* Upgrades.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upgrades.swift; sourceTree = "<group>"; };
 		203A6606245488D200A3F4B4 /* Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
 		203A66082454906900A3F4B4 /* Toastie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toastie.swift; sourceTree = "<group>"; };
 		20418453203CB727007F87A8 /* info_preprocesser_generator.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = info_preprocesser_generator.sh; sourceTree = "<group>"; };
@@ -641,6 +645,7 @@
 			children = (
 				2057B7892306030F00F41BB2 /* AppDelegateExtension.swift */,
 				202335F925E189C3004823B4 /* Background.swift */,
+				2035759126DEBBBB00DD20CF /* Upgrades.swift */,
 			);
 			path = AppDelegate;
 			sourceTree = "<group>";
@@ -697,6 +702,7 @@
 		2046D1D7258FADBE003B01B1 /* Upgrader */ = {
 			isa = PBXGroup;
 			children = (
+				2035758926DE98CA00DD20CF /* ImportOriginalFilenameOperation.swift */,
 				20A9E0EF26BC57FB00E20735 /* LocalDuplicateCleanupOperation.swift */,
 				20C175362697955100A89BA2 /* MD5FixerOperation.swift */,
 				2046D1DA258FAE39003B01B1 /* Schema0to1UpgradeOperation.swift */,
@@ -1590,6 +1596,7 @@
 				2055054422CE873900B391C1 /* TULocation.pb.swift in Sources */,
 				20B2727026D6C5D700D77F60 /* PHAssetResourceType.swift in Sources */,
 				20712E10233AC9C70036C373 /* RealmDatabase.swift in Sources */,
+				2035759226DEBBBB00DD20CF /* Upgrades.swift in Sources */,
 				20717EDE24FE884F00653C91 /* Assert+Precondition.swift in Sources */,
 				20588AE722207B9300D88C4D /* String.swift in Sources */,
 				20C4F60123D3701D00B041B2 /* AuthenticationService.swift in Sources */,
@@ -1617,6 +1624,7 @@
 				2016880D210A54C300FA5D53 /* API.swift in Sources */,
 				20C1753F2697A62E00A89BA2 /* MD5Summer.swift in Sources */,
 				201C0AA12437886800F57C04 /* PolicyView.swift in Sources */,
+				2035758A26DE98CA00DD20CF /* ImportOriginalFilenameOperation.swift in Sources */,
 				20D75169229C39FF00F1D37D /* FullscreenVC.swift in Sources */,
 				20168839210A555400FA5D53 /* UUID.swift in Sources */,
 				207150AB23423B8800829C5D /* Set.swift in Sources */,

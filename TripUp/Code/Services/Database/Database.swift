@@ -38,6 +38,8 @@ protocol AssetDatabase: class {
     func unlinkedAssets() -> [UUID: Asset]?
     func fingerprint(forAssetID assetID: UUID) throws -> String?
     func save(fingerprint: String, forAssetID assetID: UUID) throws
+    func filename(forAssetID assetID: UUID) throws -> String?
+    func save(filename: String, forAssetID assetID: UUID) throws
     func uti(forAssetID assetID: UUID) throws -> String?
     func save(uti: String, forAssetID assetID: UUID) throws
     func localIdentifiers<T>(forAssetIDs assetIDs: T) throws -> [UUID: String] where T: Collection, T.Element == UUID

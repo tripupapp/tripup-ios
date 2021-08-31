@@ -43,13 +43,26 @@ class RequestOriginalFileOperation: AsynchronousOperation, AssetManagerOperation
         let importedAssets = assets.filter{ $0.imported }
         if importedAssets.isNotEmpty {
             importedAssets.forEach{ _ in dispatchGroup.enter() }
-            assetManager?.load(assets: importedAssets, atQuality: .original) { (asset, url, _) in
+            assetManager?.load(assets: importedAssets, atQuality: .original) { [weak self] (asset, url, filename, uti) in
+                var finalURL: URL?
+                if let url = url {
+                    // originalFilename includes file extension
+                    let filename = filename ?? asset.uuid.string
+                    if let tempURL = FileManager.default.uniqueTempFile(filename: filename) {
+                        do {
+                            try FileManager.default.copyItem(at: url, to: tempURL)
+                            finalURL = tempURL
+                        } catch {
+                            self?.log.error(String(describing: error))
+                        }
+                    }
+                }
                 DispatchQueue.main.async {
-                    if let url = url {
-                        self.result[asset] = url
-                        self.progressHandler?(1)
+                    if let url = finalURL {
+                        self?.result[asset] = url
+                        self?.progressHandler?(1)
                     } else {
-                        self.error = self.error ?? RequestOriginalFileOperationError.requestError(forAsset: asset)
+                        self?.error = self?.error ?? RequestOriginalFileOperationError.requestError(forAsset: asset)
                     }
                     dispatchGroup.leave()
                 }
@@ -83,8 +96,9 @@ class RequestOriginalFileOperation: AsynchronousOperation, AssetManagerOperation
                             }
                             continue
                         }
-                        let fileExtension = AVFileType(phAssetResource.uniformTypeIdentifier).fileExtension ?? ""
-                        guard let url = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: fileExtension) else {
+                        // originalFilename includes file extension
+                        let filename = phAssetResource.originalFilename
+                        guard let url = FileManager.default.uniqueTempFile(filename: filename) else {
                             batchFailed = true
                             DispatchQueue.main.async {
                                 self?.error = self?.error ?? RequestOriginalFileOperationError.requestError(forAsset: asset)

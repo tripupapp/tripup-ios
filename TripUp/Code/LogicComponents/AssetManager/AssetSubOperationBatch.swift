@@ -157,6 +157,7 @@ extension AssetManager {
                         dispatchGroup.leave()
                         return
                     }
+                    let originalFilename = phAssetResource.originalFilename
                     let uti = AVFileType(phAssetResource.uniformTypeIdentifier)
                     guard let tempURL = FileManager.default.uniqueTempFile(filename: asset.uuid.string, fileExtension: uti.fileExtension) else {
                         self.set(error: .recoverable)
@@ -183,6 +184,7 @@ extension AssetManager {
                                 self.set(error: .fatal, addToFatalSet: asset)   // terminate this asset, as we've linked the image data to another asset
                             } else {
                                 asset.md5 = md5
+                                asset.originalFilename = originalFilename
                                 asset.originalUTI = uti
                                 let url = asset.physicalAssets.original.localPath.deletingPathExtension().appendingPathExtension(uti.fileExtension ?? "")
                                 if (try? FileManager.default.moveItem(at: tempURL, to: url, createIntermediateDirectories: true, overwrite: true)) == nil {
