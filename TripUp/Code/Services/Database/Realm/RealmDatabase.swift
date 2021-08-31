@@ -44,8 +44,9 @@ extension RealmDatabase: Database {
                 - 11 and lower are legacy builds (v1 on App Store, v0.1 tag on git)
                 - 12 is first major re-release (v2 on App Store, v1.0 tag on git)
                 - 13 is for video support (v2.1 on App Store, v1.1 tag on git)
+                - 14 is for the introduction of the `originalFilename` field (v2.1.4)
             */
-            var config = Realm.Configuration(schemaVersion: 13)
+            var config = Realm.Configuration(schemaVersion: 14)
             if let realmFileURL = Realm.Configuration.defaultConfiguration.fileURL, let oldSchemaVersion = try? schemaVersionAtURL(realmFileURL), oldSchemaVersion <= 11 {
                 // if data exists from a legacy version of TripUp, delete entire database file and start again
                 config.deleteRealmIfMigrationNeeded = true

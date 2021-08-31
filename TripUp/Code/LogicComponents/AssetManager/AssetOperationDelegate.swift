@@ -304,6 +304,9 @@ class AssetOperationDelegateObject: AssetOperationDelegate {
                         if let durationString = asset.duration?.description {
                             json["duration"] = assetKey.encrypt(durationString, signed: assetKey)
                         }
+                        if let filenameString = asset.originalFilename {
+                            json["originalFilename"] = assetKey.encrypt(filenameString, signed: assetKey)
+                        }
                     }
                     jsonArray.append(json)
                 }

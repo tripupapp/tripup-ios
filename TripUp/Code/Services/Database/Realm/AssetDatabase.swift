@@ -117,6 +117,28 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
+    func filename(forAssetID assetID: UUID) throws -> String? {
+        try autoreleasepool {
+            let realm = try Realm()
+            guard let assetObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
+                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
+            }
+            return assetObject.originalFilename
+        }
+    }
+
+    func save(filename: String, forAssetID assetID: UUID) throws {
+        try autoreleasepool {
+            let realm = try Realm()
+            guard let assetObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
+                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
+            }
+            try realm.write {
+                assetObject.originalFilename = filename
+            }
+        }
+    }
+
     func uti(forAssetID assetID: UUID) throws -> String? {
         try autoreleasepool {
             let realm = try Realm()

@@ -48,6 +48,19 @@ extension AssetManager {
             }
         }
 
+        // includes file extension
+        var originalFilename: String? {
+            get {
+                return database?.filename(for: self)
+            }
+            set {
+                guard let newValue = newValue else {
+                    preconditionFailure()
+                }
+                database?.save(filename: newValue, for: self)
+            }
+        }
+
         var originalUTI: AVFileType? {
             get {
                 return AVFileType(database?.uti(for: self))

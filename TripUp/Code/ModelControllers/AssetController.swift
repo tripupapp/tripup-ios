@@ -201,6 +201,7 @@ extension ModelController {
                     var creationDate: Date?
                     var location: TULocation?
                     var duration: TimeInterval?
+                    var filename: String?
                     autoreleasepool {
                         do {
                             let keyString = try decryptionKeyPair.0.decrypt(keyData, signedByOneOf: decryptionKeyPair.1).0
@@ -244,6 +245,10 @@ extension ModelController {
                                     assertionFailure()
                                 }
                             }
+                            if let filenameString = assetData["originalfilename"] as? String {
+                                let filenameStringDecrypted = try assetKey.decrypt(filenameString, signedBy: assetKey)
+                                filename = filenameStringDecrypted
+                            }
                         } catch {
                             self.log.error("assetID: \(id), assetData: \(assetData), error: \(String(describing: error))")
                             assertionFailure()
@@ -257,7 +262,8 @@ extension ModelController {
                         "md5": md5,
                         "createdate": creationDate,
                         "location": location,
-                        "duration": duration
+                        "duration": duration,
+                        "originalfilename": filename
                     ]
                 }
                 assert(newAssetIDs.count == decryptedData.count)
@@ -515,6 +521,30 @@ extension ModelController: MutableAssetDatabase {
         databaseQueue.sync(flags: .barrier) {
             do {
                 try assetDatabase.save(fingerprint: fingerprint, forAssetID: asset.uuid)
+            } catch {
+                log.error(String(describing: error))
+                assertionFailure()
+            }
+        }
+    }
+
+    func filename(for asset: AssetManager.MutableAsset) -> String? {
+        databaseQueue.sync {
+            var filename: String?
+            do {
+                filename = try assetDatabase.filename(forAssetID: asset.uuid)
+            } catch {
+                log.error(String(describing: error))
+                assertionFailure()
+            }
+            return filename
+        }
+    }
+
+    func save(filename: String, for asset: AssetManager.MutableAsset) {
+        databaseQueue.sync(flags: .barrier) {
+            do {
+                try assetDatabase.save(filename: filename, forAssetID: asset.uuid)
             } catch {
                 log.error(String(describing: error))
                 assertionFailure()

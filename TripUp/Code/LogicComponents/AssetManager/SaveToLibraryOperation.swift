@@ -54,15 +54,15 @@ class SaveToLibraryOperation: AsynchronousOperation, AssetManagerOperation {
         }
 
         let batch = assets.suffix(batchSize)
-        var loadedAssets = [Asset: (url: URL, uti: AVFileType?)]()
+        var loadedAssets = [Asset: (url: URL, originalFilename: String?, uti: AVFileType?)]()
         var failedAsset: Asset?
         let dispatchGroup = DispatchGroup()
 
         batch.forEach{ _ in dispatchGroup.enter() }
-        assetManager.load(assets: batch, atQuality: .original) { [weak assetManager] (asset, url, uti) in
+        assetManager.load(assets: batch, atQuality: .original) { [weak assetManager] (asset, url, filename, uti) in
             precondition(.on(assetManager?.assetManagerQueue))
             if let url = url {
-                loadedAssets[asset] = (url: url, uti: uti)
+                loadedAssets[asset] = (url: url, originalFilename: filename, uti: uti)
             } else {
                 failedAsset = asset
             }

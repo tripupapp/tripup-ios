@@ -163,7 +163,7 @@ extension PhotoLibrary {
 }
 
 extension PhotoLibrary {
-    func save(data: [Asset: (url: URL, uti: AVFileType?)], callback: @escaping (Result<[Asset: String], Error>) -> Void) {
+    func save(data: [Asset: (url: URL, originalFilename: String?, uti: AVFileType?)], callback: @escaping (Result<[Asset: String], Error>) -> Void) {
         enum PhotoLibrarySaveError: Error {
             case invalidAssetType(Asset)
         }
@@ -184,6 +184,7 @@ extension PhotoLibrary {
         PHPhotoLibrary.shared().performChanges {
             for (asset, assetData) in data {
                 let options = PHAssetResourceCreationOptions()
+                options.originalFilename = assetData.originalFilename
                 options.uniformTypeIdentifier = assetData.uti?.rawValue
                 options.shouldMoveFile = true
                 let newAsset = PHAssetCreationRequest.forAsset()
