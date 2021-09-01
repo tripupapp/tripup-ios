@@ -178,10 +178,18 @@ extension AssetManager {
                         }
                         self.delegate.unlinkedAsset(withMD5Hash: md5) { candidateAsset in
                             if let candidateAsset = candidateAsset {
-                                self.delegate.switch(localIdentifier: localIdentifier, fromAssetID: asset.uuid, toAssetID: candidateAsset.uuid)
-                                self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
-                                try? FileManager.default.removeItem(at: tempURL)
-                                self.set(error: .fatal, addToFatalSet: asset)   // terminate this asset, as we've linked the image data to another asset
+                                // verify metadata and update server asset with local metadata if necessary
+                                self.verifyMetadata(forAsset: candidateAsset, originalFilename: originalFilename) { (verified) in
+                                    if verified {
+                                        self.delegate.switch(localIdentifier: localIdentifier, fromAssetID: asset.uuid, toAssetID: candidateAsset.uuid)
+                                        self.log.info("\(asset.uuid.string): existing asset md5 match found. Linked localIdentifier and terminating this asset – existingAssetID: \(candidateAsset.uuid.string), PHAssetID: \(String(describing: asset.localIdentifier))")
+                                        self.set(error: .fatal, addToFatalSet: asset)   // terminate this asset, as we've linked the image data to another asset
+                                    } else {
+                                        self.set(error: .recoverable)
+                                    }
+                                    try? FileManager.default.removeItem(at: tempURL)
+                                    dispatchGroup.leave()
+                                }
                             } else {
                                 asset.md5 = md5
                                 asset.originalFilename = originalFilename
@@ -192,8 +200,8 @@ extension AssetManager {
                                     try? FileManager.default.removeItem(at: tempURL)
                                     self.set(error: .recoverable)
                                 }
+                                dispatchGroup.leave()
                             }
-                            dispatchGroup.leave()
                         }
                     }
                 }
@@ -201,6 +209,19 @@ extension AssetManager {
 
             dispatchGroup.notify(queue: .global(qos: .utility)) {
                 self.finish()
+            }
+        }
+
+        private func verifyMetadata(forAsset asset: AssetManager.MutableAsset, originalFilename: String, callback: @escaping (Bool) -> Void) {
+            if asset.originalFilename != originalFilename {
+                delegate.updateOnDB(asset: asset, originalFilename: originalFilename) { (success) in
+                    if success {
+                        asset.originalFilename = originalFilename
+                    }
+                    callback(success)
+                }
+            } else {
+                callback(true)
             }
         }
     }

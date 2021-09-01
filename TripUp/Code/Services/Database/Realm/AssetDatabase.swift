@@ -65,7 +65,7 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
-    func unlinkedAsset(withMD5Hash md5: Data) -> Asset? {
+    func unlinkedAsset(withMD5Hash md5: Data) -> AssetManager.MutableAsset? {
         autoreleasepool {
             guard let realm = try? Realm() else { return nil }
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
@@ -74,7 +74,7 @@ extension RealmDatabase: AssetDatabase {
             ])
             let objects = realm.objects(AssetObject.self).filter(predicate)
             if let object = objects.first {
-                return Asset(from: object)
+                return AssetManager.MutableAsset(from: object)
             } else {
                 return nil
             }

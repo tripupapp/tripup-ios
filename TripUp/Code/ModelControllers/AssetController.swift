@@ -21,7 +21,7 @@ protocol AssetController: AnyObject, AssetFinder {
     func remove<T>(assets: T) where T: Collection, T.Element == Asset
     func remove<T>(assets: T) where T: Collection, T.Element == AssetManager.MutableAsset
     func mutableAssets<T>(for assetIDs: T, callback: @escaping (Result<([AssetManager.MutableAsset], [UUID]), Error>) -> Void) where T: Collection, T.Element == UUID
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void)
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void)
     func unlinkedAssets(callback: @escaping ([UUID: Asset]?) -> Void)
     func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID)
     func deletedAssetIDs(callback: @escaping ([UUID]?) -> Void)
@@ -464,9 +464,10 @@ extension ModelController: AssetController {
         }
     }
 
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void) {
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void) {
         databaseQueue.async { [weak self] in
             let asset = self?.assetDatabase.unlinkedAsset(withMD5Hash: md5)
+            asset?.database = self
             DispatchQueue.global().async {
                 callback(asset)
             }

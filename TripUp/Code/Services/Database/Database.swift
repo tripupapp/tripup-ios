@@ -34,7 +34,7 @@ protocol AssetDatabase: class {
     var deletedAssetIDs: [UUID]? { get }
 
     func mutableAssets<T, U>(forAssetIDs assetIDs: T) throws -> U where T: Collection, T.Element == UUID, U: ArrayOrSet, U.Element == AssetManager.MutableAsset
-    func unlinkedAsset(withMD5Hash md5: Data) -> Asset?
+    func unlinkedAsset(withMD5Hash md5: Data) -> AssetManager.MutableAsset?
     func unlinkedAssets() -> [UUID: Asset]?
     func fingerprint(forAssetID assetID: UUID) throws -> String?
     func save(fingerprint: String, forAssetID assetID: UUID) throws
