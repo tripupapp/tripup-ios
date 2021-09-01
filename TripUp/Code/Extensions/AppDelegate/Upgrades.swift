@@ -87,7 +87,7 @@ extension AppDelegate {
             return true
         }
 
-        guard previousVersion.isHigherVersionNumberThan("2.1.4.1") else {
+        guard previousVersion.isHigherVersionNumberThan("2.1.4.2") else {
             let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
             let importOriginalFilenameOperation = ImportOriginalFilenameOperation()
             importOriginalFilenameOperation.database = database

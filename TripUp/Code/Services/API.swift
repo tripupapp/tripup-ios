@@ -53,7 +53,6 @@ class API {
 
     init(host: String) {
         let configuration = URLSessionConfiguration.af.default
-        configuration.timeoutIntervalForRequest = Globals.networkTimeout
         let session = Session(configuration: configuration, interceptor: Adapter(for: host))
         self.session = session
     }
