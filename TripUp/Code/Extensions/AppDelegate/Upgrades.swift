@@ -87,17 +87,12 @@ extension AppDelegate {
             return true
         }
 
-        guard previousVersion.isHigherVersionNumberThan("2.1.3.1") else {
+        guard previousVersion.isHigherVersionNumberThan("2.1.4.1") else {
             let upgradeVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "upgrade") as! UpgradeVC
-            guard let primaryUserKey = try? keychain.retrievePrivateKey(withFingerprint: primaryUser!.fingerprint, keyType: .user) else {
-                fatalError("primary user key not found")
-            }
             let importOriginalFilenameOperation = ImportOriginalFilenameOperation()
             importOriginalFilenameOperation.database = database
-            importOriginalFilenameOperation.dataService = dataService
             importOriginalFilenameOperation.api = api
             importOriginalFilenameOperation.user = primaryUser
-            importOriginalFilenameOperation.userKey = primaryUserKey
             importOriginalFilenameOperation.keychain = keychain
             importOriginalFilenameOperation.completionBlock = {
                 DispatchQueue.main.async {

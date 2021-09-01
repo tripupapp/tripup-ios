@@ -395,6 +395,19 @@ extension API: AssetAPI {
         }
     }
 
+    // [assetID: filename]
+    func updateFilenames(_ params: [String: String], callbackOn queue: DispatchQueue, callback: @escaping (_ success: Bool) -> Void) {
+        log.debug("")
+        session.request("\(host)/assets/originalfilenames", method: .patch, parameters: params, encoding: JSONEncoding.default).validate().response(queue: queue) { [weak self] response in
+            if let error = response.error {
+                self?.log.error(error)
+                callback(false)
+            } else {
+                callback(true)
+            }
+        }
+    }
+
     func delete(assetIDs: [String], callbackOn queue: DispatchQueue, resultHandler: @escaping (_ success: Bool) -> Void) {
         log.debug("")
         let params: [String: Any] = [

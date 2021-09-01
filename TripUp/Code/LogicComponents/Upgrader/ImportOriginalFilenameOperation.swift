@@ -10,62 +10,83 @@ import Foundation
 
 class ImportOriginalFilenameOperation: UpgradeOperation {
     private var modelController: ModelController?
-    private var keychainDelegate: KeychainDelegateObject?
-    private var assetOperationDelegate: AssetOperationDelegateObject?
 
     override func main() {
         super.main()
 
-        guard let database = database, let dataService = dataService, let api = api, let primaryUser = user, let primaryUserKey = userKey, let keychain = keychain else {
-            log.error("missing operation dependency - \(String(describing: self.database)), \(String(describing: self.dataService)), \(String(describing: self.api)), \(String(describing: self.user)), \(String(describing: self.userKey)), \(String(describing: self.keychain))")
+        guard let database = database, let api = api, let primaryUser = user, let keychain = keychain else {
+            log.error("missing operation dependency - \(String(describing: self.database)), \(String(describing: self.api)), \(String(describing: self.user)), \(String(describing: self.keychain))")
             finish(success: false)
             return
         }
         modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
 
+        progress = (completed: 0, total: 3)
         modelController?.allAssets { [weak self] (allAssets) in
             let allAssets = allAssets.filter{ $0.value.imported && $0.value.ownerID == primaryUser.uuid }
-            self?.progress = (completed: 0, total: allAssets.count * 2)
+            guard allAssets.isNotEmpty else {
+                self?.progress = (completed: 3, total: 3)
+                self?.finish(success: true)
+                return
+            }
 
-            self?.modelController?.localIdentifiers(forAssets: allAssets.values) { [weak self] (assets2localIDs) in
+            self?.modelController?.localIdentifiers(forAssets: allAssets.values) { [weak self] (assets2localids) in
                 let photoLibrary = PhotoLibrary()
-                photoLibrary.fetchAssets(withLocalIdentifiers: assets2localIDs.values) { (localIDs2PHAsset) in
-                    let localIDs2originalFilenames: [String: String] = localIDs2PHAsset.compactMapValues{ phAsset in
-                        let resource = photoLibrary.resource(forPHAsset: phAsset, type: .init(iosMediaType: phAsset.mediaType))
-                        return resource?.originalFilename
-                    }
-                    let assetIDs2originalFilenames = assets2localIDs.reduce(into: [UUID: String]()) {
-                        $0[$1.key.uuid] = localIDs2originalFilenames[$1.value]
-                    }
+                photoLibrary.fetchAssets(withLocalIdentifiers: assets2localids.values) { (localids2phasset) in
                     self?.modelController?.mutableAssets(for: allAssets.keys) { [weak self] (result) in
                         guard let self = self else {
                             return
                         }
                         switch result {
-                        case .success(let (mutableAssets, _)):
+                        case .success(let (mutableAssets, _)) where mutableAssets.isNotEmpty:
+                            self.progress = (completed: 1, total: 3)
+
+                            var assetids2filename = [String: String]()
+                            var assetids2encryptedfilenames = [String: String]()
                             for mutableAsset in mutableAssets {
-                                if let filename = assetIDs2originalFilenames[mutableAsset.uuid] {
-                                    mutableAsset.database = self.modelController
-                                    self.modelController?.save(filename: filename, for: mutableAsset)
+                                let assetID = mutableAsset.uuid
+                                mutableAsset.database = self.modelController
+                                guard let asset = allAssets[assetID], let localID = assets2localids[asset], let phasset = localids2phasset[localID] else {
+                                    continue
                                 }
-                                self.progress = (self.progress.completed + 1, self.progress.total)
-                            }
-                            self.keychainDelegate = KeychainDelegateObject(keychain: keychain, primaryUserKey: primaryUserKey)
-                            self.assetOperationDelegate = AssetOperationDelegateObject(assetController: self.modelController!, dataService: dataService, webAPI: api, photoLibrary: photoLibrary, keychainQueue: .global())
-                            self.assetOperationDelegate?.keychainDelegate = self.keychainDelegate
-                            self.assetOperationDelegate?.createOnServer(assets: mutableAssets) { [weak self] (result) in
-                                guard let self = self else {
+                                guard let filename = photoLibrary.resource(forPHAsset: phasset, type: asset.type)?.originalFilename else {
+                                    continue
+                                }
+                                guard let fingerprint = mutableAsset.fingerprint else {
+                                    self.log.error("missing fingerprint - assetID: \(assetID.string)")
+                                    self.finish(success: false)
                                     return
                                 }
-                                switch result {
-                                case .success(_):
-                                    self.progress = (self.progress.completed + mutableAssets.count, self.progress.total)
-                                    self.finish(success: true)
-                                case .failure(let error):
-                                    self.log.error("error with server update - \(String(describing: error))")
+                                guard let assetKey = try? keychain.retrievePrivateKey(withFingerprint: fingerprint, keyType: .asset) else {
+                                    self.log.error("missing asset key - assetID: \(assetID.string)")
                                     self.finish(success: false)
+                                    return
+                                }
+                                autoreleasepool {
+                                    let encryptedFilename = assetKey.encrypt(filename, signed: assetKey)
+                                    assetids2encryptedfilenames[assetID.string] = encryptedFilename
+                                }
+                                assetids2filename[assetID.string] = filename
+                            }
+                            self.progress = (completed: 2, total: 3)
+
+                            api.updateFilenames(assetids2encryptedfilenames, callbackOn: .global()) { [weak self] (success) in
+                                self?.progress = (completed: 3, total: 3)
+                                if success {
+                                    for mutableAsset in mutableAssets {
+                                        if let filename = assetids2filename[mutableAsset.uuid.string] {
+                                            self?.modelController?.save(filename: filename, for: mutableAsset)
+                                        }
+                                    }
+                                    self?.finish(success: true)
+                                } else {
+                                    self?.log.error("error with api call")
+                                    self?.finish(success: false)
                                 }
                             }
+                        case .success(_):
+                            self.progress = (completed: 3, total: 3)
+                            self.finish(success: true)
                         case .failure(let error):
                             self.log.error("error retrieving mutable assets - \(String(describing: error))")
                             self.finish(success: false)
