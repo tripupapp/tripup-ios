@@ -21,11 +21,10 @@ class ImportOriginalFilenameOperation: UpgradeOperation {
         }
         modelController = ModelController(assetDatabase: database, groupDatabase: database, userDatabase: database)
 
-        progress = (completed: 0, total: 3)
         modelController?.allAssets { [weak self] (allAssets) in
             let allAssets = allAssets.filter{ $0.value.imported && $0.value.ownerID == primaryUser.uuid }
             guard allAssets.isNotEmpty else {
-                self?.progress = (completed: 3, total: 3)
+                self?.progress = (completed: 1, total: 1)
                 self?.finish(success: true)
                 return
             }
@@ -39,7 +38,7 @@ class ImportOriginalFilenameOperation: UpgradeOperation {
                         }
                         switch result {
                         case .success(let (mutableAssets, _)) where mutableAssets.isNotEmpty:
-                            self.progress = (completed: 1, total: 3)
+                            self.progress = (completed: 0, total: mutableAssets.count * 2)
 
                             var assetids2filename = [String: String]()
                             var assetids2encryptedfilenames = [String: String]()
@@ -47,9 +46,11 @@ class ImportOriginalFilenameOperation: UpgradeOperation {
                                 let assetID = mutableAsset.uuid
                                 mutableAsset.database = self.modelController
                                 guard let asset = allAssets[assetID], let localID = assets2localids[asset], let phasset = localids2phasset[localID] else {
+                                    self.progress = (self.progress.completed + 1, self.progress.total)
                                     continue
                                 }
                                 guard let filename = photoLibrary.resource(forPHAsset: phasset, type: asset.type)?.originalFilename else {
+                                    self.progress = (self.progress.completed + 1, self.progress.total)
                                     continue
                                 }
                                 guard let fingerprint = mutableAsset.fingerprint else {
@@ -67,21 +68,24 @@ class ImportOriginalFilenameOperation: UpgradeOperation {
                                     assetids2encryptedfilenames[assetID.string] = encryptedFilename
                                 }
                                 assetids2filename[assetID.string] = filename
+                                self.progress = (self.progress.completed + 1, self.progress.total)
                             }
-                            self.progress = (completed: 2, total: 3)
 
                             api.updateFilenames(assetids2encryptedfilenames, callbackOn: .global()) { [weak self] (success) in
-                                self?.progress = (completed: 3, total: 3)
+                                guard let self = self else {
+                                    return
+                                }
+                                self.progress = (Int(Double(self.progress.total) * 0.9), self.progress.total)
                                 if success {
                                     for mutableAsset in mutableAssets {
                                         if let filename = assetids2filename[mutableAsset.uuid.string] {
-                                            self?.modelController?.save(filename: filename, for: mutableAsset)
+                                            self.modelController?.save(filename: filename, for: mutableAsset)
                                         }
                                     }
-                                    self?.finish(success: true)
+                                    self.finish(success: true)
                                 } else {
-                                    self?.log.error("error with api call")
-                                    self?.finish(success: false)
+                                    self.log.error("error with api call")
+                                    self.finish(success: false)
                                 }
                             }
                         case .success(_):
