@@ -15,11 +15,13 @@ protocol AssetFinder {
 
 protocol AssetController: AnyObject, AssetFinder {
     func localIdentifier(forAsset asset: Asset, callback: @escaping (String?) -> Void)
+    func localIdentifiers<T>(forAssets assets: T, callback: @escaping ([Asset: String]) -> Void) where T: Collection, T.Element == Asset
     func assetIDlocalIDMap(callback: @escaping ([UUID: String]) -> Void)
+    func saveLocalIdentifiers(assets2LocalIDs: [Asset: String], callback: @escaping ClosureBool)
     func remove<T>(assets: T) where T: Collection, T.Element == Asset
     func remove<T>(assets: T) where T: Collection, T.Element == AssetManager.MutableAsset
     func mutableAssets<T>(for assetIDs: T, callback: @escaping (Result<([AssetManager.MutableAsset], [UUID]), Error>) -> Void) where T: Collection, T.Element == UUID
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void)
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void)
     func unlinkedAssets(callback: @escaping ([UUID: Asset]?) -> Void)
     func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID)
     func deletedAssetIDs(callback: @escaping ([UUID]?) -> Void)
@@ -199,6 +201,7 @@ extension ModelController {
                     var creationDate: Date?
                     var location: TULocation?
                     var duration: TimeInterval?
+                    var filename: String?
                     autoreleasepool {
                         do {
                             let keyString = try decryptionKeyPair.0.decrypt(keyData, signedByOneOf: decryptionKeyPair.1).0
@@ -242,6 +245,10 @@ extension ModelController {
                                     assertionFailure()
                                 }
                             }
+                            if let filenameString = assetData["originalfilename"] as? String {
+                                let filenameStringDecrypted = try assetKey.decrypt(filenameString, signedBy: assetKey)
+                                filename = filenameStringDecrypted
+                            }
                         } catch {
                             self.log.error("assetID: \(id), assetData: \(assetData), error: \(String(describing: error))")
                             assertionFailure()
@@ -255,7 +262,8 @@ extension ModelController {
                         "md5": md5,
                         "createdate": creationDate,
                         "location": location,
-                        "duration": duration
+                        "duration": duration,
+                        "originalfilename": filename
                     ]
                 }
                 assert(newAssetIDs.count == decryptedData.count)
@@ -353,16 +361,30 @@ extension ModelController: AssetFinder {
 
 extension ModelController: AssetController {
     func localIdentifier(forAsset asset: Asset, callback: @escaping (String?) -> Void) {
+        localIdentifiers(forAssets: [asset]) { (assetMap) in
+            callback(assetMap.first?.value)
+        }
+    }
+
+    func localIdentifiers<T>(forAssets assets: T, callback: @escaping ([Asset: String]) -> Void) where T: Collection, T.Element == Asset {
         databaseQueue.async { [weak self] in
-            var localIdentifier: String?
+            guard let self = self else {
+                return
+            }
+            let dict = assets.reduce(into: [UUID: Asset]()) {
+                $0[$1.uuid] = $1
+            }
+            var localIdentifiers = [Asset: String]()
             do {
-                localIdentifier = try self?.assetDatabase.localIdentifier(forAssetID: asset.uuid)
+                localIdentifiers = try self.assetDatabase.localIdentifiers(forAssetIDs: dict.keys).reduce(into: [Asset: String]()) {
+                    $0[dict[$1.key]!] = $1.value
+                }
             } catch {
-                self?.log.error(String(describing: error))
+                self.log.error(String(describing: error))
                 assertionFailure()
             }
             DispatchQueue.global().async {
-                callback(localIdentifier)
+                callback(localIdentifiers)
             }
         }
     }
@@ -372,6 +394,29 @@ extension ModelController: AssetController {
             let idMap = self?.assetIDlocalIDMap
             DispatchQueue.global().async {
                 callback(idMap ?? [UUID: String]())
+            }
+        }
+    }
+
+    func saveLocalIdentifiers(assets2LocalIDs: [Asset: String], callback: @escaping ClosureBool) {
+        databaseQueue.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+            let assetIDs2LocalIDs = assets2LocalIDs.reduce(into: [String: String]()) {
+                $0[$1.key.uuid.string] = $1.value
+            }
+            do {
+                try self.assetDatabase.saveLocalIdentifiers(assetIDs2LocalIDs: assetIDs2LocalIDs)
+                DispatchQueue.global().async {
+                    callback(true)
+                }
+            } catch {
+                self.log.error(String(describing: error))
+                assertionFailure()
+                DispatchQueue.global().async {
+                    callback(false)
+                }
             }
         }
     }
@@ -419,9 +464,10 @@ extension ModelController: AssetController {
         }
     }
 
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void) {
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void) {
         databaseQueue.async { [weak self] in
             let asset = self?.assetDatabase.unlinkedAsset(withMD5Hash: md5)
+            asset?.database = self
             DispatchQueue.global().async {
                 callback(asset)
             }
@@ -483,6 +529,30 @@ extension ModelController: MutableAssetDatabase {
         }
     }
 
+    func filename(for asset: AssetManager.MutableAsset) -> String? {
+        databaseQueue.sync {
+            var filename: String?
+            do {
+                filename = try assetDatabase.filename(forAssetID: asset.uuid)
+            } catch {
+                log.error(String(describing: error))
+                assertionFailure()
+            }
+            return filename
+        }
+    }
+
+    func save(filename: String, for asset: AssetManager.MutableAsset) {
+        databaseQueue.sync(flags: .barrier) {
+            do {
+                try assetDatabase.save(filename: filename, forAssetID: asset.uuid)
+            } catch {
+                log.error(String(describing: error))
+                assertionFailure()
+            }
+        }
+    }
+
     func uti(for asset: AssetManager.MutableAsset) -> String? {
         databaseQueue.sync {
             var uti: String?
@@ -509,14 +579,14 @@ extension ModelController: MutableAssetDatabase {
 
     func localIdentifier(for asset: AssetManager.MutableAsset) -> String? {
         databaseQueue.sync {
-            var localIdentifier: String?
+            var localIdentifiers = [UUID: String]()
             do {
-                localIdentifier = try assetDatabase.localIdentifier(forAssetID: asset.uuid)
+                localIdentifiers = try self.assetDatabase.localIdentifiers(forAssetIDs: [asset.uuid])
             } catch {
-                log.error(String(describing: error))
+                self.log.error(String(describing: error))
                 assertionFailure()
             }
-            return localIdentifier
+            return localIdentifiers.first?.value
         }
     }
 

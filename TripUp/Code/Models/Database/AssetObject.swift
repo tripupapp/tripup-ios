@@ -21,6 +21,7 @@ import RealmSwift
     dynamic var pixelWidth: Int = 0
     dynamic var pixelHeight: Int = 0
     dynamic var fingerprint: String? = nil
+    dynamic var originalFilename: String? = nil
     dynamic var originalUTI: String? = nil
     dynamic var localIdentifier: String? = nil
     dynamic var totalSize: Int64 = 0
@@ -94,6 +95,7 @@ extension AssetObject {
         let creationDate = decryptedAssetData["createdate"] as? Date
         let location = decryptedAssetData["location"] as? TULocation
         let duration = decryptedAssetData["duration"] as? TimeInterval
+        let filename = decryptedAssetData["originalfilename"] as? String
 
         self.init()
         self.uuid = id.string
@@ -107,6 +109,7 @@ extension AssetObject {
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
         self.fingerprint = assetKey.fingerprint
+        self.originalFilename = filename
         self.originalUTI = assetData["originaluti"] as? String
         self.totalSize = assetData["totalsize"] as? Int64 ?? 0
         self.md5 = md5

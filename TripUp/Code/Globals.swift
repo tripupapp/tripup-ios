@@ -22,8 +22,6 @@ struct IndexPathItems {
 }
 
 struct Globals {
-    static let networkTimeout = 5.0 // seconds
-
     struct Documents {
         static let privacyPolicy = WebDocument(bundleResource: (resource: "script-privacypolicy", extension: "txt"), verificationString: "Privacy Policy of", renderedFilename: "privacypolicy.html")
     }

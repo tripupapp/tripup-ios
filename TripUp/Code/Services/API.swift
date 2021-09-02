@@ -53,7 +53,6 @@ class API {
 
     init(host: String) {
         let configuration = URLSessionConfiguration.af.default
-        configuration.timeoutIntervalForRequest = Globals.networkTimeout
         let session = Session(configuration: configuration, interceptor: Adapter(for: host))
         self.session = session
     }
@@ -376,6 +375,34 @@ extension API: AssetAPI {
             case .failure(let error):
                 self?.log.error(error)
                 resultHandler(false, nil)
+            }
+        }
+    }
+
+    func update(originalFilename: String, forAssetID assetID: UUID, callbackOn queue: DispatchQueue, callback: @escaping (_ success: Bool) -> Void) {
+        log.debug("")
+        let params: [String: String] = [
+            "originalfilename": originalFilename
+        ]
+        session.request("\(host)/assets/\(assetID.string)/originalfilename", method: .put, parameters: params, encoding: JSONEncoding.default).validate().response(queue: queue) { [weak self] response in
+            if let error = response.error {
+                self?.log.error(error)
+                callback(false)
+            } else {
+                callback(true)
+            }
+        }
+    }
+
+    // [assetID: filename]
+    func updateFilenames(_ params: [String: String], callbackOn queue: DispatchQueue, callback: @escaping (_ success: Bool) -> Void) {
+        log.debug("")
+        session.request("\(host)/assets/originalfilenames", method: .patch, parameters: params, encoding: JSONEncoding.default).validate().response(queue: queue) { [weak self] response in
+            if let error = response.error {
+                self?.log.error(error)
+                callback(false)
+            } else {
+                callback(true)
             }
         }
     }

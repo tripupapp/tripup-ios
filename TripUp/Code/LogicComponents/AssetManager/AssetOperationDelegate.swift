@@ -18,7 +18,7 @@ protocol AssetOperationDelegate: AnyObject {
     func newAssetKey() -> CryptoPrivateKey
     func key(for asset: AssetManager.MutableAsset) -> CryptoPrivateKey?
 
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void)
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void)
     func `switch`(localIdentifier: String, fromAssetID oldAssetID: UUID, toAssetID newAssetID: UUID)
     
     func fileExists(at url: URL) -> Bool
@@ -34,6 +34,7 @@ protocol AssetOperationDelegate: AnyObject {
 
     func createOnServer(assets: [AssetManager.MutableAsset], callback: @escaping (Result<[String: Int], Error>) -> Void)
     func writeOriginalToDB(assets: [AssetManager.MutableAsset], callback: @escaping ([String: Int]?) -> Void)
+    func updateOnDB(asset: AssetManager.MutableAsset, originalFilename: String, callback: @escaping (Bool) -> Void)
     func deleteFromDB(assets: [AssetManager.MutableAsset], callback: @escaping ClosureBool)
 }
 
@@ -71,7 +72,7 @@ class AssetOperationDelegateObject: AssetOperationDelegate {
     }
 
     // MARK: local db functions
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void) {
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void) {
         assetController.unlinkedAsset(withMD5Hash: md5, callback: callback)
     }
 
@@ -304,6 +305,9 @@ class AssetOperationDelegateObject: AssetOperationDelegate {
                         if let durationString = asset.duration?.description {
                             json["duration"] = assetKey.encrypt(durationString, signed: assetKey)
                         }
+                        if let filenameString = asset.originalFilename {
+                            json["originalFilename"] = assetKey.encrypt(filenameString, signed: assetKey)
+                        }
                     }
                     jsonArray.append(json)
                 }
@@ -327,6 +331,25 @@ class AssetOperationDelegateObject: AssetOperationDelegate {
         }
     }
 
+    func updateOnDB(asset: AssetManager.MutableAsset, originalFilename: String, callback: @escaping (Bool) -> Void) {
+        keychainQueue.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+            let assetKey = self.key(for: asset)
+            DispatchQueue.global().async {
+                if let assetKey = assetKey {
+                    autoreleasepool {
+                        let filenameEncrypted = assetKey.encrypt(originalFilename, signed: assetKey)
+                        self.webAPI.update(originalFilename: filenameEncrypted, forAssetID: asset.uuid, callbackOn: .global(), callback: callback)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+        }
+    }
+
     func deleteFromDB(assets: [AssetManager.MutableAsset], callback: @escaping ClosureBool) {
         webAPI.delete(assetIDs: assets.map{ $0.uuid.string }, callbackOn: .global()) { success in
             callback(success)
@@ -345,7 +368,7 @@ extension AssetManager: AssetOperationDelegate {
         return assetOperationDelegate.key(for: asset)
     }
 
-    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (Asset?) -> Void) {
+    func unlinkedAsset(withMD5Hash md5: Data, callback: @escaping (AssetManager.MutableAsset?) -> Void) {
         assetOperationDelegate.unlinkedAsset(withMD5Hash: md5, callback: callback)
     }
 
@@ -400,6 +423,10 @@ extension AssetManager: AssetOperationDelegate {
 
     func writeOriginalToDB(assets: [AssetManager.MutableAsset], callback: @escaping ([String : Int]?) -> Void) {
         assetOperationDelegate.writeOriginalToDB(assets: assets, callback: callback)
+    }
+
+    func updateOnDB(asset: AssetManager.MutableAsset, originalFilename: String, callback: @escaping (Bool) -> Void) {
+        assetOperationDelegate.updateOnDB(asset: asset, originalFilename: originalFilename, callback: callback)
     }
 
     func deleteFromDB(assets: [AssetManager.MutableAsset], callback: @escaping ClosureBool) {

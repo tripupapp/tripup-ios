@@ -65,7 +65,7 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
-    func unlinkedAsset(withMD5Hash md5: Data) -> Asset? {
+    func unlinkedAsset(withMD5Hash md5: Data) -> AssetManager.MutableAsset? {
         autoreleasepool {
             guard let realm = try? Realm() else { return nil }
             let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
@@ -74,7 +74,7 @@ extension RealmDatabase: AssetDatabase {
             ])
             let objects = realm.objects(AssetObject.self).filter(predicate)
             if let object = objects.first {
-                return Asset(from: object)
+                return AssetManager.MutableAsset(from: object)
             } else {
                 return nil
             }
@@ -117,6 +117,28 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
+    func filename(forAssetID assetID: UUID) throws -> String? {
+        try autoreleasepool {
+            let realm = try Realm()
+            guard let assetObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
+                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
+            }
+            return assetObject.originalFilename
+        }
+    }
+
+    func save(filename: String, forAssetID assetID: UUID) throws {
+        try autoreleasepool {
+            let realm = try Realm()
+            guard let assetObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
+                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
+            }
+            try realm.write {
+                assetObject.originalFilename = filename
+            }
+        }
+    }
+
     func uti(forAssetID assetID: UUID) throws -> String? {
         try autoreleasepool {
             let realm = try Realm()
@@ -139,13 +161,13 @@ extension RealmDatabase: AssetDatabase {
         }
     }
 
-    func localIdentifier(forAssetID assetID: UUID) throws -> String? {
+    func localIdentifiers<T>(forAssetIDs assetIDs: T) throws -> [UUID: String] where T: Collection, T.Element == UUID {
         try autoreleasepool {
             let realm = try Realm()
-            guard let imageObject = realm.object(ofType: AssetObject.self, forPrimaryKey: assetID.string) else {
-                throw DatabaseError.recordDoesNotExist(type: AssetObject.self, id: assetID)
+            let assetObjects: Results<AssetObject> = try query(assetIDs, from: realm)
+            return assetObjects.reduce(into: [UUID: String]()) {
+                $0[UUID(uuidString: $1.uuid)!] = $1.localIdentifier
             }
-            return imageObject.localIdentifier
         }
     }
 
@@ -157,6 +179,16 @@ extension RealmDatabase: AssetDatabase {
             }
             try realm.write {
                 imageObject.localIdentifier = localIdentifier
+            }
+        }
+    }
+
+    func saveLocalIdentifiers(assetIDs2LocalIDs: [String: String]) throws {
+        try autoreleasepool {
+            let realm = try Realm()
+            let assetObjects: Results<AssetObject> = try query(assetIDs2LocalIDs.keys, from: realm)
+            try realm.write {
+                assetObjects.forEach{ $0.localIdentifier = assetIDs2LocalIDs[$0.uuid] }
             }
         }
     }
