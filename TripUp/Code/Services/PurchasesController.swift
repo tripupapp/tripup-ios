@@ -56,7 +56,7 @@ extension StorageTier: CustomStringConvertible {
     }
 }
 
-protocol PurchasesObserver: class {
+protocol PurchasesObserver: AnyObject {
     func updated(storageTier: StorageTier)
 }
 

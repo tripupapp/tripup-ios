@@ -13,7 +13,7 @@ protocol Database: GroupDatabase, AssetDatabase, UserDatabase {
     func clear()
 }
 
-protocol GroupDatabase: class {
+protocol GroupDatabase: AnyObject {
     var allGroups: [UUID: Group] { get }
     func lookup(_ id: UUID) -> Group?
     func addGroup(_ group: Group) throws
@@ -27,7 +27,7 @@ protocol GroupDatabase: class {
     func unshareAssets<T>(ids assetIDs: T, fromGroupID groupID: UUID) throws -> Group where T: Collection, T.Element == UUID
 }
 
-protocol AssetDatabase: class {
+protocol AssetDatabase: AnyObject {
     var allAssets: [UUID: Asset] { get }
     var assetIDLocalIDMap: [UUID: String] { get }
     var cloudStorageUsed: UsedStorage? { get }
@@ -65,7 +65,7 @@ protocol AssetDatabase: class {
     func remove<T>(assetIDs: T) throws -> [(Group, Group)]? where T: Collection, T.Element == UUID
 }
 
-protocol UserDatabase: class {
+protocol UserDatabase: AnyObject {
     var allUsers: [UUID: User] { get }
     func lookup(_ id: UUID) -> User?
     func add<T>(_ users: T) throws where T: Collection, T.Element == User

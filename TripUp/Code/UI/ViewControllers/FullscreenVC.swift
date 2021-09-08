@@ -16,7 +16,7 @@ protocol FullscreenViewTransitionDelegate {
     func transitioning(to index: Int) -> CGRect
 }
 
-protocol FullscreenViewDelegate: class {
+protocol FullscreenViewDelegate: AnyObject {
     var fullscreenViewController: FullscreenViewController? { get set }
     var modelCount: Int { get }
     var modelIsEmpty: Bool { get }

@@ -8,16 +8,16 @@
 
 import Foundation
 
-protocol GroupFinder: class {
+protocol GroupFinder: AnyObject {
     var allGroups: [UUID: Group] { get }
     func group(for id: UUID) -> Group?
 }
 
-protocol GroupCreator: class {
+protocol GroupCreator: AnyObject {
     func createGroup(name: String, callback: @escaping (Bool, Group?) -> Void)
 }
 
-protocol GroupDestroyer: class {
+protocol GroupDestroyer: AnyObject {
     func leaveGroup(_ group: Group, callback: @escaping ClosureBool)
 }
 
@@ -41,7 +41,7 @@ protocol GroupAPI {
     func fetchUsersInGroup(id: UUID, callbackOn queue: DispatchQueue, resultHandler: @escaping (Bool, [String: String]?) -> Void)
 }
 
-protocol GroupControllerDelegate: class {
+protocol GroupControllerDelegate: AnyObject {
     func setup(_ group: Group)
     func tearDown(_ group: Group)
     func inviteSent<T>(to users: T) where T: Collection, T.Element == User

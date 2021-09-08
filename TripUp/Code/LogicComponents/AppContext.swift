@@ -26,7 +26,7 @@ protocol DependencyInjector {
     func initialise(inAppPurchaseView: InAppPurchaseView)
 }
 
-protocol KeychainDelegate: class {
+protocol KeychainDelegate: AnyObject {
     var primaryUserKey: CryptoPrivateKey { get }
     func assetKey(forFingerprint assetFingerprint: String) -> CryptoPrivateKey?
     func newAssetKey() -> CryptoPrivateKey

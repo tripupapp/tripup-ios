@@ -24,11 +24,11 @@ struct Contact: Hashable {
 
 extension Contact: Codable {}
 
-protocol ContactsPickerDelegate: class {
+protocol ContactsPickerDelegate: AnyObject {
     func selected(contacts: [Contact])
 }
 
-protocol ContactsProvider: class {
+protocol ContactsProvider: AnyObject {
     var authorized: Bool { get }
     var allContacts: [Contact] { get }
     var contactPicker: CNContactPickerViewController { get }

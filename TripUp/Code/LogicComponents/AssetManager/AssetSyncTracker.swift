@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AssetSyncObserver: class {
+protocol AssetSyncObserver: AnyObject {
     func update(completedUpdates: Int, totalUpdates: Int)
 }
 

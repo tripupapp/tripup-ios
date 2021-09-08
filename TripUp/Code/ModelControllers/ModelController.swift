@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AssetObserver: class {
+protocol AssetObserver: AnyObject {
     func new(_ assets: Set<Asset>)
     func deleted(_ assets: Set<Asset>)
     func updated(_ oldAsset: Asset, to newAsset: Asset)
@@ -25,7 +25,7 @@ protocol AssetObserverRegister {
     func removeObserver(_ observer: AssetObserver)
 }
 
-protocol GroupObserver: class {
+protocol GroupObserver: AnyObject {
     func new(_ group: Group)
     func updated(_ oldGroup: Group, to newGroup: Group)
     func deleted(_ group: Group)
@@ -42,7 +42,7 @@ protocol GroupObserverRegister {
     func removeObserver(_ observer: GroupObserver)
 }
 
-protocol UserObserver: class {
+protocol UserObserver: AnyObject {
     func new(_ users: Set<User>)
     func removed(_ users: Set<User>)
     func updated(_ user: User)

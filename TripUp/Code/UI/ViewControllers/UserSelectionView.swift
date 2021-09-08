@@ -18,7 +18,7 @@ protocol UserSelectionDelegate: AnyObject {
     func selected<T>(users: T?, callback: @escaping (UserSelectionDelegateResult) -> Void) where T: Collection, T.Element == User    // users is nil if no users (other than primary user) are selected
 }
 
-protocol UserSelectionViewDelegate: class {
+protocol UserSelectionViewDelegate: AnyObject {
     var contactAccess: Bool { get }
     func presentContactPicker()
     func presentShareSheet(items: [Any])
