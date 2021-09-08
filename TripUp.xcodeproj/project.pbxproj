@@ -50,7 +50,6 @@
 		201C0A9F2437842D00F57C04 /* Policy.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 201C0A9E2437842D00F57C04 /* Policy.storyboard */; };
 		201C0AA12437886800F57C04 /* PolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C0AA02437886800F57C04 /* PolicyView.swift */; };
 		201C251C253A0190009D95CE /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C251B253A0190009D95CE /* Album.swift */; };
-		201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201F760D26826F58007D7A21 /* Gopenpgp.xcframework */; };
 		201FAF4125E02D5400AFABEA /* CloudProgressSync.xib in Resources */ = {isa = PBXBuildFile; fileRef = 207985E424056EB70003BB97 /* CloudProgressSync.xib */; };
 		201FEDD62438C29700013D18 /* WebDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201FEDD52438C29700013D18 /* WebDocumentLoader.swift */; };
 		2021AE3626862737002FAD86 /* UsedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021AE3526862737002FAD86 /* UsedStorage.swift */; };
@@ -177,6 +176,7 @@
 		20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CA26E94AFB008DC077 /* FirebaseAuth */; };
 		20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */; };
 		20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */; };
+		20EC25D126E957D8008DC077 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */; };
 		20F14AE6244EFAF000003CE2 /* eula.html in Resources */ = {isa = PBXBuildFile; fileRef = 20F14AE5244EFAF000003CE2 /* eula.html */; };
 		20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */; };
 		20FDD046241A9BE300F3B41A /* FastlaneSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDD045241A9BE300F3B41A /* FastlaneSnapshots.swift */; };
@@ -319,7 +319,6 @@
 		201C0A9E2437842D00F57C04 /* Policy.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Policy.storyboard; sourceTree = "<group>"; };
 		201C0AA02437886800F57C04 /* PolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolicyView.swift; sourceTree = "<group>"; };
 		201C251B253A0190009D95CE /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
-		201F760D26826F58007D7A21 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		201FEDD52438C29700013D18 /* WebDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDocumentLoader.swift; sourceTree = "<group>"; };
 		2021AE3526862737002FAD86 /* UsedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedStorage.swift; sourceTree = "<group>"; };
 		202335F925E189C3004823B4 /* Background.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Background.swift; sourceTree = "<group>"; };
@@ -446,6 +445,7 @@
 		20E98639250F626C00A5F6EE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		20E98647250FBC0400A5F6EE /* WarningHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningHeaderView.swift; sourceTree = "<group>"; };
 		20E98649250FBC1D00A5F6EE /* WarningHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WarningHeaderView.xib; sourceTree = "<group>"; };
+		20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		20F14AE5244EFAF000003CE2 /* eula.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = eula.html; sourceTree = "<group>"; };
 		20F4FA4020EBC19D00F7ED0D /* TripUp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TripUp.entitlements; sourceTree = "<group>"; };
 		20F5E8D122B001E900893527 /* TripUpTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TripUpTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -496,13 +496,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */,
-				201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
 				20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */,
 				D070206669B8081E17C79C8E /* Pods_TripUp.framework in Frameworks */,
 				2071671125DEE69A00F281B2 /* TripUpShared.framework in Frameworks */,
 				20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */,
 				20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */,
+				20EC25D126E957D8008DC077 /* Gopenpgp.xcframework in Frameworks */,
 				20CE35AB265C2F4700683AD6 /* Realm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -921,7 +921,7 @@
 		2071F4F21E7AEE3800E2CE4F = {
 			isa = PBXGroup;
 			children = (
-				201F760D26826F58007D7A21 /* Gopenpgp.xcframework */,
+				20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */,
 				2071F4FD1E7AEE3800E2CE4F /* TripUp */,
 				20F5E8D222B001E900893527 /* TripUpTests */,
 				20FDD044241A9BE300F3B41A /* TripUpUITests */,

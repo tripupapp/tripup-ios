@@ -15,7 +15,8 @@
 @class HelperEncryptSignArmoredDetachedMobileResult;
 @class HelperEncryptSignBinaryDetachedMobileResult;
 @class HelperExplicitVerifyMessage;
-@class HelperGo2MobileReader;
+@class HelperGo2AndroidReader;
+@class HelperGo2IOSReader;
 @class HelperMobile2GoReader;
 @class HelperMobile2GoWriter;
 @class HelperMobile2GoWriterWithSHA256;
@@ -58,16 +59,37 @@
 @end
 
 /**
- * Go2MobileReader is used to wrap a native golang Reader in the golang runtime,
-to be usable in the mobile app runtime (via gomobile) as a MobileReader.
+ * Go2AndroidReader is used to wrap a native golang Reader in the golang runtime,
+to be usable in the android app runtime (via gomobile).
  */
-@interface HelperGo2MobileReader : NSObject <goSeqRefInterface, HelperMobileReader> {
+@interface HelperGo2AndroidReader : NSObject <goSeqRefInterface, CryptoReader> {
 }
 @property(strong, readonly) _Nonnull id _ref;
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 /**
- * NewGo2MobileReader wraps a native golang Reader to be usable in the mobile app runtime (via gomobile).
+ * NewGo2AndroidReader wraps a native golang Reader to be usable in the mobile app runtime (via gomobile).
+It doesn't follow the standard golang Reader behavior, and returns n = -1 on EOF.
+ */
+- (nullable instancetype)init:(id<CryptoReader> _Nullable)reader;
+/**
+ * Read reads bytes into the provided buffer and returns the number of bytes read
+It doesn't follow the standard golang Reader behavior, and returns n = -1 on EOF.
+ */
+- (BOOL)read:(NSData* _Nullable)b n:(long* _Nullable)n error:(NSError* _Nullable* _Nullable)error;
+@end
+
+/**
+ * Go2IOSReader is used to wrap a native golang Reader in the golang runtime,
+to be usable in the iOS app runtime (via gomobile) as a MobileReader.
+ */
+@interface HelperGo2IOSReader : NSObject <goSeqRefInterface, HelperMobileReader> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+/**
+ * NewGo2IOSReader wraps a native golang Reader to be usable in the ios app runtime (via gomobile).
  */
 - (nullable instancetype)init:(id<CryptoReader> _Nullable)reader;
 /**
@@ -327,9 +349,15 @@ FOUNDATION_EXPORT NSData* _Nullable HelperGetJsonSHA256Fingerprints(NSString* _N
 
 
 /**
- * NewGo2MobileReader wraps a native golang Reader to be usable in the mobile app runtime (via gomobile).
+ * NewGo2AndroidReader wraps a native golang Reader to be usable in the mobile app runtime (via gomobile).
+It doesn't follow the standard golang Reader behavior, and returns n = -1 on EOF.
  */
-FOUNDATION_EXPORT HelperGo2MobileReader* _Nullable HelperNewGo2MobileReader(id<CryptoReader> _Nullable reader);
+FOUNDATION_EXPORT HelperGo2AndroidReader* _Nullable HelperNewGo2AndroidReader(id<CryptoReader> _Nullable reader);
+
+/**
+ * NewGo2IOSReader wraps a native golang Reader to be usable in the ios app runtime (via gomobile).
+ */
+FOUNDATION_EXPORT HelperGo2IOSReader* _Nullable HelperNewGo2IOSReader(id<CryptoReader> _Nullable reader);
 
 /**
  * NewMobile2GoReader wraps a MobileReader to be usable in the golang runtime (via gomobile).
@@ -385,6 +413,12 @@ text given the public key and returns the text or err if the verification
 fails.
  */
 FOUNDATION_EXPORT NSString* _Nonnull HelperVerifyCleartextMessageArmored(NSString* _Nullable publicKey, NSString* _Nullable armored, int64_t verifyTime, NSError* _Nullable* _Nullable error);
+
+/**
+ * VerifySignatureExplicit calls the reader's VerifySignature()
+and tries to cast the returned error to a SignatureVerificationError.
+ */
+FOUNDATION_EXPORT CryptoSignatureVerificationError* _Nullable HelperVerifySignatureExplicit(CryptoPlainMessageReader* _Nullable reader, NSError* _Nullable* _Nullable error);
 
 @class HelperMobileReader;
 
