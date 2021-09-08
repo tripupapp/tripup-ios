@@ -1,10 +1,9 @@
 CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/OneSignal/iOS_SDK/OneSignalSDK/Framework"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/OneSignalXCFramework/iOS_SDK/OneSignalSDK/OneSignal_XCFramework" "${PODS_XCFRAMEWORKS_BUILD_DIR}/OneSignalXCFramework"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/Firebase"
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks' '@executable_path/../../Frameworks'
-OTHER_CFLAGS = $(inherited) -iframework "${PODS_ROOT}/OneSignal/iOS_SDK/OneSignalSDK/Framework"
-OTHER_LDFLAGS = $(inherited) -ObjC -framework "CoreGraphics" -framework "OneSignal" -framework "SystemConfiguration" -framework "UIKit" -framework "UserNotifications" -framework "WebKit"
+OTHER_CFLAGS = $(inherited) -iframework "${PODS_ROOT}/OneSignalXCFramework/iOS_SDK/OneSignalSDK/OneSignal_XCFramework" -iframework "${PODS_XCFRAMEWORKS_BUILD_DIR}/OneSignalXCFramework"
+OTHER_LDFLAGS = $(inherited) -framework "OneSignal"
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 PODS_PODFILE_DIR_PATH = ${SRCROOT}/.

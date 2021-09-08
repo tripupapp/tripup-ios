@@ -174,6 +174,9 @@
 		20E84E76244E217800AB4D4A /* script-privacypolicy.txt in Resources */ = {isa = PBXBuildFile; fileRef = 20E84E75244E217800AB4D4A /* script-privacypolicy.txt */; };
 		20E89E5C2684D8D300C1DD1B /* FileSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E89E5B2684D8D300C1DD1B /* FileSystem.swift */; };
 		20E9863A250F626C00A5F6EE /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E98639250F626C00A5F6EE /* Notification.swift */; };
+		20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CA26E94AFB008DC077 /* FirebaseAuth */; };
+		20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */; };
+		20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */; };
 		20F14AE6244EFAF000003CE2 /* eula.html in Resources */ = {isa = PBXBuildFile; fileRef = 20F14AE5244EFAF000003CE2 /* eula.html */; };
 		20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */; };
 		20FDD046241A9BE300F3B41A /* FastlaneSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDD045241A9BE300F3B41A /* FastlaneSnapshots.swift */; };
@@ -495,8 +498,11 @@
 				20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */,
 				201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
+				20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */,
 				D070206669B8081E17C79C8E /* Pods_TripUp.framework in Frameworks */,
 				2071671125DEE69A00F281B2 /* TripUpShared.framework in Frameworks */,
+				20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */,
+				20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */,
 				20CE35AB265C2F4700683AD6 /* Realm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1194,6 +1200,9 @@
 			packageProductDependencies = (
 				20CE35AA265C2F4700683AD6 /* Realm */,
 				20CE35AC265C2F4700683AD6 /* RealmSwift */,
+				20EC25CA26E94AFB008DC077 /* FirebaseAuth */,
+				20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */,
+				20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */,
 			);
 			productName = TripUp;
 			productReference = 2071F4FB1E7AEE3800E2CE4F /* TripUp.app */;
@@ -1315,6 +1324,7 @@
 			mainGroup = 2071F4F21E7AEE3800E2CE4F;
 			packageReferences = (
 				20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */,
+				20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 2071F4FC1E7AEE3800E2CE4F /* Products */;
 			projectDirPath = "";
@@ -1428,7 +1438,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\n";
 		};
 		97858EA1D2C3F0DAFE801114 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2453,8 +2463,16 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-cocoa.git";
 			requirement = {
-				kind = exactVersion;
-				version = 10.5.0;
+				kind = upToNextMinorVersion;
+				minimumVersion = 10.5.0;
+			};
+		};
+		20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.7.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -2469,6 +2487,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */;
 			productName = RealmSwift;
+		};
+		20EC25CA26E94AFB008DC077 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDynamicLinks;
+		};
+		20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

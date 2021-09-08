@@ -14,13 +14,9 @@ target 'TripUp' do
     pod 'Charts'
     pod 'Connectivity'
     pod 'CryptoSwift'
-    pod 'Firebase/Analytics'
-    pod 'Firebase/Auth'
-    pod 'Firebase/Crashlytics'
-    pod 'Firebase/DynamicLinks'
     pod 'FTLinearActivityIndicator'
     pod 'IQKeyboardManagerSwift'
-    pod 'OneSignal', '>= 3.0.0', '< 4.0'
+    pod 'OneSignalXCFramework', '>= 3.0.0', '< 4.0'
     pod 'PhoneNumberKit'
     pod 'Purchases'
     pod 'SwiftProtobuf'
@@ -33,7 +29,7 @@ target 'TripUp' do
 end
 
 target 'OneSignalNotificationServiceExtension' do
-    pod 'OneSignal', '>= 3.0.0', '< 4.0'
+    pod 'OneSignalXCFramework', '>= 3.0.0', '< 4.0'
 end
 
 post_install do |installer|
