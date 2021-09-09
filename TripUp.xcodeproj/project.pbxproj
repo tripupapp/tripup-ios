@@ -81,6 +81,7 @@
 		2047DBD12329484000598647 /* TUFullscreenViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2047DBD02329484000598647 /* TUFullscreenViewDelegate.swift */; };
 		2047DBD323294CFC00598647 /* FullscreenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2047DBD223294CFC00598647 /* FullscreenViewCell.swift */; };
 		204B267F25E027A6004870DB /* UITextFieldPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204B267E25E027A6004870DB /* UITextFieldPhoneNumber.swift */; };
+		204EADA626EAA8F700A40E55 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 204EADA526EAA8F700A40E55 /* Gopenpgp.xcframework */; };
 		205396A021BEE12500C323F5 /* AtomicVar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2053969F21BEE12500C323F5 /* AtomicVar.swift */; };
 		2055054422CE873900B391C1 /* TULocation.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055054222CE873500B391C1 /* TULocation.pb.swift */; };
 		2055054722CE87BA00B391C1 /* TULocationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055054622CE87BA00B391C1 /* TULocationExtensions.swift */; };
@@ -176,7 +177,6 @@
 		20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CA26E94AFB008DC077 /* FirebaseAuth */; };
 		20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */; };
 		20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */; };
-		20EC25D126E957D8008DC077 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */; };
 		20EC25D426EA565C008DC077 /* AWSCognitoIdentityProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */; };
 		20EC25D626EA565C008DC077 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D526EA565C008DC077 /* AWSS3 */; };
 		20EC25D826EA565C008DC077 /* AWSMobileClientXCF in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D726EA565C008DC077 /* AWSMobileClientXCF */; };
@@ -360,6 +360,7 @@
 		2047DBD02329484000598647 /* TUFullscreenViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TUFullscreenViewDelegate.swift; sourceTree = "<group>"; };
 		2047DBD223294CFC00598647 /* FullscreenViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenViewCell.swift; sourceTree = "<group>"; };
 		204B267E25E027A6004870DB /* UITextFieldPhoneNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldPhoneNumber.swift; sourceTree = "<group>"; };
+		204EADA526EAA8F700A40E55 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		2053969F21BEE12500C323F5 /* AtomicVar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicVar.swift; sourceTree = "<group>"; };
 		2055054222CE873500B391C1 /* TULocation.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TULocation.pb.swift; sourceTree = "<group>"; };
 		2055054322CE873700B391C1 /* TULocation.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.protobuf; path = TULocation.proto; sourceTree = "<group>"; };
@@ -451,7 +452,6 @@
 		20E98639250F626C00A5F6EE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		20E98647250FBC0400A5F6EE /* WarningHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningHeaderView.swift; sourceTree = "<group>"; };
 		20E98649250FBC1D00A5F6EE /* WarningHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WarningHeaderView.xib; sourceTree = "<group>"; };
-		20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		20F14AE5244EFAF000003CE2 /* eula.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = eula.html; sourceTree = "<group>"; };
 		20F4FA4020EBC19D00F7ED0D /* TripUp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TripUp.entitlements; sourceTree = "<group>"; };
 		20F5E8D122B001E900893527 /* TripUpTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TripUpTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -505,6 +505,7 @@
 				20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */,
 				20EC25DC26EA565C008DC077 /* AWSCognitoIdentityProviderASF in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
+				204EADA626EAA8F700A40E55 /* Gopenpgp.xcframework in Frameworks */,
 				20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */,
 				20EC25D426EA565C008DC077 /* AWSCognitoIdentityProvider in Frameworks */,
 				D070206669B8081E17C79C8E /* Pods_TripUp.framework in Frameworks */,
@@ -514,7 +515,6 @@
 				20EC25DA26EA565C008DC077 /* AWSAuthCore in Frameworks */,
 				20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */,
 				20EC25D826EA565C008DC077 /* AWSMobileClientXCF in Frameworks */,
-				20EC25D126E957D8008DC077 /* Gopenpgp.xcframework in Frameworks */,
 				20CE35AB265C2F4700683AD6 /* Realm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -933,7 +933,7 @@
 		2071F4F21E7AEE3800E2CE4F = {
 			isa = PBXGroup;
 			children = (
-				20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */,
+				204EADA526EAA8F700A40E55 /* Gopenpgp.xcframework */,
 				2071F4FD1E7AEE3800E2CE4F /* TripUp */,
 				20F5E8D222B001E900893527 /* TripUpTests */,
 				20FDD044241A9BE300F3B41A /* TripUpUITests */,
@@ -1957,7 +1957,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9338L6NMR2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
@@ -1989,7 +1989,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9338L6NMR2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
@@ -2150,7 +2150,7 @@
 				CODE_SIGN_ENTITLEMENTS = TripUp/TripUp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 9338L6NMR2;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2184,7 +2184,7 @@
 				CODE_SIGN_ENTITLEMENTS = TripUp/TripUp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9338L6NMR2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
