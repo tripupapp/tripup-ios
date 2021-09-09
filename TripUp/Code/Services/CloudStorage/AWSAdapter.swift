@@ -9,7 +9,7 @@
 import Foundation
 
 import AWSCore
-import AWSMobileClient
+import AWSMobileClientXCF
 import AWSS3
 
 class AWSAdapter {
@@ -197,7 +197,15 @@ extension AWSAdapter: DataService {
 
             let completionAlreadyCalled = AtomicVar<Bool>(false)    // because AWS SDK sucks, so need to have this to prevent SDK from calling completion handler multiple times on (multipart) failure
             let completionHandler: (Any, Error?) -> Void = { [log, s3endpoint] (_, error) in
-                guard !completionAlreadyCalled.value else {
+                var toContinue = true
+                completionAlreadyCalled.mutate { completionCalled in
+                    if completionCalled {
+                        toContinue = false
+                    } else {
+                        completionCalled = true
+                    }
+                }
+                guard toContinue else {
                     return
                 }
                 completionAlreadyCalled.mutate{ $0 = true }

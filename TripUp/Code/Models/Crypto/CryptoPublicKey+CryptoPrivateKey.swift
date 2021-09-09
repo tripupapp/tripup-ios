@@ -80,9 +80,10 @@ extension CryptoPublicKey: AsymmetricPublicKey {
 
     func encrypt(_ binary: Data) -> Data {
         do {
-            let attachmentProcessor = try publicKeyRing.newLowMemoryAttachmentProcessor(binary.count, filename: nil)
-            attachmentProcessor.process(binary)
-            let encryptedData = try attachmentProcessor.finish()
+            var error: NSError?
+            guard let encryptedData = HelperEncryptAttachment(binary, nil, publicKeyRing, &error) else {
+                throw error ?? "unknown error occurred while encrypting data"
+            }
             let encryptedDataOutput = PGPData.with {
                 $0.keyPacket = encryptedData.keyPacket!
                 $0.dataPacket = encryptedData.dataPacket!
@@ -227,6 +228,8 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
             throw KeyMessageError.incorrectKeyUsedToDecrypt
         } catch let error as NSError where error.domain == "go" && error.localizedDescription == "Signature Verification Error: No matching signature" {
             throw KeyMessageError.invalidSignature
+        } catch let error as NSError where error.domain == "go" && error.localizedDescription == "Signature Verification Error: Missing signature" {
+            throw KeyMessageError.invalidSignature
         }
     }
 
@@ -280,7 +283,7 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
             return nil
         }
 
-        guard let goOutputReader = HelperNewGo2MobileReader(outputReader) else {
+        guard let goOutputReader = HelperNewGo2IOSReader(outputReader) else {
             assertionFailure()
             return nil
         }

@@ -15,35 +15,34 @@ struct WebDocument {
     let renderedFilename: String
 }
 
-class WebDocumentLoader {
-    class WebDocumentLoaderDelegate: NSObject, WKNavigationDelegate {
-        private let document: WebDocument
+class WebDocumentLoader: NSObject {
+    static let shared = WebDocumentLoader()
 
-        init(document: WebDocument) {
-            self.document = document
-        }
+    private var document: WebDocument?
+    private let webView = WKWebView()
 
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            webView.evaluateJavaScript("document.documentElement.outerHTML.toString()") { (html: Any?, error: Error?) in
-                let policyString = html as! String
-                if policyString.contains(self.document.verificationString) {
-                    try! policyString.write(to: Globals.Directories.legal.appendingPathComponent(self.document.renderedFilename, isDirectory: false), atomically: true, encoding: .utf8)
-                }
-            }
-        }
+    private override init() {
+        super.init()
+        webView.navigationDelegate = self
     }
 
-    private let loader = WKWebView()
-    private let loaderDelegate: WebDocumentLoaderDelegate
-
-    init(document: WebDocument) {
-        let filepath = Bundle.main.path(forResource: document.bundleResource.resource, ofType: document.bundleResource.extension)!
-        let html = try! String(contentsOfFile: filepath)
-
-        loaderDelegate = WebDocumentLoaderDelegate(document: document)
-        loader.navigationDelegate = loaderDelegate
-
+    func load(document: WebDocument) throws {
+        guard let filepath = Bundle.main.path(forResource: document.bundleResource.resource, ofType: document.bundleResource.extension) else {
+            throw "unable to obtain file path for bundle resource: \(document.bundleResource.resource).\(document.bundleResource.extension)"
+        }
+        let html = try String(contentsOfFile: filepath)
+        self.document = document
         let header = "<header><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></header>"
-        loader.loadHTMLString(header + html, baseURL: nil)
+        webView.loadHTMLString(header + html, baseURL: nil)
+    }
+}
+
+extension WebDocumentLoader: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        webView.evaluateJavaScript("document.documentElement.outerHTML.toString()") { [unowned self] (html: Any?, error: Error?) in
+            if let document = self.document, let documentString = html as? String, documentString.contains(document.verificationString) {
+                try? documentString.write(to: Globals.Directories.legal.appendingPathComponent(document.renderedFilename, isDirectory: false), atomically: true, encoding: .utf8)
+            }
+        }
     }
 }

@@ -104,6 +104,7 @@ extension AppDelegate {
         do {
             try resetTmpDir()
             try createTripUpDirs()
+            try WebDocumentLoader.shared.load(document: Globals.Documents.privacyPolicy)
         } catch {
             fatalError(String(describing: error))
         }
@@ -153,6 +154,7 @@ extension AppDelegate {
         try FileManager.default.removeItem(at: Globals.Directories.assetsLow)
         try FileManager.default.removeItem(at: Globals.Directories.assetsOriginal)
         try createTripUpDirs()
+        try WebDocumentLoader.shared.load(document: Globals.Documents.privacyPolicy)
     }
 
     private func resetTmpDir() throws {
@@ -233,7 +235,6 @@ extension AppDelegate: AppDelegateExtension {
         // user logged in
         guard let authenticatedUser = authenticationService.authenticatedUser, let primaryUser = primaryUser, !resetApp else {
             clearAppData()
-            privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)  // download privacy policy, for use in LoginView
             let loginVC = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "loginvc") as! LoginView
             loginVC.appDelegateExtension = self
             loginVC.authenticationService = authenticationService
@@ -338,9 +339,6 @@ extension AppDelegate: AppDelegateExtension {
                 }
             }
         } else {    // new install
-            // download privacy policy – in case it was wiped from previous clearing of app data
-            privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)
-
             // set local app version number
             UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
         }

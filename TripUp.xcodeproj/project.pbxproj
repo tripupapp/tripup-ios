@@ -50,7 +50,6 @@
 		201C0A9F2437842D00F57C04 /* Policy.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 201C0A9E2437842D00F57C04 /* Policy.storyboard */; };
 		201C0AA12437886800F57C04 /* PolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C0AA02437886800F57C04 /* PolicyView.swift */; };
 		201C251C253A0190009D95CE /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C251B253A0190009D95CE /* Album.swift */; };
-		201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201F760D26826F58007D7A21 /* Gopenpgp.xcframework */; };
 		201FAF4125E02D5400AFABEA /* CloudProgressSync.xib in Resources */ = {isa = PBXBuildFile; fileRef = 207985E424056EB70003BB97 /* CloudProgressSync.xib */; };
 		201FEDD62438C29700013D18 /* WebDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201FEDD52438C29700013D18 /* WebDocumentLoader.swift */; };
 		2021AE3626862737002FAD86 /* UsedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021AE3526862737002FAD86 /* UsedStorage.swift */; };
@@ -177,6 +176,13 @@
 		20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CA26E94AFB008DC077 /* FirebaseAuth */; };
 		20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */; };
 		20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */; };
+		20EC25D126E957D8008DC077 /* Gopenpgp.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */; };
+		20EC25D426EA565C008DC077 /* AWSCognitoIdentityProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */; };
+		20EC25D626EA565C008DC077 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D526EA565C008DC077 /* AWSS3 */; };
+		20EC25D826EA565C008DC077 /* AWSMobileClientXCF in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D726EA565C008DC077 /* AWSMobileClientXCF */; };
+		20EC25DA26EA565C008DC077 /* AWSAuthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D926EA565C008DC077 /* AWSAuthCore */; };
+		20EC25DC26EA565C008DC077 /* AWSCognitoIdentityProviderASF in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25DB26EA565C008DC077 /* AWSCognitoIdentityProviderASF */; };
+		20EC25DE26EA565C008DC077 /* AWSCore in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25DD26EA565C008DC077 /* AWSCore */; };
 		20F14AE6244EFAF000003CE2 /* eula.html in Resources */ = {isa = PBXBuildFile; fileRef = 20F14AE5244EFAF000003CE2 /* eula.html */; };
 		20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */; };
 		20FDD046241A9BE300F3B41A /* FastlaneSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDD045241A9BE300F3B41A /* FastlaneSnapshots.swift */; };
@@ -319,7 +325,6 @@
 		201C0A9E2437842D00F57C04 /* Policy.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Policy.storyboard; sourceTree = "<group>"; };
 		201C0AA02437886800F57C04 /* PolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolicyView.swift; sourceTree = "<group>"; };
 		201C251B253A0190009D95CE /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
-		201F760D26826F58007D7A21 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		201FEDD52438C29700013D18 /* WebDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDocumentLoader.swift; sourceTree = "<group>"; };
 		2021AE3526862737002FAD86 /* UsedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedStorage.swift; sourceTree = "<group>"; };
 		202335F925E189C3004823B4 /* Background.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Background.swift; sourceTree = "<group>"; };
@@ -446,6 +451,7 @@
 		20E98639250F626C00A5F6EE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		20E98647250FBC0400A5F6EE /* WarningHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningHeaderView.swift; sourceTree = "<group>"; };
 		20E98649250FBC1D00A5F6EE /* WarningHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WarningHeaderView.xib; sourceTree = "<group>"; };
+		20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Gopenpgp.xcframework; sourceTree = "<group>"; };
 		20F14AE5244EFAF000003CE2 /* eula.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = eula.html; sourceTree = "<group>"; };
 		20F4FA4020EBC19D00F7ED0D /* TripUp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TripUp.entitlements; sourceTree = "<group>"; };
 		20F5E8D122B001E900893527 /* TripUpTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TripUpTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -495,14 +501,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20EC25D626EA565C008DC077 /* AWSS3 in Frameworks */,
 				20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */,
-				201F760E26826F58007D7A21 /* Gopenpgp.xcframework in Frameworks */,
+				20EC25DC26EA565C008DC077 /* AWSCognitoIdentityProviderASF in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
 				20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */,
+				20EC25D426EA565C008DC077 /* AWSCognitoIdentityProvider in Frameworks */,
 				D070206669B8081E17C79C8E /* Pods_TripUp.framework in Frameworks */,
 				2071671125DEE69A00F281B2 /* TripUpShared.framework in Frameworks */,
 				20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */,
+				20EC25DE26EA565C008DC077 /* AWSCore in Frameworks */,
+				20EC25DA26EA565C008DC077 /* AWSAuthCore in Frameworks */,
 				20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */,
+				20EC25D826EA565C008DC077 /* AWSMobileClientXCF in Frameworks */,
+				20EC25D126E957D8008DC077 /* Gopenpgp.xcframework in Frameworks */,
 				20CE35AB265C2F4700683AD6 /* Realm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -921,7 +933,7 @@
 		2071F4F21E7AEE3800E2CE4F = {
 			isa = PBXGroup;
 			children = (
-				201F760D26826F58007D7A21 /* Gopenpgp.xcframework */,
+				20EC25D026E957D8008DC077 /* Gopenpgp.xcframework */,
 				2071F4FD1E7AEE3800E2CE4F /* TripUp */,
 				20F5E8D222B001E900893527 /* TripUpTests */,
 				20FDD044241A9BE300F3B41A /* TripUpUITests */,
@@ -1203,6 +1215,12 @@
 				20EC25CA26E94AFB008DC077 /* FirebaseAuth */,
 				20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */,
 				20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */,
+				20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */,
+				20EC25D526EA565C008DC077 /* AWSS3 */,
+				20EC25D726EA565C008DC077 /* AWSMobileClientXCF */,
+				20EC25D926EA565C008DC077 /* AWSAuthCore */,
+				20EC25DB26EA565C008DC077 /* AWSCognitoIdentityProviderASF */,
+				20EC25DD26EA565C008DC077 /* AWSCore */,
 			);
 			productName = TripUp;
 			productReference = 2071F4FB1E7AEE3800E2CE4F /* TripUp.app */;
@@ -1325,6 +1343,7 @@
 			packageReferences = (
 				20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */,
 				20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
 			);
 			productRefGroup = 2071F4FC1E7AEE3800E2CE4F /* Products */;
 			projectDirPath = "";
@@ -2475,6 +2494,14 @@
 				minimumVersion = 8.7.0;
 			};
 		};
+		20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aws-amplify/aws-sdk-ios-spm";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.25.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2502,6 +2529,36 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSCognitoIdentityProvider;
+		};
+		20EC25D526EA565C008DC077 /* AWSS3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSS3;
+		};
+		20EC25D726EA565C008DC077 /* AWSMobileClientXCF */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSMobileClientXCF;
+		};
+		20EC25D926EA565C008DC077 /* AWSAuthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSAuthCore;
+		};
+		20EC25DB26EA565C008DC077 /* AWSCognitoIdentityProviderASF */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSCognitoIdentityProviderASF;
+		};
+		20EC25DD26EA565C008DC077 /* AWSCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

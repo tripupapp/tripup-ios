@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "AWSiOSSDKV2",
+        "repositoryURL": "https://github.com/aws-amplify/aws-sdk-ios-spm",
+        "state": {
+          "branch": null,
+          "revision": "3eda2ece63e3f650a3158bb5806af001ad501208",
+          "version": "2.25.0"
+        }
+      },
+      {
         "package": "BoringSSL-GRPC",
         "repositoryURL": "https://github.com/firebase/boringssl-SwiftPM.git",
         "state": {

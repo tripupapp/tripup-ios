@@ -8,8 +8,6 @@ target 'TripUp' do
     pod 'Alamofire'
     pod 'AlamofireNetworkActivityIndicator'
     pod 'AnimatedGradientView'
-    pod 'AWSMobileClient'
-    pod 'AWSS3'
     pod 'BadgeSwift'
     pod 'Charts'
     pod 'Connectivity'
