@@ -228,8 +228,6 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
             throw KeyMessageError.incorrectKeyUsedToDecrypt
         } catch let error as NSError where error.domain == "go" && error.localizedDescription == "Signature Verification Error: No matching signature" {
             throw KeyMessageError.invalidSignature
-        } catch let error as NSError where error.domain == "go" && error.localizedDescription == "Signature Verification Error: Missing signature" {
-            throw KeyMessageError.invalidSignature
         }
     }
 
@@ -283,7 +281,7 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
             return nil
         }
 
-        guard let goOutputReader = HelperNewGo2IOSReader(outputReader) else {
+        guard let goOutputReader = HelperNewGo2MobileReader(outputReader) else {
             assertionFailure()
             return nil
         }
