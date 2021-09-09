@@ -9,7 +9,7 @@
 import Foundation
 
 import AWSCore
-import AWSMobileClient
+import AWSMobileClientXCF
 import AWSS3
 
 class AWSAdapter {
