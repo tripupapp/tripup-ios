@@ -35,7 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let api: API
     let authenticationService: AuthenticationService
 
-    var privacyPolicyLoader: WebDocumentLoader? = nil
     var window: UIWindow?   // DO NOT DELETE - required for AppDelegate (https://developer.apple.com/library/archive/referencelibrary/GettingStarted/DevelopiOSAppsSwift/BuildABasicUI.html) - causes black window if not present
     var context: AppContext?
     var dataService: DataService?
