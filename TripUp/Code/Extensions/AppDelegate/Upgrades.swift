@@ -18,9 +18,6 @@ extension AppDelegate {
         }
 
         let clientUpgradeSuccessfulBlock = { (version: String) in
-            // refresh privacy policy
-            self.privacyPolicyLoader = WebDocumentLoader(document: Globals.Documents.privacyPolicy)
-
             // finally, update local app version number
             UserDefaults.standard.set(version, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
         }
