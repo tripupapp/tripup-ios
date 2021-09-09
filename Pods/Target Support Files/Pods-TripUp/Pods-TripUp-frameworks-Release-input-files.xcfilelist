@@ -1,10 +1,4 @@
 ${PODS_ROOT}/Target Support Files/Pods-TripUp/Pods-TripUp-frameworks.sh
-${BUILT_PRODUCTS_DIR}/AWSAuthCore/AWSAuthCore.framework
-${BUILT_PRODUCTS_DIR}/AWSCognitoIdentityProvider/AWSCognitoIdentityProvider.framework
-${BUILT_PRODUCTS_DIR}/AWSCognitoIdentityProviderASF/AWSCognitoIdentityProviderASF.framework
-${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework
-${BUILT_PRODUCTS_DIR}/AWSMobileClient/AWSMobileClient.framework
-${BUILT_PRODUCTS_DIR}/AWSS3/AWSS3.framework
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
 ${BUILT_PRODUCTS_DIR}/AlamofireNetworkActivityIndicator/AlamofireNetworkActivityIndicator.framework
 ${BUILT_PRODUCTS_DIR}/AnimatedGradientView/AnimatedGradientView.framework

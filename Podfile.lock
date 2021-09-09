@@ -3,20 +3,6 @@ PODS:
   - AlamofireNetworkActivityIndicator (3.1.0):
     - Alamofire (~> 5.1)
   - AnimatedGradientView (3.0.0)
-  - AWSAuthCore (2.21.1):
-    - AWSCore (= 2.21.1)
-  - AWSCognitoIdentityProvider (2.21.1):
-    - AWSCognitoIdentityProviderASF (= 2.21.1)
-    - AWSCore (= 2.21.1)
-  - AWSCognitoIdentityProviderASF (2.21.1)
-  - AWSCore (2.21.1)
-  - AWSMobileClient (2.21.1):
-    - AWSAuthCore (= 2.21.1)
-    - AWSCognitoIdentityProvider (= 2.21.1)
-    - AWSCognitoIdentityProviderASF (= 2.21.1)
-    - AWSCore (= 2.21.1)
-  - AWSS3 (2.21.1):
-    - AWSCore (= 2.21.1)
   - BadgeSwift (8.0.0)
   - Charts (3.6.0):
     - Charts/Core (= 3.6.0)
@@ -43,8 +29,6 @@ DEPENDENCIES:
   - Alamofire
   - AlamofireNetworkActivityIndicator
   - AnimatedGradientView
-  - AWSMobileClient
-  - AWSS3
   - BadgeSwift
   - Charts
   - Connectivity
@@ -63,12 +47,6 @@ SPEC REPOS:
     - Alamofire
     - AlamofireNetworkActivityIndicator
     - AnimatedGradientView
-    - AWSAuthCore
-    - AWSCognitoIdentityProvider
-    - AWSCognitoIdentityProviderASF
-    - AWSCore
-    - AWSMobileClient
-    - AWSS3
     - BadgeSwift
     - Charts
     - Connectivity
@@ -87,12 +65,6 @@ SPEC CHECKSUMS:
   Alamofire: 2291f7d21ca607c491dd17642e5d40fdcda0e65c
   AlamofireNetworkActivityIndicator: 6564782bd7b9e6c430ae67d9277af01907b01ca4
   AnimatedGradientView: 372cc08e6fcb25e6044196fd85e87d836439f63e
-  AWSAuthCore: 0c8f99de21a92134f052fb38c579f977e269b0c8
-  AWSCognitoIdentityProvider: 6ac90a6833bfabd22c80863a96240ab9098186f4
-  AWSCognitoIdentityProviderASF: 318df44cc620dc401a04a94e57107b2af316c50e
-  AWSCore: a855a41cb2d43c8b538d3a80f8e855ed947f3d3c
-  AWSMobileClient: 21f4e54eb90a7bcab22e7cb22fd6043b8c6f93e1
-  AWSS3: b0e108589398295e84648f3403001a409d6b9761
   BadgeSwift: a81547ffde1f462bb5fc02e3fa3fdcbc1b888354
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   Connectivity: e990703fb8d8db54649ea05facac92000cc0f3eb
@@ -107,6 +79,6 @@ SPEC CHECKSUMS:
   SwiftyBeaver: 2e8acd6fc90c6d0a27055867a290794926d57c02
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
 
-PODFILE CHECKSUM: 621e74b915eee87a41b5f9939295177ba12332a2
+PODFILE CHECKSUM: 6d20dbd89a52a68d4d732f4a3a31f032d66e206d
 
 COCOAPODS: 1.11.0
