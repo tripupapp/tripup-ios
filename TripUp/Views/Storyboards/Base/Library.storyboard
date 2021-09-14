@@ -202,11 +202,23 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                 <items>
                                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="a8c-bu-8z5"/>
-                                                    <barButtonItem title="Item" image="share-outline-toolbar" id="NlO-9X-NoJ" userLabel="share"/>
+                                                    <barButtonItem title="Item" image="share-outline-toolbar" id="NlO-9X-NoJ" userLabel="export">
+                                                        <connections>
+                                                            <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="PZ1-6Y-Igh"/>
+                                                        </connections>
+                                                    </barButtonItem>
                                                     <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="PSf-SS-CxT"/>
-                                                    <barButtonItem title="Item" image="download-outline-toolbar" id="Exd-5E-Bvh" userLabel="save"/>
+                                                    <barButtonItem title="Item" image="download-outline-toolbar" id="Exd-5E-Bvh" userLabel="save">
+                                                        <connections>
+                                                            <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="OyI-TV-DKP"/>
+                                                        </connections>
+                                                    </barButtonItem>
                                                     <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="mMB-nL-eKv"/>
-                                                    <barButtonItem title="Item" image="trash-toolbar" id="XBd-Je-Y33" userLabel="delete"/>
+                                                    <barButtonItem title="Item" image="trash-toolbar" id="XBd-Je-Y33" userLabel="delete">
+                                                        <connections>
+                                                            <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="iLH-Wb-HRv"/>
+                                                        </connections>
+                                                    </barButtonItem>
                                                     <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="CQZ-Pk-hOM"/>
                                                 </items>
                                             </toolbar>
@@ -279,6 +291,9 @@
                     <connections>
                         <outlet property="cloudProgressSyncView" destination="5gc-LY-S0Z" id="EbR-i2-Gk1"/>
                         <outlet property="collectionView" destination="fur-U0-jYo" id="A2z-7K-wZX"/>
+                        <outlet property="deleteToolbarButton" destination="XBd-Je-Y33" id="atl-Jc-M76"/>
+                        <outlet property="exportToolbarButton" destination="NlO-9X-NoJ" id="YtB-gO-6Ph"/>
+                        <outlet property="saveToolbarButton" destination="Exd-5E-Bvh" id="tUR-Ag-DoC"/>
                         <outlet property="selectButton" destination="W8m-AD-WWC" id="fLJ-pz-sm4"/>
                         <outlet property="selectionToolbar" destination="fH2-X5-DMQ" id="7bY-MQ-Xgl"/>
                         <outlet property="warningHeaderView" destination="Ndh-Cv-TeU" id="DUZ-kB-D5j"/>

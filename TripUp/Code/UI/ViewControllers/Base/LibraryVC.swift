@@ -11,12 +11,147 @@ import UIKit
 
 import TripUpViews
 
+protocol ToolbarActions {
+    func delete<T>(assets: T, assetManager: AssetUIManager, presentingViewController viewController: UIViewController, completionHandler: Closure?) where T: Collection, T.Element == Asset
+    func export<T>(assets: T, assetRequester: AssetDataRequester, presentingViewController viewController: UIViewController) where T: Collection, T.Element == Asset
+    func save<T>(assets: T, assetManager: AssetUIManager, presentingViewController viewController: UIViewController) where T: Collection, T.Element == Asset
+}
+
+extension ToolbarActions {
+    func delete<T>(assets: T, assetManager: AssetUIManager, presentingViewController viewController: UIViewController, completionHandler: Closure?) where T: Collection, T.Element == Asset {
+        let s = assets.count > 1 ? "s" : ""
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+            assetManager.delete(assets)
+            viewController.view.makeToastie("\(assets.count) item\(s) will be deleted", duration: 7.5)
+            completionHandler?()
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in }
+        let deleteAlert = UIAlertController(title: nil, message: "\(assets.count) item\(s) will be deleted everywhere", preferredStyle: .actionSheet)
+        deleteAlert.addAction(deleteAction)
+        deleteAlert.addAction(cancelAction)
+        viewController.present(deleteAlert, animated: true)
+    }
+
+    func export<T>(assets: T, assetRequester: AssetDataRequester, presentingViewController viewController: UIViewController) where T: Collection, T.Element == Asset {
+        let s = assets.count > 1 ? "s" : ""
+        var operationID: UUID?
+        let alert = UIAlertController(title: nil, message: "Retrieving \(assets.count) item\(s)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            if let operationID = operationID {
+                assetRequester.cancelOperation(id: operationID)
+            }
+        }))
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        if #available(iOS 13.0, *) {
+            loadingIndicator.style = .medium
+        } else {
+            loadingIndicator.style = .gray
+        }
+        loadingIndicator.startAnimating()
+        alert.view.addSubview(loadingIndicator)
+
+        let progressBar = UIProgressView(progressViewStyle: .default)
+        alert.view.addSubview(progressBar)
+
+        var completed: Int = 0
+        let total: Int = assets.count
+        viewController.present(alert, animated: true, completion: { [weak viewController] in
+            // configure progress view – must be done after alert is presented
+            let margin: CGFloat = 16.0
+            let rect = CGRect(x: margin, y: 50.0, width: alert.view.frame.width - margin * 2.0, height: 2.0)
+            progressBar.frame = rect
+
+            operationID = assetRequester.requestOriginalFiles(forAssets: assets) { [weak alert, weak viewController] result in
+                alert?.dismiss(animated: true, completion: nil)
+                switch result {
+                case .success(let assets2URLs):
+                    let activityController = UIActivityViewController(activityItems: Array(assets2URLs.values), applicationActivities: nil)
+                    activityController.completionWithItemsHandler = { [weak viewController] _, _, _, error in
+                        if let error = error {
+                            viewController?.view.makeToastie("Failed to share \(assets.count) item\(s)", duration: 5.0, position: .top)
+                            Logger.error("error exporting assets - assetids: \(assets2URLs.keys.map{ $0.uuid }), error: \(String(describing: error))")
+                        }
+                    }
+                    activityController.excludedActivityTypes = [.saveToCameraRoll]
+                    viewController?.present(activityController, animated: true, completion: nil)
+                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
+                    Logger.verbose("share cancelled - assetids: \(assets.map{ $0.uuid })")
+                case .failure(let error):
+                    viewController?.view.makeToastie("Failed to retrieve \(assets.count) item\(s)", duration: 7.5, position: .top)
+                    Logger.error("error requesting original assets - assetids: \(assets.map{ $0.uuid }), error: \(String(describing: error))")
+                }
+            } progressHandler: { finished in
+                completed += finished
+                progressBar.setProgress(Float(completed)/Float(total), animated: true)
+            }
+        })
+    }
+
+    func save<T>(assets: T, assetManager: AssetUIManager, presentingViewController viewController: UIViewController) where T: Collection, T.Element == Asset {
+        let s = assets.count > 1 ? "s" : ""
+        var operationID: UUID?
+        let alert = UIAlertController(title: nil, message: "Saving \(assets.count) item\(s) to the Photos App", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            if let operationID = operationID {
+                assetManager.cancelOperation(id: operationID)
+            }
+        }))
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        if #available(iOS 13.0, *) {
+            loadingIndicator.style = .medium
+        } else {
+            loadingIndicator.style = .gray
+        }
+        loadingIndicator.startAnimating()
+        alert.view.addSubview(loadingIndicator)
+
+        let progressBar = UIProgressView(progressViewStyle: .default)
+        alert.view.addSubview(progressBar)
+
+        var completed: Int = 0
+        let total: Int = assets.count
+        viewController.present(alert, animated: true, completion: { [weak viewController] in
+            operationID = assetManager.save(assets: assets, callback: { [weak alert, weak viewController] (result) in
+                alert?.dismiss(animated: true, completion: nil)
+                var message: String?
+                switch result {
+                case .success(let alreadySavedAssets):
+                    if alreadySavedAssets.count == assets.count {
+                        message = "\(assets.count) item\(s) already saved to Photos App"
+                    } else {
+                        let savedCount = assets.count - alreadySavedAssets.count
+                        message = "\(savedCount) item\(savedCount > 1 ? "s" : "") saved to Photos App"
+                    }
+                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
+                    Logger.verbose("save cancelled - assetids: \(assets.map{ $0.uuid })")
+                case .failure(let error):
+                    message = "Failed to save \(assets.count) item\(s) to Photos App"
+                    Logger.error("error saving asset - assetids: \(assets.map{ $0.uuid }), error: \(String(describing: error))")
+                }
+                if let message = message {
+                    viewController?.view.makeToastie(message, duration: 5.0, position: .top)
+                }
+            }, progressHandler: { finished in
+                completed += finished
+                progressBar.setProgress(Float(completed)/Float(total), animated: true)
+            })
+        })
+    }
+}
+
 class LibraryVC: UIViewController {
     @IBOutlet var warningHeaderView: WarningHeaderView!
     @IBOutlet var cloudProgressSyncView: CloudProgressSync!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var selectButton: UIButton!
     @IBOutlet var selectionToolbar: UIToolbar!
+    @IBOutlet var exportToolbarButton: UIBarButtonItem!
+    @IBOutlet var saveToolbarButton: UIBarButtonItem!
+    @IBOutlet var deleteToolbarButton: UIBarButtonItem!
 
     var selectedAssets: [Asset]? {
         guard let indexPaths = collectionView.indexPathsForSelectedItems, indexPaths.isNotEmpty else {
@@ -157,6 +292,12 @@ class LibraryVC: UIViewController {
             selectButton.isHidden = true
         }
 
+        if #available(iOS 13.0, *) {
+            exportToolbarButton.image = UIImage(systemName: "square.and.arrow.up")
+            saveToolbarButton.image = UIImage(systemName: "square.and.arrow.down")
+            deleteToolbarButton.image = UIImage(systemName: "trash")
+        }
+
         warningHeaderView.isHidden = true
         cloudProgressSyncView.isHidden = true
 
@@ -202,6 +343,24 @@ class LibraryVC: UIViewController {
         selectMode = !selectMode
     }
 
+    @IBAction func selectionToolbarAction(_ sender: UIBarButtonItem) {
+        guard let assetManager = assetManager, let selectedAssets = selectedAssets else {
+            return
+        }
+        switch sender {
+        case exportToolbarButton:
+            export(assets: selectedAssets, assetRequester: assetManager, presentingViewController: self)
+        case saveToolbarButton:
+            save(assets: selectedAssets, assetManager: assetManager, presentingViewController: self)
+        case deleteToolbarButton:
+            delete(assets: selectedAssets, assetManager: assetManager, presentingViewController: self) { [weak self] in
+                self?.selectionBadgeCounter.value = 0
+            }
+        default:
+            assertionFailure()
+        }
+    }
+
     @objc private func networkReload(_ sender: UIRefreshControl) {
         networkController?.refresh()
     }
@@ -222,6 +381,10 @@ class LibraryVC: UIViewController {
             selectionToolbar.isHidden = false
         }
     }
+}
+
+extension LibraryVC: ToolbarActions {
+
 }
 
 extension LibraryVC: AppContextObserver {

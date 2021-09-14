@@ -51,7 +51,7 @@ protocol AssetSyncManager: AnyObject {
 protocol AssetUIManager {
     func delete<T>(_ assets: T) where T: Collection, T.Element == Asset
     func save(asset: Asset, callback: @escaping (Result<Bool, Error>) -> Void) -> UUID
-    func save(assets: [Asset], callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID
+    func save<T>(assets: T, callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID where T: Collection, T.Element == Asset
     func saveAllAssets(initialCallback: @escaping (Int) -> Void, finalCallback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: @escaping ((Int) -> Void)) -> UUID
     func cancelOperation(id: UUID)
     func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void)
@@ -1009,9 +1009,9 @@ extension AssetManager: AssetUIManager {
         }, progressHandler: nil)
     }
 
-    func save(assets: [Asset], callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID {
+    func save<T>(assets: T, callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID where T: Collection, T.Element == Asset {
         let operation = createSaveOperation(callback: callback, progressHandler: progressHandler)
-        operation.assets = assets
+        operation.assets = Array(assets)
         saveOperation(operation)
         generalOperationQueue.addOperation(operation)
         return operation.id
