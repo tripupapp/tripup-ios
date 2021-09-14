@@ -186,7 +186,7 @@ class PhotoView: UIViewController {
         let libraryVCNavController = UIStoryboard(name: "Library", bundle: nil).instantiateInitialViewController() as! UINavigationController
         let libraryVC = libraryVCNavController.topViewController as! LibraryVC
         dependencyInjector?.initialise(libraryVC)
-        libraryVC.selectMode = true
+        libraryVC.pickerMode = true
         present(libraryVCNavController, animated: true, completion: nil)
 //        if let appContextInfo = appContextInfo {
 //            appContextInfo.lowCloudStorage { [weak self] lowCloudStorage in

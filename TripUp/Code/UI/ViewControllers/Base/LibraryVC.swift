@@ -15,18 +15,39 @@ class LibraryVC: UIViewController {
     @IBOutlet var warningHeaderView: WarningHeaderView!
     @IBOutlet var cloudProgressSyncView: CloudProgressSync!
     @IBOutlet var collectionView: UICollectionView!
+    @IBOutlet var selectButton: UIButton!
+    @IBOutlet var selectionToolbar: UIToolbar!
 
-    private lazy var badgeCounter: BadgeCounter = {
+    var selectedAssets: [Asset]? {
+        guard let indexPaths = collectionView.indexPathsForSelectedItems, indexPaths.isNotEmpty else {
+            return nil
+        }
+        let assets = collectionViewDelegate.items(at: indexPaths)
+        return assets.isNotEmpty ? assets : nil
+    }
+
+    var pickerMode: Bool = false {
+        didSet {
+            selectMode = pickerMode
+        }
+    }
+
+    private lazy var selectionBadgeCounter: BadgeCounter = {
         let badge = BadgeView(color: .systemBlue)
         return badge
     }()
 
-    var selectedAssets: [Asset]? {
-        guard let indexPaths = collectionView.indexPathsForSelectedItems, indexPaths.isNotEmpty else { return nil }
-        let assets = collectionViewDelegate.items(at: indexPaths)
-        return assets.isNotEmpty ? assets : nil
+    private var selectMode: Bool = false {
+        didSet {
+            guard isViewLoaded else {
+                return
+            }
+            configureViews(selectMode: selectMode)
+            if !selectMode {
+                collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: true) }
+            }
+        }
     }
-    var selectMode: Bool = false
 
     private weak var appContextInfo: AppContextInfo?
     private weak var networkController: NetworkMonitorController?
@@ -80,13 +101,14 @@ class LibraryVC: UIViewController {
         collectionView.delegate = collectionViewDelegate
         collectionView.dataSource = collectionViewDelegate
 //        collectionView.prefetchDataSource = collectionViewDelegate
+        collectionView.allowsMultipleSelection = true
 
         let refreshControl = UIRefreshControl()
         collectionView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(networkReload), for: .valueChanged)
 
         collectionViewDelegate.isSelectable = { [unowned self] (asset: Asset) in
-            if self.selectMode {
+            if self.pickerMode {
                 return asset.ownerID == self.primaryUserID
             }
             return true
@@ -107,29 +129,32 @@ class LibraryVC: UIViewController {
             } else {
                 let cell = collectionView.cellForItem(at: selectedIndexPath) as? LibraryCollectionViewCell
                 cell?.select()
-                self.badgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
+                self.selectionBadgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
             }
         }
         collectionViewDelegate.onDeselection = { [unowned self] (collectionView: UICollectionView, _, deselectedIndexPath: IndexPath) in
-            guard self.selectMode else { return }
+            guard self.selectMode else {
+                return
+            }
             let cell = collectionView.cellForItem(at: deselectedIndexPath) as? LibraryCollectionViewCell
             cell?.deselect()
-            self.badgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
+            self.selectionBadgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
         }
         collectionViewDelegate.onCollectionViewUpdate = { [unowned self] in
             self.view.makeToastieActivity(false)
         }
 
-        if !selectMode {
+        if !pickerMode {
             navigationItem.leftBarButtonItems = nil
             navigationItem.rightBarButtonItems = nil
-        } else {
-            collectionView.allowsMultipleSelection = true
 
+            selectButton.layer.cornerRadius = 5.0
+            selectionToolbar.items?.insert(UIBarButtonItem(customView: selectionBadgeCounter), at: 0)
+        } else {
             navigationItem.title = nil
             navigationItem.titleView = nil
-            let button = UIBarButtonItem(customView: badgeCounter)
-            navigationItem.rightBarButtonItems?.append(button)
+            navigationItem.rightBarButtonItems?.append(UIBarButtonItem(customView: selectionBadgeCounter))
+            selectButton.isHidden = true
         }
 
         warningHeaderView.isHidden = true
@@ -166,10 +191,36 @@ class LibraryVC: UIViewController {
         dispatchGroup.notify(queue: .main) {
             self.handle(status: AppContext.Status(diskSpaceLow: diskSpaceLow, cloudSpaceLow: cloudSpaceLow, networkDown: false, photoLibraryAccessDenied: photoLibraryAccessDenied))
         }
+
+        selectionToolbar.frame = tabBarController?.tabBar.frame ?? view.frame
+        tabBarController?.view.addSubview(selectionToolbar)
+        selectionToolbar.sizeToFit()
+    }
+
+    @IBAction func tappedSelectButton(_ sender: UIButton) {
+        precondition(!pickerMode)
+        selectMode = !selectMode
     }
 
     @objc private func networkReload(_ sender: UIRefreshControl) {
         networkController?.refresh()
+    }
+
+    func configureViews(selectMode: Bool) {
+        precondition(!pickerMode)
+        if !selectMode {
+            selectButton.setTitle("Select", for: .normal)
+            collectionView.indexPathsForSelectedItems?.forEach {
+                if let cell = collectionView.cellForItem(at: $0) as? LibraryCollectionViewCell {
+                    cell.deselect()
+                }
+            }
+            selectionToolbar.isHidden = true
+            selectionBadgeCounter.value = 0
+        } else {
+            selectButton.setTitle("Cancel", for: .normal)
+            selectionToolbar.isHidden = false
+        }
     }
 }
 
