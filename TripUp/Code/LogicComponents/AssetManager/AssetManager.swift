@@ -48,16 +48,6 @@ protocol AssetSyncManager: AnyObject {
     func removeInvalidAssets<T>(ids invalidAssetIDs: T) where T: Collection, T.Element == UUID
 }
 
-protocol AssetUIManager {
-    func delete<T>(_ assets: T) where T: Collection, T.Element == Asset
-    func save(asset: Asset, callback: @escaping (Result<Bool, Error>) -> Void) -> UUID
-    func save<T>(assets: T, callback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID where T: Collection, T.Element == Asset
-    func saveAllAssets(initialCallback: @escaping (Int) -> Void, finalCallback: @escaping (Result<Set<Asset>, Error>) -> Void, progressHandler: @escaping ((Int) -> Void)) -> UUID
-    func cancelOperation(id: UUID)
-    func unlinkedAssets(callback: @escaping ([UUID: Asset]) -> Void)
-    func removeAssets<T>(ids: T) where T: Collection, T.Element == UUID
-}
-
 protocol AssetManagerOperation: Operation {
     var id: UUID { get }
 }
@@ -953,7 +943,7 @@ extension AssetManager: AssetSyncManager {
 }
 
 // MARK: functions called directly by UI
-extension AssetManager: AssetUIManager {
+extension AssetManager: AssetServiceProvider {
     func delete<T>(_ assets: T) where T: Collection, T.Element == Asset {
         assert(assets.isNotEmpty)
         mutableAssets(from: assets.map{ $0.uuid }) { [weak self] mutableAssets in

@@ -52,6 +52,8 @@
 		201C251C253A0190009D95CE /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C251B253A0190009D95CE /* Album.swift */; };
 		201FAF4125E02D5400AFABEA /* CloudProgressSync.xib in Resources */ = {isa = PBXBuildFile; fileRef = 207985E424056EB70003BB97 /* CloudProgressSync.xib */; };
 		201FEDD62438C29700013D18 /* WebDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201FEDD52438C29700013D18 /* WebDocumentLoader.swift */; };
+		2021296B26F263AD00ADCFB8 /* AssetActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021296A26F263AD00ADCFB8 /* AssetActions.swift */; };
+		2021296D26F27BCF00ADCFB8 /* AssetServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021296C26F27BCF00ADCFB8 /* AssetServiceProvider.swift */; };
 		2021AE3626862737002FAD86 /* UsedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021AE3526862737002FAD86 /* UsedStorage.swift */; };
 		202335FA25E189C3004823B4 /* Background.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202335F925E189C3004823B4 /* Background.swift */; };
 		2024103F22B434D400FBACC5 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2024103E22B434D400FBACC5 /* KeychainTests.swift */; };
@@ -337,6 +339,8 @@
 		201C0AA02437886800F57C04 /* PolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolicyView.swift; sourceTree = "<group>"; };
 		201C251B253A0190009D95CE /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		201FEDD52438C29700013D18 /* WebDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDocumentLoader.swift; sourceTree = "<group>"; };
+		2021296A26F263AD00ADCFB8 /* AssetActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetActions.swift; sourceTree = "<group>"; };
+		2021296C26F27BCF00ADCFB8 /* AssetServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetServiceProvider.swift; sourceTree = "<group>"; };
 		2021AE3526862737002FAD86 /* UsedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedStorage.swift; sourceTree = "<group>"; };
 		202335F925E189C3004823B4 /* Background.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Background.swift; sourceTree = "<group>"; };
 		2024103E22B434D400FBACC5 /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
@@ -863,6 +867,7 @@
 		2057C78124EBDCCD00718F1C /* LogicComponents */ = {
 			isa = PBXGroup;
 			children = (
+				2021296A26F263AD00ADCFB8 /* AssetActions.swift */,
 				2066FAEF230B52C400E414BB /* PhotoViewDataModel.swift */,
 				207CF021230CB3A600ABEA6C /* PhotoViewDelegate.swift */,
 				2047DBD02329484000598647 /* TUFullscreenViewDelegate.swift */,
@@ -1053,6 +1058,7 @@
 			children = (
 				20258214213D8AA100E40A67 /* AppContext.swift */,
 				2057C78A24EBE80A00718F1C /* AssetManager */,
+				2021296C26F27BCF00ADCFB8 /* AssetServiceProvider.swift */,
 				20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */,
 				20C1753E2697A62E00A89BA2 /* MD5Summer.swift */,
 				202450BF25ED87AB0015F3D4 /* SynchronizedStateMachine.swift */,
@@ -1564,12 +1570,14 @@
 				200E12FB233FEEAC003012A2 /* AVFileType.swift in Sources */,
 				2016881A210A550400FA5D53 /* DataManager.swift in Sources */,
 				2055054722CE87BA00B391C1 /* TULocationExtensions.swift in Sources */,
+				2021296B26F263AD00ADCFB8 /* AssetActions.swift in Sources */,
 				20C17EE325D6F67800279AEF /* UserNotifications.swift in Sources */,
 				205E038F238EE16300DC4D9D /* SupportView.swift in Sources */,
 				200D846C246DB8AD00B2A793 /* EmailUtils.swift in Sources */,
 				2055054422CE873900B391C1 /* TULocation.pb.swift in Sources */,
 				20B2727026D6C5D700D77F60 /* PHAssetResourceType.swift in Sources */,
 				20712E10233AC9C70036C373 /* RealmDatabase.swift in Sources */,
+				2021296D26F27BCF00ADCFB8 /* AssetServiceProvider.swift in Sources */,
 				2035759226DEBBBB00DD20CF /* Upgrades.swift in Sources */,
 				20717EDE24FE884F00653C91 /* Assert+Precondition.swift in Sources */,
 				20588AE722207B9300D88C4D /* String.swift in Sources */,
