@@ -22,9 +22,9 @@ class TUFullscreenViewDelegate {
     private let assetRequester: AssetDataRequester?
     private let userFinder: UserFinder?
     private let cache = NSCache<NSUUID, UIImage>()
-    private var dataModel: PhotoViewDataModel
+    private var dataModel: CollectionViewDataModel
 
-    init(primaryUserID: UUID, dataModel: PhotoViewDataModel, assetRequester: AssetDataRequester?, userFinder: UserFinder?, bottomToolbarItems: [UIBarButtonItem]?) {
+    init(primaryUserID: UUID, dataModel: CollectionViewDataModel, assetRequester: AssetDataRequester?, userFinder: UserFinder?, bottomToolbarItems: [UIBarButtonItem]?) {
         self.primaryUserID = primaryUserID
         self.dataModel = dataModel
         self.assetRequester = assetRequester
@@ -179,7 +179,7 @@ extension TUFullscreenViewDelegate: AssetActions {}
 class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
     private let assetManager: AssetManager?
 
-    init(dataModel: PhotoViewDataModel, primaryUserID: UUID, assetManager: AssetManager?, userFinder: UserFinder?) {
+    init(dataModel: CollectionViewDataModel, primaryUserID: UUID, assetManager: AssetManager?, userFinder: UserFinder?) {
         self.assetManager = assetManager
 
         var bottomToolbarImages: [UIImage?]!
@@ -219,7 +219,7 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
     private let assetManager: AssetManager?
     private let groupManager: GroupManager?
 
-    init(group: Group, primaryUserID: UUID, dataModel: PhotoViewDataModel, assetManager: AssetManager?, groupManager: GroupManager?, userFinder: UserFinder?) {
+    init(group: Group, primaryUserID: UUID, dataModel: CollectionViewDataModel, assetManager: AssetManager?, groupManager: GroupManager?, userFinder: UserFinder?) {
         self.group = group
         self.assetManager = assetManager
         self.groupManager = groupManager

@@ -1,5 +1,5 @@
 //
-//  PhotoViewDataModel.swift
+//  CollectionViewDataModel.swift
 //  TripUp
 //
 //  Created by Vinoth Ramiah on 19/08/2019.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PhotoViewDataModel {
+struct CollectionViewDataModel {
     private var keysSorted: [Date]
     private var assetCollection: [Date: [Asset]]
     private var dateAscending: Bool

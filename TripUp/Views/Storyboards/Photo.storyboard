@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Rxy-MQ-YFJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Rxy-MQ-YFJ">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -34,7 +34,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AssetCell" id="nNA-Gu-JEK" customClass="PhotoViewCell" customModule="TripUp" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AlbumCollectionViewCell" id="nNA-Gu-JEK" customClass="AlbumCollectionViewCell" customModule="TripUp" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="22" width="100" height="100"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -177,7 +177,7 @@
                                             <outlet property="activityIndicator" destination="5Vj-Ey-ng6" id="FKb-Xi-g89"/>
                                             <outlet property="assetContents" destination="WxS-cN-JbP" id="Vzb-bu-GX5"/>
                                             <outlet property="bottomGradient" destination="f4l-Lt-BUz" id="tcF-Eb-Nzi"/>
-                                            <outlet property="checkmarkIcon" destination="VrW-yu-XCs" id="CJA-t6-0Jx"/>
+                                            <outlet property="checkmarkView" destination="VrW-yu-XCs" id="CJA-t6-0Jx"/>
                                             <outlet property="durationLabel" destination="1M1-Pb-4PN" id="KT7-vO-d3P"/>
                                             <outlet property="imageView" destination="HYa-0Y-eBt" id="DoC-4q-Pzw"/>
                                             <outlet property="shareActionIcon" destination="HiW-ZP-Aeb" id="Shg-4h-C4e"/>
@@ -191,7 +191,7 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
-                                <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="AssetSectionHeader" id="aWQ-JW-aHi" customClass="PhotoViewSectionHeader" customModule="TripUp" customModuleProvider="target">
+                                <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="CollectionViewSectionHeader" id="aWQ-JW-aHi" customClass="CollectionViewSectionHeader" customModule="TripUp" customModuleProvider="target">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="22"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
@@ -207,10 +207,10 @@
                                         <constraint firstItem="lrw-it-yDN" firstAttribute="centerY" secondItem="aWQ-JW-aHi" secondAttribute="centerY" id="Ae9-gi-5uD"/>
                                     </constraints>
                                     <connections>
-                                        <outlet property="day" destination="lrw-it-yDN" id="7e8-nV-kCs"/>
+                                        <outlet property="day" destination="lrw-it-yDN" id="IlP-If-qIA"/>
                                     </connections>
                                 </collectionReusableView>
-                                <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="AssetSectionFooter" id="ANb-UX-NXy" customClass="PhotoViewSectionFooter" customModule="TripUp" customModuleProvider="target">
+                                <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="CollectionViewSectionFooter" id="ANb-UX-NXy" customClass="CollectionViewSectionFooter" customModule="TripUp" customModuleProvider="target">
                                     <rect key="frame" x="0.0" y="122" width="375" height="12"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </collectionReusableView>

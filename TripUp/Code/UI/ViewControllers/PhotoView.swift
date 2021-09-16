@@ -19,8 +19,8 @@ class PhotoView: UIViewController {
 
     var group: Group! {
         didSet {
-            if collectionViewDelegate == nil {
-                collectionViewDelegate = PhotoViewDelegate(primaryUserID: primaryUserID, assets: group.album.pics, assetDataRequester: assetManager)
+            if oldValue == nil {
+                self.collectionViewDelegate.insertPreliminaryData(assets: group.album.pics.values)
             }
             if let fullscreenVC = self.fullscreenVC, let delegate = fullscreenVC.delegate as? FullscreenViewDelegateGroup {
                 delegate.group = group
@@ -29,6 +29,12 @@ class PhotoView: UIViewController {
                 }
             }
         }
+    }
+
+    fileprivate var swipeThresholdActivation: CGFloat {
+        let viewWidth = collectionView.frame.width
+        let cellWidth = viewWidth / collectionViewDelegate.itemsPerRow
+        return cellWidth / 4
     }
 
     private weak var networkController: NetworkMonitorController?
@@ -41,7 +47,7 @@ class PhotoView: UIViewController {
     private var appContextInfo: AppContextInfo?
     private var dependencyInjector: DependencyInjector?
 
-    private var collectionViewDelegate: PhotoViewDelegate!
+    private var collectionViewDelegate: CollectionViewDelegate!
     private var selectedIndexesForGesture: [IndexPath]?
     private var swipeCellFeedback: UISelectionFeedbackGenerator?
     private var runningGestureTutorial = false
@@ -55,6 +61,10 @@ class PhotoView: UIViewController {
         self.networkController = networkController
         self.appContextInfo = appContextInfo
         self.dependencyInjector = dependencyInjector
+        self.collectionViewDelegate = CollectionViewDelegate(
+            assetDataRequester: assetManager,
+            cellReuseIdentifier: AlbumCollectionViewCell.reuseIdentifier
+        )
 
         groupObserverRegister?.addObserver(self)
     }
@@ -71,10 +81,36 @@ class PhotoView: UIViewController {
         collectionView.delegate = collectionViewDelegate
         collectionView.dataSource = collectionViewDelegate
 //        collectionView.prefetchDataSource = collectionViewDelegate
-        collectionViewDelegate.isShared = { [unowned self] (asset: Asset) in
-            return self.group.album.sharedAssets[asset.uuid] != nil
+
+        collectionViewDelegate.cellConfiguration = { [unowned self] (cell: CollectionViewCell, asset: Asset) in
+            let cell = cell as! AlbumCollectionViewCell
+            let shared = self.group.album.sharedAssets[asset.uuid] != nil
+            if #available(iOS 13.0, *), let image = UIImage(systemName: "eye") {
+                cell.shareIcon.image = image
+            }
+            cell.shareIcon.isHidden = !shared
+
+            if asset.ownerID == self.primaryUserID {
+                if #available(iOS 13.0, *) {
+                    cell.shareActionIcon.image = UIImage(systemName: "eye")
+                    cell.unshareActionIcon.image = UIImage(systemName: "eye.slash")
+                }
+                cell.shareActionIconConstraint.isZoomed = shared
+                cell.unshareActionIconConstraint.isZoomed = !shared
+            } else {
+                if #available(iOS 13.0, *) {
+                    cell.shareActionIcon.image = UIImage(systemName: "lock.circle")
+                    cell.unshareActionIcon.image = UIImage(systemName: "lock.circle")
+                } else {
+                    cell.shareActionIcon.image = UIImage(named: "lock-closed-outline")
+                    cell.unshareActionIcon.image = UIImage(named: "lock-closed-outline")
+                }
+                cell.shareActionIconConstraint.isZoomed = true
+                cell.unshareActionIconConstraint.isZoomed = true
+            }
+            cell.assetContents.isHidden = false // set to hidden in storyboard, but why?
         }
-        collectionViewDelegate.onSelection = { [unowned self] (collectionView: UICollectionView, dataModel: PhotoViewDataModel, selectedIndexPath: IndexPath) in
+        collectionViewDelegate.onSelection = { [unowned self] (collectionView: UICollectionView, dataModel: CollectionViewDataModel, selectedIndexPath: IndexPath) in
             let fullscreenVCDelegate = FullscreenViewDelegateGroup(group: self.group, primaryUserID: self.primaryUserID, dataModel: dataModel, assetManager: self.assetManager, groupManager: self.groupManager, userFinder: self.userFinder)
             let fullscreenVC = UIStoryboard(name: "Photo", bundle: nil).instantiateViewController(withIdentifier: "fullscreenVC") as! FullscreenViewController
             fullscreenVC.initialise(delegate: fullscreenVCDelegate, initialIndex: dataModel.convertToIndex(selectedIndexPath), presenter: self)
@@ -85,6 +121,11 @@ class PhotoView: UIViewController {
             }
             self.present(fullscreenVC, animated: false, completion: nil)
             self.fullscreenVC = fullscreenVC
+        }
+        collectionViewDelegate.onCollectionViewUpdate = { [unowned self] in
+            UIView.animate(withDuration: 0.25) {
+                collectionView.alpha = self.collectionViewDelegate.collectionViewIsEmpty ? 0 : 1
+            }
         }
 
         self.title = group.name
@@ -244,7 +285,7 @@ class PhotoView: UIViewController {
             return
         }
         let indexPath = IndexPath(item: 0, section: 0)
-        guard let cell = collectionView.cellForItem(at: indexPath) as? PhotoViewCell else {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? AlbumCollectionViewCell else {
             return
         }
         let point = cell.frame.width / 2
@@ -383,7 +424,7 @@ extension PhotoView: UserSelectionDelegate {
 extension PhotoView: FullscreenViewTransitionDelegate {
     func transitioning(from index: Int) -> (CGRect, UIImage?) {
         let indexPath = collectionViewDelegate.indexPath(forIndex: index)
-        let cell = collectionView.cellForItem(at: indexPath) as! PhotoViewCell
+        let cell = collectionView.cellForItem(at: indexPath) as! AlbumCollectionViewCell
         let frame = collectionView.convert(cell.frame, to: nil)
         return (frame, cell.imageView.image)
     }
@@ -431,7 +472,7 @@ extension PhotoView: UIGestureRecognizerDelegate {
 
             // animate cells moving with finger
             for indexPath in indexPaths {
-                let cell = collectionView.cellForItem(at: indexPath) as? PhotoViewCell
+                let cell = collectionView.cellForItem(at: indexPath) as? AlbumCollectionViewCell
                 cell?.showActionIcon(share: translation.x > 0)
                 cell?.assetContents.frame.origin.x = translation.x
             }
@@ -440,14 +481,14 @@ extension PhotoView: UIGestureRecognizerDelegate {
             // animate cells moving with finger
             guard let indexPaths = selectedIndexesForGesture else { return }
             for indexPath in indexPaths {
-                let cell = collectionView.cellForItem(at: indexPath) as? PhotoViewCell
+                let cell = collectionView.cellForItem(at: indexPath) as? AlbumCollectionViewCell
                 cell?.showActionIcon(share: translation.x > 0)
                 cell?.assetContents.frame.origin.x = translation.x
             }
 
             // haptic feedback and action icon size change block
             if let swipeCellFeedback = swipeCellFeedback {
-                guard abs(translation.x) <= collectionViewDelegate.swipeThresholdActivation(for: collectionView) else { return }
+                guard abs(translation.x) <= swipeThresholdActivation else { return }
                 swipeCellFeedback.selectionChanged()
                 self.swipeCellFeedback = nil
 
@@ -456,7 +497,7 @@ extension PhotoView: UIGestureRecognizerDelegate {
                     let assets = self.collectionViewDelegate.items(at: indexPaths)
                     for (index, indexPath) in indexPaths.enumerated() {
                         let asset = assets[index]
-                        let cell = self.collectionView.cellForItem(at: indexPath) as? PhotoViewCell
+                        let cell = self.collectionView.cellForItem(at: indexPath) as? AlbumCollectionViewCell
                         let shared = self.group.album.sharedAssets[asset.uuid] != nil
                         if asset.ownerID == self.primaryUserID {
                             cell?.shareActionIconConstraint.isZoomed = shared
@@ -469,10 +510,10 @@ extension PhotoView: UIGestureRecognizerDelegate {
                     }
                 }.startAnimation()
             } else {
-                guard abs(translation.x) >= collectionViewDelegate.swipeThresholdActivation(for: collectionView) else { return }
+                guard abs(translation.x) >= swipeThresholdActivation else { return }
                 UIViewPropertyAnimator(duration: 0.5, dampingRatio: 0.5) {
                     for indexPath in indexPaths {
-                        let cell = self.collectionView.cellForItem(at: indexPath) as? PhotoViewCell
+                        let cell = self.collectionView.cellForItem(at: indexPath) as? AlbumCollectionViewCell
                         if translation.x > 0 {  // greater than 0 = swipe to right, aka share. less than 0 = swipe to left, aka unshare
                             cell?.shareActionIconConstraint.isZoomed = true
                         } else {
@@ -490,7 +531,7 @@ extension PhotoView: UIGestureRecognizerDelegate {
             defer {
                 UIView.animate(withDuration: 0.2, animations: {
                     for indexPath in indexPaths {
-                        let cell = self.collectionView.cellForItem(at: indexPath) as? PhotoViewCell
+                        let cell = self.collectionView.cellForItem(at: indexPath) as? AlbumCollectionViewCell
                         cell?.assetContents.frame.origin.x = self.collectionView.frame.origin.x
                     }
                 }) { _ in
@@ -500,7 +541,7 @@ extension PhotoView: UIGestureRecognizerDelegate {
             }
 
             // continue with action only if finger has moved past the activation threshold
-            guard abs(translation.x) >= collectionViewDelegate.swipeThresholdActivation(for: collectionView) else { return }
+            guard abs(translation.x) >= swipeThresholdActivation else { return }
 
             let selectedAssets = collectionViewDelegate.items(at: indexPaths)
             let toShare = translation.x > 0 // greater than 0 = swipe to right, aka share. less than 0 = swipe to left, aka unshare

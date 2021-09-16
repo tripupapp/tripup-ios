@@ -1,5 +1,5 @@
 //
-//  PhotoViewCell.swift
+//  AlbumCollectionViewCell.swift
 //  TripUp
 //
 //  Created by Vinoth Ramiah on 10/09/2019.
@@ -11,7 +11,7 @@ import UIKit
 
 import TripUpViews
 
-class PhotoViewCell: UICollectionViewCell {
+class AlbumCollectionViewCell: UICollectionViewCell, CollectionViewCell {
     struct ConstraintPair {
         let small: NSLayoutConstraint
         let large: NSLayoutConstraint
@@ -32,15 +32,16 @@ class PhotoViewCell: UICollectionViewCell {
         }
     }
 
-    static let reuseIdentifier = "AssetCell"
+    static let reuseIdentifier = "AlbumCollectionViewCell"
 
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var durationLabel: UILabel!
-    @IBOutlet var shareIcon: UIImageView!
-    @IBOutlet var checkmarkIcon: UIImageView!
     @IBOutlet var topGradient: UIGradientView!
     @IBOutlet var bottomGradient: UIGradientView!
+    @IBOutlet var checkmarkView: UIImageView!
+    @IBOutlet var durationLabel: UILabel!
+
+    @IBOutlet var shareIcon: UIImageView!
     @IBOutlet var assetContents: UIView!
     @IBOutlet var shareActionIcon: UIImageView!
     @IBOutlet var unshareActionIcon: UIImageView!
@@ -50,7 +51,6 @@ class PhotoViewCell: UICollectionViewCell {
     @IBOutlet var unshareActionIconLargeConstraint: NSLayoutConstraint!
     @IBOutlet var actionIconContents: UIView!
 
-    var assetID: UUID!
     lazy var shareActionIconConstraint: ConstraintPair = {
         return ConstraintPair(
             small: shareActionIconSmallConstraint,
@@ -63,12 +63,11 @@ class PhotoViewCell: UICollectionViewCell {
             large: unshareActionIconLargeConstraint
         )
     }()
-    var topIconsHidden: Bool {
-        return durationLabel.text?.isEmpty ?? true
-    }
     var bottomIconsHidden: Bool {
         return shareIcon.isHidden
     }
+
+    var assetID: UUID!
 
     override func layoutSubviews() {
         super.layoutSubviews()
