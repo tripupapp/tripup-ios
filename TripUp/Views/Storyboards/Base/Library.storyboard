@@ -230,7 +230,7 @@
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="tappedSelectButton:" destination="SYo-lS-ss7" eventType="touchUpInside" id="WkB-L4-rv7"/>
+                                                    <action selector="selectButtonTapped:" destination="SYo-lS-ss7" eventType="touchUpInside" id="A4O-gi-U0e"/>
                                                 </connections>
                                             </button>
                                         </subviews>

@@ -259,7 +259,7 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
             if group.album.sharedAssets[asset.uuid] == nil {
                 groupManager?.shareAssets([asset], withGroup: group) { success in
                     if success {
-                        fullscreenVC.view.makeToastie("Item is now visible to the rest of the group 🤳", position: .top)
+                        fullscreenVC.view.makeToastie("Item is now visible to the rest of the group 🤳", duration: 6.0, position: .top)
                     } else {
                         fullscreenVC.view.makeToastie("There was a problem sharing this photo with the group", position: .top)
                     }
@@ -267,7 +267,7 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
             } else {
                 groupManager?.unshareAssets([asset], fromGroup: group) { success in
                     if success {
-                        fullscreenVC.view.makeToastie("Item is no longer visible to the rest of the group 🤫", position: .top)
+                        fullscreenVC.view.makeToastie("Item is no longer visible to the rest of the group 🤫", duration: 6.0, position: .top)
                     } else {
                         fullscreenVC.view.makeToastie("There was a problem unsharing this photo from the group", position: .top)
                     }

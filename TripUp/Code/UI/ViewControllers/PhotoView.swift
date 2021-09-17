@@ -16,7 +16,19 @@ class PhotoView: UIViewController {
     @IBOutlet var firstInstructionsLabel: UILabelIcon!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var swipePhotoGesture: UIPanGestureRecognizer!
+    @IBOutlet var selectButton: UIButton!
+    @IBOutlet var selectionToolbar: UIToolbar!
+    @IBOutlet var shareToolbarButton: UIBarButtonItem!
+    @IBOutlet var exportToolbarButton: UIBarButtonItem!
+    @IBOutlet var saveToolbarButton: UIBarButtonItem!
+    @IBOutlet var deleteToolbarButton: UIBarButtonItem!
 
+    lazy var selectionBadgeCounter: BadgeCounter = {
+        let badge = BadgeView(color: .systemBlue)
+        return badge
+    }()
+
+    var collectionViewDelegate: CollectionViewDelegate!
     var group: Group! {
         didSet {
             if oldValue == nil {
@@ -28,6 +40,11 @@ class PhotoView: UIViewController {
                     delegate.configureOverlayViews(forItemAt: indexPath.item)
                 }
             }
+        }
+    }
+    var selectMode: Bool = false {
+        didSet {
+            enterSelectMode(selectMode)
         }
     }
 
@@ -47,7 +64,6 @@ class PhotoView: UIViewController {
     private var appContextInfo: AppContextInfo?
     private var dependencyInjector: DependencyInjector?
 
-    private var collectionViewDelegate: CollectionViewDelegate!
     private var selectedIndexesForGesture: [IndexPath]?
     private var swipeCellFeedback: UISelectionFeedbackGenerator?
     private var runningGestureTutorial = false
@@ -81,6 +97,7 @@ class PhotoView: UIViewController {
         collectionView.delegate = collectionViewDelegate
         collectionView.dataSource = collectionViewDelegate
 //        collectionView.prefetchDataSource = collectionViewDelegate
+        collectionView.allowsMultipleSelection = true
 
         collectionViewDelegate.cellConfiguration = { [unowned self] (cell: CollectionViewCell, asset: Asset) in
             let cell = cell as! AlbumCollectionViewCell
@@ -111,16 +128,27 @@ class PhotoView: UIViewController {
             cell.assetContents.isHidden = false // set to hidden in storyboard, but why?
         }
         collectionViewDelegate.onSelection = { [unowned self] (collectionView: UICollectionView, dataModel: CollectionViewDataModel, selectedIndexPath: IndexPath) in
-            let fullscreenVCDelegate = FullscreenViewDelegateGroup(group: self.group, primaryUserID: self.primaryUserID, dataModel: dataModel, assetManager: self.assetManager, groupManager: self.groupManager, userFinder: self.userFinder)
-            let fullscreenVC = UIStoryboard(name: "Photo", bundle: nil).instantiateViewController(withIdentifier: "fullscreenVC") as! FullscreenViewController
-            fullscreenVC.initialise(delegate: fullscreenVCDelegate, initialIndex: dataModel.convertToIndex(selectedIndexPath), presenter: self)
-            fullscreenVC.onDismiss = { [weak self, unowned fullscreenVC] in
-                if self?.fullscreenVC === fullscreenVC {
-                    self?.fullscreenVC = nil
+            if !self.selectMode {
+                let fullscreenVCDelegate = FullscreenViewDelegateGroup(group: self.group, primaryUserID: self.primaryUserID, dataModel: dataModel, assetManager: self.assetManager, groupManager: self.groupManager, userFinder: self.userFinder)
+                let fullscreenVC = UIStoryboard(name: "Photo", bundle: nil).instantiateViewController(withIdentifier: "fullscreenVC") as! FullscreenViewController
+                fullscreenVC.initialise(delegate: fullscreenVCDelegate, initialIndex: dataModel.convertToIndex(selectedIndexPath), presenter: self)
+                fullscreenVC.onDismiss = { [weak self, unowned fullscreenVC] in
+                    if self?.fullscreenVC === fullscreenVC {
+                        self?.fullscreenVC = nil
+                    }
                 }
+                self.present(fullscreenVC, animated: false, completion: nil)
+                self.fullscreenVC = fullscreenVC
+            } else {
+                self.selectCell(true, atIndexPath: selectedIndexPath)
+                self.shareToolbarButtonState()
             }
-            self.present(fullscreenVC, animated: false, completion: nil)
-            self.fullscreenVC = fullscreenVC
+        }
+        collectionViewDelegate.onDeselection = { [unowned self] (collectionView: UICollectionView, _, deselectedIndexPath: IndexPath) in
+            if self.selectMode {
+                self.selectCell(false, atIndexPath: deselectedIndexPath)
+                self.shareToolbarButtonState()
+            }
         }
         collectionViewDelegate.onCollectionViewUpdate = { [unowned self] in
             UIView.animate(withDuration: 0.25) {
@@ -144,6 +172,15 @@ class PhotoView: UIViewController {
         let refreshControl = UIRefreshControl()
         collectionView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(networkReload(_:)), for: .valueChanged)
+
+        selectButton.layer.cornerRadius = 5.0
+        selectionToolbar.items?.insert(UIBarButtonItem(customView: selectionBadgeCounter), at: 0)
+        if #available(iOS 13.0, *) {
+            shareToolbarButton.image = UIImage(systemName: "eye")
+            exportToolbarButton.image = UIImage(systemName: "square.and.arrow.up")
+            saveToolbarButton.image = UIImage(systemName: "square.and.arrow.down")
+            deleteToolbarButton.image = UIImage(systemName: "trash")
+        }
 
         firstInstructionsLabel.textToReplace = "plus"
         if #available(iOS 13.0, *), let image = UIImage(systemName: "plus") {
@@ -345,6 +382,109 @@ class PhotoView: UIViewController {
         }
         cell.showActionIcon(share: true)
         shareAnimator.startAnimation(afterDelay: delay)
+    }
+}
+
+extension PhotoView: AssetActions {}
+
+extension PhotoView: CollectionViewMultiSelect {
+    @IBAction func selectButtonTapped(_ sender: UIButton) {
+        selectMode = !selectMode
+        if !selectMode {
+            if #available(iOS 13.0, *) {
+                shareToolbarButton.image = UIImage(systemName: "eye")
+            } else {
+                shareToolbarButton.image = UIImage(named: "eye-outline-toolbar")
+            }
+        }
+    }
+
+    @IBAction func selectionToolbarAction(_ sender: UIBarButtonItem) {
+        guard let assetManager = assetManager, let selectedAssets = selectedAssets else {
+            return
+        }
+        switch sender {
+        case shareToolbarButton:
+            let unsharedAssets = selectedAssets.filter{ group.album.sharedAssets[$0.uuid] == nil }
+            let selectedItems = collectionView.indexPathsForSelectedItems!
+            if unsharedAssets.isNotEmpty {
+                groupManager?.shareAssets(unsharedAssets, withGroup: group) { [weak self] success in
+                    if success {
+                        self?.view.makeToastie("Selected items are now visible to the rest of the group 🤳", duration: 6.0, position: .top)
+                        for indexPath in selectedItems {
+                            self?.collectionView.selectItem(at: indexPath, animated: false, scrollPosition: UICollectionView.ScrollPosition(rawValue: 0))
+                            self?.selectCell(true, atIndexPath: indexPath)
+                        }
+                    } else {
+                        self?.view.makeToastie("There was a problem sharing these items with the group", position: .top)
+                    }
+                    self?.shareToolbarButtonState()
+                }
+            } else {
+                groupManager?.unshareAssets(selectedAssets, fromGroup: group) { [weak self] success in
+                    if success {
+                        self?.view.makeToastie("Selected items are no longer visible to the rest of the group 🤫", duration: 6.0, position: .top)
+                        for indexPath in selectedItems {
+                            self?.collectionView.selectItem(at: indexPath, animated: false, scrollPosition: UICollectionView.ScrollPosition(rawValue: 0))
+                            self?.selectCell(true, atIndexPath: indexPath)
+                        }
+                    } else {
+                        self?.view.makeToastie("There was a problem unsharing these items from the group", position: .top)
+                    }
+                    self?.shareToolbarButtonState()
+                }
+            }
+        case exportToolbarButton:
+            export(assets: selectedAssets, assetRequester: assetManager, presentingViewController: self)
+        case saveToolbarButton:
+            save(assets: selectedAssets, assetService: assetManager, presentingViewController: self)
+        case deleteToolbarButton:
+            let ownedAssets = selectedAssets.filter{ $0.ownerID == primaryUserID }
+            let unownedAssets = Set(selectedAssets).subtracting(ownedAssets)
+            let deleteAction = UIAlertAction(title: ownedAssets.isNotEmpty ? "Delete" : "Delete for Me", style: .destructive) { _ in
+                self.assetManager?.delete(selectedAssets)
+                self.selectionBadgeCounter.value = 0
+            }
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in }
+            let s = selectedAssets.count > 1 ? "s" : ""
+            let deleteAlert = UIAlertController(title: nil, message: "\(selectedAssets.count) item\(s) selected", preferredStyle: .actionSheet)
+            if ownedAssets.isNotEmpty {
+                let removeAction = UIAlertAction(title: "Remove from Album", style: .destructive) { _ in
+                    self.groupManager?.removeAssets(ownedAssets, from: self.group) { [weak self] success in
+                        if success {
+                            self?.selectionBadgeCounter.value = 0
+                        } else {
+                            self?.view.makeToastie("Error removing some items from album", position: .top)
+                        }
+                    }
+                    self.assetManager?.delete(unownedAssets)
+                    self.selectionBadgeCounter.value = self.selectionBadgeCounter.value - unownedAssets.count
+                }
+                deleteAlert.addAction(removeAction)
+            }
+            deleteAlert.addAction(deleteAction)
+            deleteAlert.addAction(cancelAction)
+            present(deleteAlert, animated: true)
+        default:
+            assertionFailure()
+        }
+    }
+
+    func shareToolbarButtonState() {
+        if let selectedAssets = selectedAssets {
+            let allShared = selectedAssets.allSatisfy{ group.album.sharedAssets[$0.uuid] != nil }
+            if #available(iOS 13.0, *) {
+                shareToolbarButton.image = allShared ? UIImage(systemName: "eye.slash") : UIImage(systemName: "eye")
+            } else {
+                shareToolbarButton.image = allShared ? UIImage(named: "eye-off-outline") : UIImage(named: "eye-outline-toolbar")
+            }
+        } else {
+            if #available(iOS 13.0, *) {
+                shareToolbarButton.image = UIImage(systemName: "eye")
+            } else {
+                shareToolbarButton.image = UIImage(named: "eye-outline-toolbar")
+            }
+        }
     }
 }
 

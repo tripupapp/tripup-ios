@@ -21,33 +21,21 @@ class LibraryVC: UIViewController {
     @IBOutlet var saveToolbarButton: UIBarButtonItem!
     @IBOutlet var deleteToolbarButton: UIBarButtonItem!
 
-    var selectedAssets: [Asset]? {
-        guard let indexPaths = collectionView.indexPathsForSelectedItems, indexPaths.isNotEmpty else {
-            return nil
-        }
-        let assets = collectionViewDelegate.items(at: indexPaths)
-        return assets.isNotEmpty ? assets : nil
-    }
+    lazy var selectionBadgeCounter: BadgeCounter = {
+        let badge = BadgeView(color: .systemBlue)
+        return badge
+    }()
 
+    var collectionViewDelegate: CollectionViewDelegate!
     var pickerMode: Bool = false {
         didSet {
             selectMode = pickerMode
         }
     }
-
-    private lazy var selectionBadgeCounter: BadgeCounter = {
-        let badge = BadgeView(color: .systemBlue)
-        return badge
-    }()
-
-    private var selectMode: Bool = false {
+    var selectMode: Bool = false {
         didSet {
-            guard isViewLoaded else {
-                return
-            }
-            configureViews(selectMode: selectMode)
-            if !selectMode {
-                collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: true) }
+            if isViewLoaded {
+                enterSelectMode(selectMode)
             }
         }
     }
@@ -55,7 +43,6 @@ class LibraryVC: UIViewController {
     private weak var appContextInfo: AppContextInfo?
     private weak var networkController: NetworkMonitorController?
     private var primaryUserID: UUID!
-    private var collectionViewDelegate: CollectionViewDelegate!
     private var assetManager: AssetManager?
     private var userFinder: UserFinder?
     private var autoBackupObserverToken: NSObjectProtocol?
@@ -147,18 +134,13 @@ class LibraryVC: UIViewController {
                 self.present(fullscreenVC, animated: false, completion: nil)
                 self.fullscreenVC = fullscreenVC
             } else {
-                let cell = collectionView.cellForItem(at: selectedIndexPath) as? LibraryCollectionViewCell
-                cell?.select()
-                self.selectionBadgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
+                self.selectCell(true, atIndexPath: selectedIndexPath)
             }
         }
         collectionViewDelegate.onDeselection = { [unowned self] (collectionView: UICollectionView, _, deselectedIndexPath: IndexPath) in
-            guard self.selectMode else {
-                return
+            if self.selectMode {
+                self.selectCell(false, atIndexPath: deselectedIndexPath)
             }
-            let cell = collectionView.cellForItem(at: deselectedIndexPath) as? LibraryCollectionViewCell
-            cell?.deselect()
-            self.selectionBadgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
         }
         collectionViewDelegate.onCollectionViewUpdate = { [unowned self] in
             self.view.makeToastieActivity(false)
@@ -170,17 +152,17 @@ class LibraryVC: UIViewController {
 
             selectButton.layer.cornerRadius = 5.0
             selectionToolbar.items?.insert(UIBarButtonItem(customView: selectionBadgeCounter), at: 0)
+
+            if #available(iOS 13.0, *) {
+                exportToolbarButton.image = UIImage(systemName: "square.and.arrow.up")
+                saveToolbarButton.image = UIImage(systemName: "square.and.arrow.down")
+                deleteToolbarButton.image = UIImage(systemName: "trash")
+            }
         } else {
             navigationItem.title = nil
             navigationItem.titleView = nil
             navigationItem.rightBarButtonItems?.append(UIBarButtonItem(customView: selectionBadgeCounter))
             selectButton.isHidden = true
-        }
-
-        if #available(iOS 13.0, *) {
-            exportToolbarButton.image = UIImage(systemName: "square.and.arrow.up")
-            saveToolbarButton.image = UIImage(systemName: "square.and.arrow.down")
-            deleteToolbarButton.image = UIImage(systemName: "trash")
         }
 
         warningHeaderView.isHidden = true
@@ -223,7 +205,15 @@ class LibraryVC: UIViewController {
         selectionToolbar.sizeToFit()
     }
 
-    @IBAction func tappedSelectButton(_ sender: UIButton) {
+    @objc private func networkReload(_ sender: UIRefreshControl) {
+        networkController?.refresh()
+    }
+}
+
+extension LibraryVC: AssetActions {}
+
+extension LibraryVC: CollectionViewMultiSelect {
+    @IBAction func selectButtonTapped(_ sender: UIButton) {
         precondition(!pickerMode)
         selectMode = !selectMode
     }
@@ -245,30 +235,7 @@ class LibraryVC: UIViewController {
             assertionFailure()
         }
     }
-
-    @objc private func networkReload(_ sender: UIRefreshControl) {
-        networkController?.refresh()
-    }
-
-    func configureViews(selectMode: Bool) {
-        precondition(!pickerMode)
-        if !selectMode {
-            selectButton.setTitle("Select", for: .normal)
-            collectionView.indexPathsForSelectedItems?.forEach {
-                if let cell = collectionView.cellForItem(at: $0) as? LibraryCollectionViewCell {
-                    cell.deselect()
-                }
-            }
-            selectionToolbar.isHidden = true
-            selectionBadgeCounter.value = 0
-        } else {
-            selectButton.setTitle("Cancel", for: .normal)
-            selectionToolbar.isHidden = false
-        }
-    }
 }
-
-extension LibraryVC: AssetActions {}
 
 extension LibraryVC: AppContextObserver {
     func handle(status: AppContext.Status) {

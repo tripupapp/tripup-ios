@@ -218,6 +218,17 @@
                                     <outletCollection property="gestureRecognizers" destination="WGR-So-KtL" appends="YES" id="wOI-NW-fGc"/>
                                 </connections>
                             </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R26-hm-LpA">
+                                <rect key="frame" x="296" y="54" width="59" height="23"/>
+                                <color key="backgroundColor" systemColor="tertiaryLabelColor"/>
+                                <inset key="contentEdgeInsets" minX="7.5" minY="2.5" maxX="7.5" maxY="2.5"/>
+                                <state key="normal" title="Select">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="selectButtonTapped:" destination="Rxy-MQ-YFJ" eventType="touchUpInside" id="9CO-Rx-52r"/>
+                                </connections>
+                            </button>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VWA-aZ-Sg4">
                                 <rect key="frame" x="28" y="162" width="319" height="498"/>
                                 <constraints>
@@ -227,19 +238,54 @@
                                     <segue destination="5be-yb-gra" kind="embed" id="pbE-aX-uBq"/>
                                 </connections>
                             </containerView>
+                            <toolbar hidden="YES" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="raT-6f-okn" userLabel="SelectionToolbar">
+                                <rect key="frame" x="0.0" y="729" width="375" height="49"/>
+                                <items>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="xte-uB-X7G"/>
+                                    <barButtonItem title="Item" image="eye-outline-toolbar" id="sz5-XS-Rr1" userLabel="share">
+                                        <connections>
+                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="ZXz-cJ-4u6"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="rHM-Lz-4rD"/>
+                                    <barButtonItem title="Item" image="share-outline-toolbar" id="14B-2t-2Gl" userLabel="export">
+                                        <connections>
+                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="RmP-46-AT1"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="fUq-Lx-ooS"/>
+                                    <barButtonItem title="Item" image="download-outline-toolbar" id="Eh3-rm-B9g" userLabel="save">
+                                        <connections>
+                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="8fF-ca-uwY"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="9eR-X1-2cN"/>
+                                    <barButtonItem title="Item" image="trash-toolbar" id="9oZ-jx-QV8" userLabel="delete">
+                                        <connections>
+                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="s76-uP-pdc"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="C2g-fM-aHu"/>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="TWu-cv-XxZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="TWu-cv-XxZ" firstAttribute="trailing" secondItem="raT-6f-okn" secondAttribute="trailing" id="1ts-EL-g0B"/>
                             <constraint firstItem="VWA-aZ-Sg4" firstAttribute="centerX" secondItem="TWu-cv-XxZ" secondAttribute="centerX" id="40l-Df-A8l"/>
                             <constraint firstItem="VVb-fn-TfL" firstAttribute="top" secondItem="TWu-cv-XxZ" secondAttribute="top" id="44h-mO-MV1"/>
                             <constraint firstAttribute="bottom" secondItem="VVb-fn-TfL" secondAttribute="bottom" id="9eX-IM-hLB"/>
                             <constraint firstItem="VVb-fn-TfL" firstAttribute="trailing" secondItem="TWu-cv-XxZ" secondAttribute="trailing" id="Cz6-bU-Xwd"/>
+                            <constraint firstItem="TWu-cv-XxZ" firstAttribute="trailing" secondItem="R26-hm-LpA" secondAttribute="trailing" constant="20" id="GGK-6L-PqZ"/>
                             <constraint firstItem="VWA-aZ-Sg4" firstAttribute="centerY" secondItem="TWu-cv-XxZ" secondAttribute="centerY" id="aoe-BR-yaM"/>
                             <constraint firstItem="VWA-aZ-Sg4" firstAttribute="width" secondItem="TWu-cv-XxZ" secondAttribute="width" multiplier="0.85" id="gor-v4-2jS"/>
+                            <constraint firstItem="raT-6f-okn" firstAttribute="leading" secondItem="TWu-cv-XxZ" secondAttribute="leading" id="hfr-ab-Tqn"/>
                             <constraint firstItem="Kbe-rH-OsE" firstAttribute="centerY" secondItem="TWu-cv-XxZ" secondAttribute="centerY" id="jou-2w-XKH"/>
+                            <constraint firstItem="R26-hm-LpA" firstAttribute="top" secondItem="TWu-cv-XxZ" secondAttribute="top" constant="10" id="pw2-Z9-XLB"/>
                             <constraint firstItem="VVb-fn-TfL" firstAttribute="leading" secondItem="TWu-cv-XxZ" secondAttribute="leading" id="qsQ-z7-cVn"/>
                             <constraint firstItem="Kbe-rH-OsE" firstAttribute="width" secondItem="TWu-cv-XxZ" secondAttribute="width" multiplier="0.9" id="sOV-Me-rWs"/>
+                            <constraint firstItem="TWu-cv-XxZ" firstAttribute="bottom" secondItem="raT-6f-okn" secondAttribute="bottom" id="t8x-G2-aeE"/>
                             <constraint firstItem="Kbe-rH-OsE" firstAttribute="centerX" secondItem="4ph-Dm-KwZ" secondAttribute="centerX" id="znL-Kx-7VU"/>
                         </constraints>
                         <variation key="default">
@@ -255,8 +301,14 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="VVb-fn-TfL" id="X7J-bO-sNe"/>
+                        <outlet property="deleteToolbarButton" destination="9oZ-jx-QV8" id="yVL-rS-dpo"/>
+                        <outlet property="exportToolbarButton" destination="14B-2t-2Gl" id="Zm0-sl-MoP"/>
                         <outlet property="firstInstructionsLabel" destination="Kbe-rH-OsE" id="Qyn-kE-f1W"/>
                         <outlet property="inAppGuideContainerView" destination="VWA-aZ-Sg4" id="LWK-KV-Qml"/>
+                        <outlet property="saveToolbarButton" destination="Eh3-rm-B9g" id="E3p-W2-J0v"/>
+                        <outlet property="selectButton" destination="R26-hm-LpA" id="7yV-JO-b49"/>
+                        <outlet property="selectionToolbar" destination="raT-6f-okn" id="RLk-5l-mEc"/>
+                        <outlet property="shareToolbarButton" destination="sz5-XS-Rr1" id="2Vn-gS-1mp"/>
                         <outlet property="swipePhotoGesture" destination="WGR-So-KtL" id="YXS-tA-8XP"/>
                     </connections>
                 </viewController>
@@ -649,9 +701,12 @@
         <image name="check-circle-filled" width="372" height="372"/>
         <image name="chevron-back-outline" width="14" height="24"/>
         <image name="close-circle" width="312" height="312"/>
+        <image name="download-outline-toolbar" width="19" height="24"/>
         <image name="eye-off-outline" width="360" height="288"/>
         <image name="eye-outline-toolbar" width="24" height="16"/>
         <image name="play" width="240" height="276"/>
+        <image name="share-outline-toolbar" width="19" height="24"/>
+        <image name="trash-toolbar" width="21" height="24"/>
         <systemColor name="lightTextColor">
             <color white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
@@ -672,6 +727,9 @@
         </systemColor>
         <systemColor name="systemOrangeColor">
             <color red="1" green="0.58431372549019611" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="tertiaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

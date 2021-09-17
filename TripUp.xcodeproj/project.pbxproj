@@ -100,6 +100,7 @@
 		20588AE722207B9300D88C4D /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20588AE622207B9300D88C4D /* String.swift */; };
 		205E038D238EE01300DC4D9D /* Support.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 205E038C238EE01300DC4D9D /* Support.storyboard */; };
 		205E038F238EE16300DC4D9D /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205E038E238EE16300DC4D9D /* SupportView.swift */; };
+		2062CE0026F532E100E9D788 /* CollectionViewMultiSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2062CDFF26F532E100E9D788 /* CollectionViewMultiSelect.swift */; };
 		20662F74267A130000BBE5ED /* TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20662F73267A130000BBE5ED /* TimeInterval.swift */; };
 		2066FAF0230B52C400E414BB /* CollectionViewDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2066FAEF230B52C400E414BB /* CollectionViewDataModel.swift */; };
 		20712E10233AC9C70036C373 /* RealmDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20712E0F233AC9C70036C373 /* RealmDatabase.swift */; };
@@ -394,6 +395,7 @@
 		20588AE622207B9300D88C4D /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		205E038C238EE01300DC4D9D /* Support.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Support.storyboard; sourceTree = "<group>"; };
 		205E038E238EE16300DC4D9D /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportView.swift; sourceTree = "<group>"; };
+		2062CDFF26F532E100E9D788 /* CollectionViewMultiSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewMultiSelect.swift; sourceTree = "<group>"; };
 		20662F73267A130000BBE5ED /* TimeInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeInterval.swift; sourceTree = "<group>"; };
 		2066FAEF230B52C400E414BB /* CollectionViewDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewDataModel.swift; sourceTree = "<group>"; };
 		20712E0F233AC9C70036C373 /* RealmDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDatabase.swift; sourceTree = "<group>"; };
@@ -884,6 +886,7 @@
 				2021296A26F263AD00ADCFB8 /* AssetActions.swift */,
 				2066FAEF230B52C400E414BB /* CollectionViewDataModel.swift */,
 				2021296E26F3846600ADCFB8 /* CollectionViewDelegate.swift */,
+				2062CDFF26F532E100E9D788 /* CollectionViewMultiSelect.swift */,
 				2047DBD02329484000598647 /* TUFullscreenViewDelegate.swift */,
 			);
 			path = LogicComponents;
@@ -1631,6 +1634,7 @@
 				20569A6E246C1961008998AA /* UIView.swift in Sources */,
 				208E4D2B24ED1BED0043CCCD /* LibraryVC.swift in Sources */,
 				209D7C86234D48F5005F0AE2 /* CGSize.swift in Sources */,
+				2062CE0026F532E100E9D788 /* CollectionViewMultiSelect.swift in Sources */,
 				20C6418A2152ADCF00809173 /* NetworkMonitor.swift in Sources */,
 				20789E3623EABD0800F73638 /* BadgeView.swift in Sources */,
 				204B267F25E027A6004870DB /* UITextFieldPhoneNumber.swift in Sources */,
