@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import FirebaseAuth
+
+import Firebase
 
 struct APIToken: Equatable {
     let value: String
@@ -35,10 +36,10 @@ class AuthenticatedUser {
         return firebaseAuthUser.providerData.first(where: { $0.providerID == "apple.com" })?.email
     }
 
-    let firebaseAuthUser: FirebaseAuth.User
+    let firebaseAuthUser: Firebase.User
     private let log = Logger.self
 
-    init(firebaseAuthUser: FirebaseAuth.User) {
+    init(firebaseAuthUser: Firebase.User) {
         self.firebaseAuthUser = firebaseAuthUser
     }
 

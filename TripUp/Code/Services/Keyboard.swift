@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import struct CoreGraphics.CGFloat
+
 import IQKeyboardManagerSwift
 
 /*

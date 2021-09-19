@@ -7,7 +7,9 @@
 //
 
 import Foundation
-import Toast_Swift
+import UIKit.UIView
+
+import Toast
 
 /*
  NOTE: For Toast_Swift library, use view.superview?.makeToastie if making a toast with bottom position inside a tableView or indeed any view that scrolls – otherwise the toast will not be offset correctly

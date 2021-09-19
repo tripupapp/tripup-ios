@@ -274,7 +274,7 @@ extension PreferencesView {
         ]
 
         let dataEntries = [BarChartDataEntry(x: 0, yValues: values)]
-        let chartDataSet = BarChartDataSet(entries: dataEntries, label: nil)
+        let chartDataSet = BarChartDataSet(entries: dataEntries, label: "")
         chartDataSet.stackLabels = labels
         chartDataSet.colors = [.systemYellow, .systemRed]
         chartDataSet.drawValuesEnabled = false

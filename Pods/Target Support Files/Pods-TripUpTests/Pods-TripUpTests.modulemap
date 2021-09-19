@@ -1,6 +1,0 @@
-framework module Pods_TripUpTests {
-  umbrella header "Pods-TripUpTests-umbrella.h"
-
-  export *
-  module * { export * }
-}

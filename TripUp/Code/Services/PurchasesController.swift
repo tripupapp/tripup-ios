@@ -89,14 +89,20 @@ class PurchasesController {
         Purchases.configure(withAPIKey: apiKey, appUserID: nil, observerMode: false, userDefaults: userDefaults)
     }
 
+    // FIXME: make asynchronous
     func signIn(userID: String) {
-        Purchases.shared.identify(userID, nil)
+        Purchases.shared.logIn(userID) { purchaserInfo, created, error in
+
+        }
         Purchases.shared.delegate = purchasesObserverDelegate
         signedIn = true
     }
 
+    // FIXME: make asynchronous
     func signOut() {
-        Purchases.shared.reset(nil)
+        Purchases.shared.logOut { purchaserInfo, error in
+
+        }
         Purchases.shared.delegate = nil
         signedIn = false
     }

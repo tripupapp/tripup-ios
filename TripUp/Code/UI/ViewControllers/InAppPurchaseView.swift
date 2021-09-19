@@ -9,8 +9,6 @@
 import Foundation
 import UIKit
 
-import Toast_Swift
-
 class InAppPurchaseView: UIViewController {
     @IBOutlet var product1: UIButton!
     @IBOutlet var product2: UIButton!
