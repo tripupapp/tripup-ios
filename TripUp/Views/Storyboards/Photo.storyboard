@@ -54,7 +54,7 @@
                                                                         <constraint firstAttribute="width" secondItem="HiW-ZP-Aeb" secondAttribute="height" multiplier="1:1" id="uzW-bL-3BS"/>
                                                                     </constraints>
                                                                 </imageView>
-                                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" image="eye-off-outline" translatesAutoresizingMaskIntoConstraints="NO" id="ATN-Pr-Ozg" userLabel="unshare">
+                                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" image="eye-off-outline-toolbar" translatesAutoresizingMaskIntoConstraints="NO" id="ATN-Pr-Ozg" userLabel="unshare">
                                                                     <rect key="frame" x="81" y="43.666666666666664" width="13" height="13"/>
                                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
@@ -703,7 +703,7 @@
         <image name="chevron-back-outline" width="14" height="24"/>
         <image name="close-circle" width="312" height="312"/>
         <image name="download-outline-toolbar" width="19" height="24"/>
-        <image name="eye-off-outline" width="360" height="288"/>
+        <image name="eye-off-outline-toolbar" width="24" height="20"/>
         <image name="eye-outline-toolbar" width="24" height="16"/>
         <image name="play" width="240" height="276"/>
         <image name="share-outline-toolbar" width="19" height="24"/>

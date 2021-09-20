@@ -498,7 +498,7 @@ extension PhotoView: CollectionViewMultiSelect {
             if #available(iOS 13.0, *) {
                 selectionShareToolbarItem.image = allShared ? UIImage(systemName: "eye.slash") : UIImage(systemName: "eye")
             } else {
-                selectionShareToolbarItem.image = allShared ? UIImage(named: "eye-off-outline") : UIImage(named: "eye-outline-toolbar")
+                selectionShareToolbarItem.image = allShared ? UIImage(named: "eye-off-outline-toolbar") : UIImage(named: "eye-outline-toolbar")
             }
         } else {
             if #available(iOS 13.0, *) {
