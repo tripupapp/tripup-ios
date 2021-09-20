@@ -17,11 +17,13 @@ class PhotoView: UIViewController {
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var swipePhotoGesture: UIPanGestureRecognizer!
     @IBOutlet var selectButton: UIButton!
+
     @IBOutlet var selectionToolbar: UIToolbar!
-    @IBOutlet var shareToolbarButton: UIBarButtonItem!
-    @IBOutlet var exportToolbarButton: UIBarButtonItem!
-    @IBOutlet var saveToolbarButton: UIBarButtonItem!
-    @IBOutlet var deleteToolbarButton: UIBarButtonItem!
+    @IBOutlet var selectionCountToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionShareToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionExportToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionSaveToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionDeleteToolbarItem: UIBarButtonItem!
 
     lazy var selectionBadgeCounter: BadgeCounter = {
         let badge = BadgeView(color: .systemBlue)
@@ -174,12 +176,13 @@ class PhotoView: UIViewController {
         refreshControl.addTarget(self, action: #selector(networkReload(_:)), for: .valueChanged)
 
         selectButton.layer.cornerRadius = 5.0
-        selectionToolbar.items?.insert(UIBarButtonItem(customView: selectionBadgeCounter), at: 0)
+        selectionCountToolbarItem.title = nil
+        selectionCountToolbarItem.customView = selectionBadgeCounter
         if #available(iOS 13.0, *) {
-            shareToolbarButton.image = UIImage(systemName: "eye")
-            exportToolbarButton.image = UIImage(systemName: "square.and.arrow.up")
-            saveToolbarButton.image = UIImage(systemName: "square.and.arrow.down")
-            deleteToolbarButton.image = UIImage(systemName: "trash")
+            selectionShareToolbarItem.image = UIImage(systemName: "eye")
+            selectionExportToolbarItem.image = UIImage(systemName: "square.and.arrow.up")
+            selectionSaveToolbarItem.image = UIImage(systemName: "square.and.arrow.down")
+            selectionDeleteToolbarItem.image = UIImage(systemName: "trash")
         }
 
         firstInstructionsLabel.textToReplace = "plus"
@@ -196,6 +199,11 @@ class PhotoView: UIViewController {
 //        }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.setToolbarItems(selectionToolbar.items, animated: false)
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         #if DEBUG
@@ -204,6 +212,11 @@ class PhotoView: UIViewController {
         #else
         showGestureTutorial()
         #endif
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.setToolbarItems(nil, animated: false)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -388,14 +401,23 @@ class PhotoView: UIViewController {
 extension PhotoView: AssetActions {}
 
 extension PhotoView: CollectionViewMultiSelect {
+    func hideSelectionToolbar(_ hide: Bool) {
+        tabBarController?.navigationController?.setToolbarHidden(hide, animated: false)
+    }
+
     @IBAction func selectButtonTapped(_ sender: UIButton) {
-        selectMode = !selectMode
-        if !selectMode {
+        selectMode.toggle()
+        if selectMode {
+            navigationController?.navigationBar.tintColor = .lightGray
+            navigationController?.navigationBar.isUserInteractionEnabled = false
+        } else {
             if #available(iOS 13.0, *) {
-                shareToolbarButton.image = UIImage(systemName: "eye")
+                selectionShareToolbarItem.image = UIImage(systemName: "eye")
             } else {
-                shareToolbarButton.image = UIImage(named: "eye-outline-toolbar")
+                selectionShareToolbarItem.image = UIImage(named: "eye-outline-toolbar")
             }
+            navigationController?.navigationBar.tintColor = .systemBlue
+            navigationController?.navigationBar.isUserInteractionEnabled = true
         }
     }
 
@@ -404,7 +426,7 @@ extension PhotoView: CollectionViewMultiSelect {
             return
         }
         switch sender {
-        case shareToolbarButton:
+        case selectionShareToolbarItem:
             let unsharedAssets = selectedAssets.filter{ group.album.sharedAssets[$0.uuid] == nil }
             let selectedItems = collectionView.indexPathsForSelectedItems!
             if unsharedAssets.isNotEmpty {
@@ -434,11 +456,11 @@ extension PhotoView: CollectionViewMultiSelect {
                     self?.shareToolbarButtonState()
                 }
             }
-        case exportToolbarButton:
+        case selectionExportToolbarItem:
             export(assets: selectedAssets, assetRequester: assetManager, presentingViewController: self)
-        case saveToolbarButton:
+        case selectionSaveToolbarItem:
             save(assets: selectedAssets, assetService: assetManager, presentingViewController: self)
-        case deleteToolbarButton:
+        case selectionDeleteToolbarItem:
             let ownedAssets = selectedAssets.filter{ $0.ownerID == primaryUserID }
             let unownedAssets = Set(selectedAssets).subtracting(ownedAssets)
             let deleteAction = UIAlertAction(title: ownedAssets.isNotEmpty ? "Delete" : "Delete for Me", style: .destructive) { _ in
@@ -474,15 +496,15 @@ extension PhotoView: CollectionViewMultiSelect {
         if let selectedAssets = selectedAssets {
             let allShared = selectedAssets.allSatisfy{ group.album.sharedAssets[$0.uuid] != nil }
             if #available(iOS 13.0, *) {
-                shareToolbarButton.image = allShared ? UIImage(systemName: "eye.slash") : UIImage(systemName: "eye")
+                selectionShareToolbarItem.image = allShared ? UIImage(systemName: "eye.slash") : UIImage(systemName: "eye")
             } else {
-                shareToolbarButton.image = allShared ? UIImage(named: "eye-off-outline") : UIImage(named: "eye-outline-toolbar")
+                selectionShareToolbarItem.image = allShared ? UIImage(named: "eye-off-outline") : UIImage(named: "eye-outline-toolbar")
             }
         } else {
             if #available(iOS 13.0, *) {
-                shareToolbarButton.image = UIImage(systemName: "eye")
+                selectionShareToolbarItem.image = UIImage(systemName: "eye")
             } else {
-                shareToolbarButton.image = UIImage(named: "eye-outline-toolbar")
+                selectionShareToolbarItem.image = UIImage(named: "eye-outline-toolbar")
             }
         }
     }

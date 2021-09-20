@@ -238,41 +238,10 @@
                                     <segue destination="5be-yb-gra" kind="embed" id="pbE-aX-uBq"/>
                                 </connections>
                             </containerView>
-                            <toolbar hidden="YES" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="raT-6f-okn" userLabel="SelectionToolbar">
-                                <rect key="frame" x="0.0" y="729" width="375" height="49"/>
-                                <items>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="xte-uB-X7G"/>
-                                    <barButtonItem title="Item" image="eye-outline-toolbar" id="sz5-XS-Rr1" userLabel="share">
-                                        <connections>
-                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="ZXz-cJ-4u6"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="rHM-Lz-4rD"/>
-                                    <barButtonItem title="Item" image="share-outline-toolbar" id="14B-2t-2Gl" userLabel="export">
-                                        <connections>
-                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="RmP-46-AT1"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="fUq-Lx-ooS"/>
-                                    <barButtonItem title="Item" image="download-outline-toolbar" id="Eh3-rm-B9g" userLabel="save">
-                                        <connections>
-                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="8fF-ca-uwY"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="9eR-X1-2cN"/>
-                                    <barButtonItem title="Item" image="trash-toolbar" id="9oZ-jx-QV8" userLabel="delete">
-                                        <connections>
-                                            <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="s76-uP-pdc"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="C2g-fM-aHu"/>
-                                </items>
-                            </toolbar>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="TWu-cv-XxZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="TWu-cv-XxZ" firstAttribute="trailing" secondItem="raT-6f-okn" secondAttribute="trailing" id="1ts-EL-g0B"/>
                             <constraint firstItem="VWA-aZ-Sg4" firstAttribute="centerX" secondItem="TWu-cv-XxZ" secondAttribute="centerX" id="40l-Df-A8l"/>
                             <constraint firstItem="VVb-fn-TfL" firstAttribute="top" secondItem="TWu-cv-XxZ" secondAttribute="top" id="44h-mO-MV1"/>
                             <constraint firstAttribute="bottom" secondItem="VVb-fn-TfL" secondAttribute="bottom" id="9eX-IM-hLB"/>
@@ -280,12 +249,10 @@
                             <constraint firstItem="TWu-cv-XxZ" firstAttribute="trailing" secondItem="R26-hm-LpA" secondAttribute="trailing" constant="20" id="GGK-6L-PqZ"/>
                             <constraint firstItem="VWA-aZ-Sg4" firstAttribute="centerY" secondItem="TWu-cv-XxZ" secondAttribute="centerY" id="aoe-BR-yaM"/>
                             <constraint firstItem="VWA-aZ-Sg4" firstAttribute="width" secondItem="TWu-cv-XxZ" secondAttribute="width" multiplier="0.85" id="gor-v4-2jS"/>
-                            <constraint firstItem="raT-6f-okn" firstAttribute="leading" secondItem="TWu-cv-XxZ" secondAttribute="leading" id="hfr-ab-Tqn"/>
                             <constraint firstItem="Kbe-rH-OsE" firstAttribute="centerY" secondItem="TWu-cv-XxZ" secondAttribute="centerY" id="jou-2w-XKH"/>
                             <constraint firstItem="R26-hm-LpA" firstAttribute="top" secondItem="TWu-cv-XxZ" secondAttribute="top" constant="10" id="pw2-Z9-XLB"/>
                             <constraint firstItem="VVb-fn-TfL" firstAttribute="leading" secondItem="TWu-cv-XxZ" secondAttribute="leading" id="qsQ-z7-cVn"/>
                             <constraint firstItem="Kbe-rH-OsE" firstAttribute="width" secondItem="TWu-cv-XxZ" secondAttribute="width" multiplier="0.9" id="sOV-Me-rWs"/>
-                            <constraint firstItem="TWu-cv-XxZ" firstAttribute="bottom" secondItem="raT-6f-okn" secondAttribute="bottom" id="t8x-G2-aeE"/>
                             <constraint firstItem="Kbe-rH-OsE" firstAttribute="centerX" secondItem="4ph-Dm-KwZ" secondAttribute="centerX" id="znL-Kx-7VU"/>
                         </constraints>
                         <variation key="default">
@@ -301,17 +268,51 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="VVb-fn-TfL" id="X7J-bO-sNe"/>
-                        <outlet property="deleteToolbarButton" destination="9oZ-jx-QV8" id="yVL-rS-dpo"/>
-                        <outlet property="exportToolbarButton" destination="14B-2t-2Gl" id="Zm0-sl-MoP"/>
                         <outlet property="firstInstructionsLabel" destination="Kbe-rH-OsE" id="Qyn-kE-f1W"/>
                         <outlet property="inAppGuideContainerView" destination="VWA-aZ-Sg4" id="LWK-KV-Qml"/>
-                        <outlet property="saveToolbarButton" destination="Eh3-rm-B9g" id="E3p-W2-J0v"/>
                         <outlet property="selectButton" destination="R26-hm-LpA" id="7yV-JO-b49"/>
-                        <outlet property="selectionToolbar" destination="raT-6f-okn" id="RLk-5l-mEc"/>
-                        <outlet property="shareToolbarButton" destination="sz5-XS-Rr1" id="2Vn-gS-1mp"/>
+                        <outlet property="selectionCountToolbarItem" destination="pQa-yy-oCt" id="zl4-bM-4Nu"/>
+                        <outlet property="selectionDeleteToolbarItem" destination="7W7-Kl-dLc" id="pKj-Qv-aFQ"/>
+                        <outlet property="selectionExportToolbarItem" destination="eEf-Oc-RMT" id="XVu-Ep-wtM"/>
+                        <outlet property="selectionSaveToolbarItem" destination="TYE-UX-90C" id="aEB-ic-VYl"/>
+                        <outlet property="selectionShareToolbarItem" destination="0He-dj-wQ0" id="Vlx-8q-FcQ"/>
+                        <outlet property="selectionToolbar" destination="M7P-7U-AP4" id="Cov-t7-z42"/>
                         <outlet property="swipePhotoGesture" destination="WGR-So-KtL" id="YXS-tA-8XP"/>
                     </connections>
                 </viewController>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="M7P-7U-AP4" userLabel="SelectionToolbar">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <items>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="khR-7a-ejz"/>
+                        <barButtonItem title="5" id="pQa-yy-oCt" userLabel="count"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="ve0-GF-H2P"/>
+                        <barButtonItem title="Item" image="eye-outline-toolbar" id="0He-dj-wQ0" userLabel="placeholder">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="pz9-Og-s6C"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Xq0-Ng-yqA"/>
+                        <barButtonItem title="Item" image="share-outline-toolbar" id="eEf-Oc-RMT" userLabel="export">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="lZZ-Rv-RL0"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="CiM-77-NJ6"/>
+                        <barButtonItem title="Item" image="download-outline-toolbar" id="TYE-UX-90C" userLabel="save">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="CbE-Eu-LVf"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="v4M-hR-njH"/>
+                        <barButtonItem title="Item" image="trash-toolbar" id="7W7-Kl-dLc" userLabel="delete">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="4wi-LK-acK"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="5Qu-h0-Pz9"/>
+                    </items>
+                </toolbar>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6da-b7-wxf" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="WGR-So-KtL" userLabel="swipeOnPhoto">
                     <connections>

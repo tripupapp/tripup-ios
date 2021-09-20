@@ -16,10 +16,13 @@ class LibraryVC: UIViewController {
     @IBOutlet var cloudProgressSyncView: CloudProgressSync!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var selectButton: UIButton!
+
     @IBOutlet var selectionToolbar: UIToolbar!
-    @IBOutlet var exportToolbarButton: UIBarButtonItem!
-    @IBOutlet var saveToolbarButton: UIBarButtonItem!
-    @IBOutlet var deleteToolbarButton: UIBarButtonItem!
+    @IBOutlet var selectionCountToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionPlaceholderToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionExportToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionSaveToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionDeleteToolbarItem: UIBarButtonItem!
 
     lazy var selectionBadgeCounter: BadgeCounter = {
         let badge = BadgeView(color: .systemBlue)
@@ -151,12 +154,14 @@ class LibraryVC: UIViewController {
             navigationItem.rightBarButtonItems = nil
 
             selectButton.layer.cornerRadius = 5.0
-            selectionToolbar.items?.insert(UIBarButtonItem(customView: selectionBadgeCounter), at: 0)
-
+            selectionCountToolbarItem.title = nil
+            selectionCountToolbarItem.customView = selectionBadgeCounter
+            selectionPlaceholderToolbarItem.title = nil
+            selectionPlaceholderToolbarItem.image = nil
             if #available(iOS 13.0, *) {
-                exportToolbarButton.image = UIImage(systemName: "square.and.arrow.up")
-                saveToolbarButton.image = UIImage(systemName: "square.and.arrow.down")
-                deleteToolbarButton.image = UIImage(systemName: "trash")
+                selectionExportToolbarItem.image = UIImage(systemName: "square.and.arrow.up")
+                selectionSaveToolbarItem.image = UIImage(systemName: "square.and.arrow.down")
+                selectionDeleteToolbarItem.image = UIImage(systemName: "trash")
             }
         } else {
             navigationItem.title = nil
@@ -200,9 +205,12 @@ class LibraryVC: UIViewController {
             self.handle(status: AppContext.Status(diskSpaceLow: diskSpaceLow, cloudSpaceLow: cloudSpaceLow, networkDown: false, photoLibraryAccessDenied: photoLibraryAccessDenied))
         }
 
-        selectionToolbar.frame = tabBarController?.tabBar.frame ?? view.frame
-        tabBarController?.view.addSubview(selectionToolbar)
-        selectionToolbar.sizeToFit()
+        tabBarController?.setToolbarItems(selectionToolbar.items, animated: false)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.setToolbarItems(nil, animated: false)
     }
 
     @objc private func networkReload(_ sender: UIRefreshControl) {
@@ -213,9 +221,14 @@ class LibraryVC: UIViewController {
 extension LibraryVC: AssetActions {}
 
 extension LibraryVC: CollectionViewMultiSelect {
+    func hideSelectionToolbar(_ hide: Bool) {
+        tabBarController?.navigationController?.setToolbarHidden(hide, animated: false)
+    }
+
     @IBAction func selectButtonTapped(_ sender: UIButton) {
         precondition(!pickerMode)
-        selectMode = !selectMode
+        selectMode.toggle()
+        tabBarController?.tabBar.isHidden = selectMode
     }
 
     @IBAction func selectionToolbarAction(_ sender: UIBarButtonItem) {
@@ -223,11 +236,11 @@ extension LibraryVC: CollectionViewMultiSelect {
             return
         }
         switch sender {
-        case exportToolbarButton:
+        case selectionExportToolbarItem:
             export(assets: selectedAssets, assetRequester: assetManager, presentingViewController: self)
-        case saveToolbarButton:
+        case selectionSaveToolbarItem:
             save(assets: selectedAssets, assetService: assetManager, presentingViewController: self)
-        case deleteToolbarButton:
+        case selectionDeleteToolbarItem:
             delete(assets: selectedAssets, assetService: assetManager, presentingViewController: self) { [weak self] in
                 self?.selectionBadgeCounter.value = 0
             }

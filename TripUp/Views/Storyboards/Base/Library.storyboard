@@ -197,31 +197,6 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionReusableView>
                                             </collectionView>
-                                            <toolbar hidden="YES" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fH2-X5-DMQ" userLabel="SelectionToolbar">
-                                                <rect key="frame" x="0.0" y="585" width="414" height="44"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                                <items>
-                                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="a8c-bu-8z5"/>
-                                                    <barButtonItem title="Item" image="share-outline-toolbar" id="NlO-9X-NoJ" userLabel="export">
-                                                        <connections>
-                                                            <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="PZ1-6Y-Igh"/>
-                                                        </connections>
-                                                    </barButtonItem>
-                                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="PSf-SS-CxT"/>
-                                                    <barButtonItem title="Item" image="download-outline-toolbar" id="Exd-5E-Bvh" userLabel="save">
-                                                        <connections>
-                                                            <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="OyI-TV-DKP"/>
-                                                        </connections>
-                                                    </barButtonItem>
-                                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="mMB-nL-eKv"/>
-                                                    <barButtonItem title="Item" image="trash-toolbar" id="XBd-Je-Y33" userLabel="delete">
-                                                        <connections>
-                                                            <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="iLH-Wb-HRv"/>
-                                                        </connections>
-                                                    </barButtonItem>
-                                                    <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="CQZ-Pk-hOM"/>
-                                                </items>
-                                            </toolbar>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8m-AD-WWC">
                                                 <rect key="frame" x="335" y="10" width="59" height="23"/>
                                                 <color key="backgroundColor" systemColor="tertiaryLabelColor"/>
@@ -291,16 +266,47 @@
                     <connections>
                         <outlet property="cloudProgressSyncView" destination="5gc-LY-S0Z" id="EbR-i2-Gk1"/>
                         <outlet property="collectionView" destination="fur-U0-jYo" id="A2z-7K-wZX"/>
-                        <outlet property="deleteToolbarButton" destination="XBd-Je-Y33" id="atl-Jc-M76"/>
-                        <outlet property="exportToolbarButton" destination="NlO-9X-NoJ" id="YtB-gO-6Ph"/>
-                        <outlet property="saveToolbarButton" destination="Exd-5E-Bvh" id="tUR-Ag-DoC"/>
                         <outlet property="selectButton" destination="W8m-AD-WWC" id="fLJ-pz-sm4"/>
-                        <outlet property="selectionToolbar" destination="fH2-X5-DMQ" id="7bY-MQ-Xgl"/>
+                        <outlet property="selectionCountToolbarItem" destination="hId-oV-gw7" id="Tmy-6y-Jvu"/>
+                        <outlet property="selectionDeleteToolbarItem" destination="XBd-Je-Y33" id="4xa-s0-Xay"/>
+                        <outlet property="selectionExportToolbarItem" destination="NlO-9X-NoJ" id="qEp-aJ-Ipr"/>
+                        <outlet property="selectionPlaceholderToolbarItem" destination="lfb-k1-QBT" id="2dT-wK-oiH"/>
+                        <outlet property="selectionSaveToolbarItem" destination="Exd-5E-Bvh" id="8KE-UU-NSj"/>
+                        <outlet property="selectionToolbar" destination="fH2-X5-DMQ" id="zSs-0N-PeJ"/>
                         <outlet property="warningHeaderView" destination="Ndh-Cv-TeU" id="DUZ-kB-D5j"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="k0T-KR-Nc0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="hGC-iR-Pzs" userLabel="Exit" sceneMemberID="exit"/>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="fH2-X5-DMQ" userLabel="SelectionToolbar">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <items>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Xlz-s7-6ir"/>
+                        <barButtonItem title="5" id="hId-oV-gw7" userLabel="count"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="33x-LL-yqe"/>
+                        <barButtonItem title="Item" image="eye-outline-toolbar" id="lfb-k1-QBT" userLabel="placeholder"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="YRD-jt-mYr"/>
+                        <barButtonItem title="Item" image="share-outline-toolbar" id="NlO-9X-NoJ" userLabel="export">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="PZ1-6Y-Igh"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="qdl-kW-I1u"/>
+                        <barButtonItem title="Item" image="download-outline-toolbar" id="Exd-5E-Bvh" userLabel="save">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="OyI-TV-DKP"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="xEp-3G-SyY"/>
+                        <barButtonItem title="Item" image="trash-toolbar" id="XBd-Je-Y33" userLabel="delete">
+                            <connections>
+                                <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="iLH-Wb-HRv"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Mvs-ZA-dMF"/>
+                    </items>
+                </toolbar>
             </objects>
             <point key="canvasLocation" x="1043.4782608695652" y="227.67857142857142"/>
         </scene>
@@ -329,6 +335,7 @@
         <image name="check-circle-filled" width="372" height="372"/>
         <image name="cloudy-outline" width="384" height="264"/>
         <image name="download-outline-toolbar" width="19" height="24"/>
+        <image name="eye-outline-toolbar" width="24" height="16"/>
         <image name="images-outline-toolbar" width="22" height="22"/>
         <image name="lock-closed-outline" width="264" height="360"/>
         <image name="share-outline-toolbar" width="19" height="24"/>

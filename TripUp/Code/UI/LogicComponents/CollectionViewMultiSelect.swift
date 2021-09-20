@@ -12,7 +12,6 @@ import UIKit
 protocol CollectionViewMultiSelect {
     var collectionView: UICollectionView! { get set }
     var selectButton: UIButton! { get set }
-    var selectionToolbar: UIToolbar! { get set }
     var selectionBadgeCounter: BadgeCounter { get }
 
     var collectionViewDelegate: CollectionViewDelegate! { get set }
@@ -20,6 +19,7 @@ protocol CollectionViewMultiSelect {
     var selectMode: Bool { get set }
 
     func enterSelectMode(_ selectMode: Bool)
+    func hideSelectionToolbar(_ hide: Bool)
     func selectCell(_ select: Bool, atIndexPath indexPath: IndexPath)
 }
 
@@ -37,15 +37,13 @@ extension CollectionViewMultiSelect {
             selectButton.setTitle("Select", for: .normal)
             collectionView.indexPathsForSelectedItems?.forEach {
                 collectionView.deselectItem(at: $0, animated: false)
-                if let cell = collectionView.cellForItem(at: $0) as? CollectionViewCell {
-                    cell.deselect()
-                }
+                (collectionView.cellForItem(at: $0) as? CollectionViewCell)?.deselect()
             }
-            selectionToolbar.isHidden = true
             selectionBadgeCounter.value = 0
+            hideSelectionToolbar(true)
         } else {
             selectButton.setTitle("Cancel", for: .normal)
-            selectionToolbar.isHidden = false
+            hideSelectionToolbar(false)
         }
     }
 
