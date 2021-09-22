@@ -196,6 +196,9 @@
                                                     <rect key="frame" x="0.0" y="122" width="414" height="12"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionReusableView>
+                                                <connections>
+                                                    <outletCollection property="gestureRecognizers" destination="b9C-Do-fh1" appends="YES" id="HY7-cp-jDX"/>
+                                                </connections>
                                             </collectionView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8m-AD-WWC">
                                                 <rect key="frame" x="335" y="10" width="59" height="23"/>
@@ -277,6 +280,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="k0T-KR-Nc0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="b9C-Do-fh1">
+                    <connections>
+                        <action selector="longPressOnCollectionView:" destination="SYo-lS-ss7" id="xfx-dS-RGB"/>
+                    </connections>
+                </pongPressGestureRecognizer>
                 <exit id="hGC-iR-Pzs" userLabel="Exit" sceneMemberID="exit"/>
                 <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="fH2-X5-DMQ" userLabel="SelectionToolbar">
                     <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
