@@ -44,7 +44,7 @@ class LibraryVC: UIViewController {
     }
     var lastLongPressedIndexPath: IndexPath?
     var scrollingAnimator: UIViewPropertyAnimator?
-    var initialScrollingDown: Bool?
+    var multiselectScrollingDown: Bool?
 
     private weak var appContextInfo: AppContextInfo?
     private weak var networkController: NetworkMonitorController?
@@ -255,95 +255,8 @@ extension LibraryVC: CollectionViewMultiSelect {
         }
     }
 
-    func scroll(up scrollUp: Bool) {
-        scrollingAnimator = UIViewPropertyAnimator(duration: 0.25, curve: .linear, animations: { [weak self] in
-            guard let self = self else {
-                return
-            }
-            let yOffset = self.collectionView.contentOffset.y
-            let contentHeight = self.collectionView.contentSize.height
-            if scrollUp {
-                self.collectionView.contentOffset.y = max(yOffset - 100, 0)
-            } else if self.collectionView.frame.height + yOffset < contentHeight + 50 {
-                self.collectionView.contentOffset.y = min(yOffset + 100, contentHeight)
-            }
-        })
-        scrollingAnimator?.addCompletion({ [weak self] _ in
-            self?.scroll(up: scrollUp)
-        })
-        scrollingAnimator?.startAnimation()
-    }
-
     @IBAction func longPressOnCollectionView(_ sender: UILongPressGestureRecognizer) {
-        switch sender.state {
-        case .possible:
-            break
-        case .began:
-            if !selectMode {
-                selectMode.toggle()
-                UISelectionFeedbackGenerator().selectionChanged()
-            }
-        case .changed:
-            let locationOnScreen = sender.location(in: view)
-            let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
-            let cellHeight = collectionView.visibleCells.first?.frame.height ?? 0
-
-            scrollingAnimator?.stopAnimation(true)
-            if locationOnScreen.y < cellHeight {
-                scroll(up: true)
-            } else if locationOnScreen.y >= collectionView.frame.height - tabBarHeight - cellHeight {
-                scroll(up: false)
-            }
-
-            let location = sender.location(in: collectionView)
-            guard let indexPath = collectionView.indexPathForItem(at: location) else {
-                return
-            }
-            guard lastLongPressedIndexPath != indexPath else {
-                return
-            }
-            if let lastLongPressedIndexPath = lastLongPressedIndexPath {
-                let sortedIndexPaths = collectionView.indexPathsForVisibleItems.sorted()
-                let previousIndex = sortedIndexPaths.firstIndex(of: lastLongPressedIndexPath)
-                let currentIndex = sortedIndexPaths.firstIndex(of: indexPath)
-                if let previousIndex = previousIndex, let currentIndex = currentIndex {
-                    let indexPathsToSelect: ArraySlice<IndexPath>
-                    let scrollingDown: Bool
-                    if previousIndex < currentIndex {
-                        indexPathsToSelect = sortedIndexPaths[previousIndex ... currentIndex]
-                        if initialScrollingDown == nil {
-                            initialScrollingDown = true
-                        }
-                        scrollingDown = true
-                    } else {
-                        indexPathsToSelect = sortedIndexPaths[currentIndex ... previousIndex]
-                        if initialScrollingDown == nil {
-                            initialScrollingDown = false
-                        }
-                        scrollingDown = false
-                    }
-                    for indexPath in indexPathsToSelect {
-                        if scrollingDown == initialScrollingDown {
-                            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: UICollectionView.ScrollPosition(rawValue: 0))
-                            selectCell(true, atIndexPath: indexPath)
-                        } else {
-                            collectionView.deselectItem(at: indexPath, animated: true)
-                            selectCell(false, atIndexPath: indexPath)
-                        }
-                    }
-                }
-            } else {
-                collectionView.selectItem(at: indexPath, animated: false, scrollPosition: UICollectionView.ScrollPosition(rawValue: 0))
-                selectCell(true, atIndexPath: indexPath)
-            }
-            lastLongPressedIndexPath = indexPath
-        case .ended, .failed, .cancelled:
-            scrollingAnimator?.stopAnimation(true)
-            lastLongPressedIndexPath = nil
-            initialScrollingDown = nil
-        @unknown default:
-            fatalError()
-        }
+        multiselect(with: sender)
     }
 }
 

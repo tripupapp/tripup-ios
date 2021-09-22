@@ -49,6 +49,9 @@ class PhotoView: UIViewController {
             enterSelectMode(selectMode)
         }
     }
+    var lastLongPressedIndexPath: IndexPath?
+    var scrollingAnimator: UIViewPropertyAnimator?
+    var multiselectScrollingDown: Bool?
 
     fileprivate var swipeThresholdActivation: CGFloat {
         let viewWidth = collectionView.frame.width
@@ -492,7 +495,11 @@ extension PhotoView: CollectionViewMultiSelect {
         }
     }
 
-    func shareToolbarButtonState() {
+    @IBAction func longPressOnCollectionView(_ sender: UILongPressGestureRecognizer) {
+        multiselect(with: sender)
+    }
+
+    private func shareToolbarButtonState() {
         if let selectedAssets = selectedAssets {
             let allShared = selectedAssets.allSatisfy{ group.album.sharedAssets[$0.uuid] != nil }
             if #available(iOS 13.0, *) {
