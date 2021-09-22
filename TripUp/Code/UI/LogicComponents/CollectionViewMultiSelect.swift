@@ -19,8 +19,9 @@ protocol CollectionViewMultiSelect {
     var selectMode: Bool { get set }
 
     func enterSelectMode(_ selectMode: Bool)
-    func hideSelectionToolbar(_ hide: Bool)
     func selectCell(_ select: Bool, atIndexPath indexPath: IndexPath)
+    func hideSelectionToolbar(_ hide: Bool)
+    func hideOtherBottomBars(_ hide: Bool)
 }
 
 extension CollectionViewMultiSelect {
@@ -41,9 +42,11 @@ extension CollectionViewMultiSelect {
             }
             selectionBadgeCounter.value = 0
             hideSelectionToolbar(true)
+            hideOtherBottomBars(false)
         } else {
             selectButton.setTitle("Cancel", for: .normal)
             hideSelectionToolbar(false)
+            hideOtherBottomBars(true)
         }
     }
 
@@ -56,4 +59,6 @@ extension CollectionViewMultiSelect {
         }
         selectionBadgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
     }
+
+    func hideOtherBottomBars(_ hide: Bool) {}
 }

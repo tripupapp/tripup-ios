@@ -225,10 +225,13 @@ extension LibraryVC: CollectionViewMultiSelect {
         tabBarController?.navigationController?.setToolbarHidden(hide, animated: false)
     }
 
+    func hideOtherBottomBars(_ hide: Bool) {
+        tabBarController?.tabBar.isHidden = hide
+    }
+
     @IBAction func selectButtonTapped(_ sender: UIButton) {
         precondition(!pickerMode)
         selectMode.toggle()
-        tabBarController?.tabBar.isHidden = selectMode
     }
 
     @IBAction func selectionToolbarAction(_ sender: UIBarButtonItem) {
