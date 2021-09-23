@@ -81,13 +81,13 @@ extension CollectionViewMultiSelect {
             }
         case .changed:
             let locationOnScreen = longPressGesture.location(in: view)
-            let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+            let toolbarHeight = tabBarController?.navigationController?.toolbar.frame.height ?? 0
             let cellHeight = collectionView.visibleCells.first?.frame.height ?? 0
 
             scrollingAnimator?.stopAnimation(true)
             if locationOnScreen.y < cellHeight {
                 scroll(up: true, with: longPressGesture)
-            } else if locationOnScreen.y >= collectionView.frame.height - tabBarHeight - cellHeight {
+            } else if locationOnScreen.y >= collectionView.frame.height - toolbarHeight - cellHeight {
                 scroll(up: false, with: longPressGesture)
             } else {
                 selectItems(with: longPressGesture)
@@ -111,8 +111,9 @@ extension CollectionViewMultiSelect {
             let contentHeight = self.collectionView.contentSize.height
             if scrollUp {
                 self.collectionView.contentOffset.y = max(yOffset - 100, 0)
-            } else if self.collectionView.frame.height + yOffset < contentHeight + 50 {
-                self.collectionView.contentOffset.y = min(yOffset + 100, contentHeight)
+            } else {
+                let toolbarHeight = self.tabBarController?.navigationController?.toolbar.frame.height ?? 0
+                self.collectionView.contentOffset.y = min(yOffset + 100, contentHeight - self.collectionView.frame.height + toolbarHeight)
             }
             UIView.performWithoutAnimation {
                 self.selectItems(with: longPressGesture)
