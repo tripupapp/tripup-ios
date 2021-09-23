@@ -117,6 +117,7 @@ extension CollectionViewMultiSelect {
             UIView.performWithoutAnimation {
                 self.selectItems(with: longPressGesture)
             }
+            self.view.layoutIfNeeded()
         })
         scrollingAnimator?.addCompletion({ [weak self] _ in
             self?.scroll(up: scrollUp, with: longPressGesture)
