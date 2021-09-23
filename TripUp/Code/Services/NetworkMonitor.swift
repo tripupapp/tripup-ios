@@ -107,16 +107,15 @@ class NetworkMonitor {
                     continue
                 }
                 switch status {
-                case .connectedViaWiFi:
+                case .connectedViaWiFi, .connectedViaEthernet:
                     observer.networkChanged(toState: .online(mobile: false))
                 case .connectedViaCellular:
                     observer.networkChanged(toState: .online(mobile: true))
                 case .connected:
                     observer.networkChanged(toState: .online(mobile: nil))
-                case .connectedViaWiFiWithoutInternet, .connectedViaCellularWithoutInternet, .notConnected:
+                case .connectedViaWiFiWithoutInternet, .connectedViaCellularWithoutInternet, .connectedViaEthernetWithoutInternet, .notConnected:
                     observer.networkChanged(toState: .notOnline)
-                default:
-                    assertionFailure(String(describing: status))
+                case .determining:
                     break
                 }
             }
