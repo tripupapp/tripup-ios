@@ -78,6 +78,7 @@
 		2043E9B025D598D100BE23A9 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2043E9A925D598D100BE23A9 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2046D1D9258FADE0003B01B1 /* UpgradeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2046D1D8258FADE0003B01B1 /* UpgradeOperation.swift */; };
 		2046D1DB258FAE39003B01B1 /* Schema0to1UpgradeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2046D1DA258FAE39003B01B1 /* Schema0to1UpgradeOperation.swift */; };
+		2046F4B026FCCEDB00C5B5F1 /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = 2046F4AF26FCCEDB00C5B5F1 /* OneSignal */; };
 		2047DBD12329484000598647 /* TUFullscreenViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2047DBD02329484000598647 /* TUFullscreenViewDelegate.swift */; };
 		2047DBD323294CFC00598647 /* FullscreenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2047DBD223294CFC00598647 /* FullscreenViewCell.swift */; };
 		204B267F25E027A6004870DB /* UITextFieldPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204B267E25E027A6004870DB /* UITextFieldPhoneNumber.swift */; };
@@ -153,8 +154,6 @@
 		20B8161B26F542FE008CC26D /* Connectivity in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8161A26F542FE008CC26D /* Connectivity */; };
 		20B8161E26F54430008CC26D /* BadgeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8161D26F54430008CC26D /* BadgeSwift */; };
 		20B8162126F544D0008CC26D /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8162026F544D0008CC26D /* IQKeyboardManagerSwift */; };
-		20B8162426F54E25008CC26D /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8162326F54E25008CC26D /* OneSignal */; };
-		20B8162626F54E62008CC26D /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8162526F54E62008CC26D /* OneSignal */; };
 		20B8162926F550F9008CC26D /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8162826F550F9008CC26D /* Alamofire */; };
 		20B8162C26F5514F008CC26D /* AlamofireNetworkActivityIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8162B26F5514F008CC26D /* AlamofireNetworkActivityIndicator */; };
 		20B8162F26F5519F008CC26D /* AnimatedGradientView in Frameworks */ = {isa = PBXBuildFile; productRef = 20B8162E26F5519F008CC26D /* AnimatedGradientView */; };
@@ -497,7 +496,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				20B8162626F54E62008CC26D /* OneSignal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -511,7 +509,6 @@
 				20B8162C26F5514F008CC26D /* AlamofireNetworkActivityIndicator in Frameworks */,
 				20EC25DC26EA565C008DC077 /* AWSCognitoIdentityProviderASF in Frameworks */,
 				20B8161E26F54430008CC26D /* BadgeSwift in Frameworks */,
-				20B8162426F54E25008CC26D /* OneSignal in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
 				20B8163526F65BE5008CC26D /* CryptoSwift in Frameworks */,
 				2083E87A26EAD05D00FA51DE /* Gopenpgp.xcframework in Frameworks */,
@@ -520,6 +517,7 @@
 				20EFCE5B26F66F3600246F5B /* SwiftProtobuf in Frameworks */,
 				20B8162F26F5519F008CC26D /* AnimatedGradientView in Frameworks */,
 				20B8163826F65CAE008CC26D /* FTLinearActivityIndicator in Frameworks */,
+				2046F4B026FCCEDB00C5B5F1 /* OneSignal in Frameworks */,
 				20B8163B26F65D0B008CC26D /* PhoneNumberKit in Frameworks */,
 				20EFCE5E26F66FB500246F5B /* SwiftyBeaver in Frameworks */,
 				2071671125DEE69A00F281B2 /* TripUpShared.framework in Frameworks */,
@@ -746,6 +744,13 @@
 			path = Upgrader;
 			sourceTree = "<group>";
 		};
+		2046F4AB26FCCBCC00C5B5F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2057B7882305C90600F41BB2 /* Protobufs */ = {
 			isa = PBXGroup;
 			children = (
@@ -959,6 +964,7 @@
 				203510F625D9EC4900569712 /* TripUpSharedTests */,
 				20B40E0125DFE73900706811 /* TripUpViews */,
 				2071F4FC1E7AEE3800E2CE4F /* Products */,
+				2046F4AB26FCCBCC00C5B5F1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1175,7 +1181,6 @@
 			);
 			name = OneSignalNotificationServiceExtension;
 			packageProductDependencies = (
-				20B8162526F54E62008CC26D /* OneSignal */,
 			);
 			productName = OneSignalNotificationServiceExtension;
 			productReference = 2043E9A925D598D100BE23A9 /* OneSignalNotificationServiceExtension.appex */;
@@ -1217,7 +1222,6 @@
 				20B8161A26F542FE008CC26D /* Connectivity */,
 				20B8161D26F54430008CC26D /* BadgeSwift */,
 				20B8162026F544D0008CC26D /* IQKeyboardManagerSwift */,
-				20B8162326F54E25008CC26D /* OneSignal */,
 				20B8162826F550F9008CC26D /* Alamofire */,
 				20B8162B26F5514F008CC26D /* AlamofireNetworkActivityIndicator */,
 				20B8162E26F5519F008CC26D /* AnimatedGradientView */,
@@ -1228,6 +1232,7 @@
 				20B8163D26F66208008CC26D /* Purchases */,
 				20EFCE5A26F66F3600246F5B /* SwiftProtobuf */,
 				20EFCE5D26F66FB500246F5B /* SwiftyBeaver */,
+				2046F4AF26FCCEDB00C5B5F1 /* OneSignal */,
 			);
 			productName = TripUp;
 			productReference = 2071F4FB1E7AEE3800E2CE4F /* TripUp.app */;
@@ -1354,7 +1359,6 @@
 				20B8161926F542FD008CC26D /* XCRemoteSwiftPackageReference "connectivity" */,
 				20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge" */,
 				20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
-				20B8162226F54E25008CC26D /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */,
 				20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire" */,
 				20B8162A26F5514F008CC26D /* XCRemoteSwiftPackageReference "AlamofireNetworkActivityIndicator" */,
 				20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView" */,
@@ -1365,6 +1369,7 @@
 				20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf" */,
 				20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				2046F4AE26FCCEDA00C5B5F1 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */,
 			);
 			productRefGroup = 2071F4FC1E7AEE3800E2CE4F /* Products */;
 			projectDirPath = "";
@@ -2396,6 +2401,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2046F4AE26FCCEDA00C5B5F1 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OneSignal/OneSignal-XCFramework";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.8.0;
+			};
+		};
 		20B8161626F5411B008CC26D /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scalessec/Toast-Swift";
@@ -2426,14 +2439,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 6.5.6;
-			};
-		};
-		20B8162226F54E25008CC26D /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/OneSignal/OneSignal-XCFramework";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.8.0;
 			};
 		};
 		20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire" */ = {
@@ -2543,6 +2548,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2046F4AF26FCCEDB00C5B5F1 /* OneSignal */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2046F4AE26FCCEDA00C5B5F1 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
+			productName = OneSignal;
+		};
 		20B8161726F5411B008CC26D /* Toast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 20B8161626F5411B008CC26D /* XCRemoteSwiftPackageReference "Toast-Swift" */;
@@ -2562,16 +2572,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
 			productName = IQKeyboardManagerSwift;
-		};
-		20B8162326F54E25008CC26D /* OneSignal */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20B8162226F54E25008CC26D /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
-			productName = OneSignal;
-		};
-		20B8162526F54E62008CC26D /* OneSignal */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20B8162226F54E25008CC26D /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
-			productName = OneSignal;
 		};
 		20B8162826F550F9008CC26D /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
