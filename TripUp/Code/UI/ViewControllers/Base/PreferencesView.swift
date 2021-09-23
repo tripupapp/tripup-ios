@@ -18,14 +18,16 @@ class PreferencesView: UITableViewController {
     @IBOutlet var storageLabel: UILabel!
 
     private weak var appDelegateExtension: AppDelegateExtension?
+    private var assetServiceProvider: AssetServiceProvider?
     private var primaryUser: User!
     private var appContextInfo: AppContextInfo?
     private var purchasesController: PurchasesController!
     private var dependencyInjector: DependencyInjector!
 
-    func initialise(primaryUser: User, appContextInfo: AppContextInfo?, purchasesController: PurchasesController, appDelegateExtension: AppDelegateExtension?, dependencyInjector: DependencyInjector) {
+    func initialise(primaryUser: User, appContextInfo: AppContextInfo?, assetServiceProvider: AssetServiceProvider?, purchasesController: PurchasesController, appDelegateExtension: AppDelegateExtension?, dependencyInjector: DependencyInjector) {
         self.primaryUser = primaryUser
         self.appContextInfo = appContextInfo
+        self.assetServiceProvider = assetServiceProvider
         self.purchasesController = purchasesController
         self.appDelegateExtension = appDelegateExtension
         self.dependencyInjector = dependencyInjector
@@ -115,7 +117,9 @@ class PreferencesView: UITableViewController {
                 self.tableView.deselectRow(at: indexPath, animated: false)
             }
         case (1, 2):    // Delete online-only content
-            deleteOnlineOnlyContent()
+            if let assetService = assetServiceProvider {
+                deleteOnlineOnlyAssets(assetService: assetService, presentingViewController: self)
+            }
             tableView.deselectRow(at: indexPath, animated: false)
         case (1, 3):    // Save all to Photos App
             presentSaveAllAlert()
@@ -138,89 +142,16 @@ class PreferencesView: UITableViewController {
         NotificationCenter.default.post(name: .AutoBackupChanged, object: sender.isOn)
     }
 
-    private func deleteOnlineOnlyContent() {
-        appContextInfo?.assetUIManager.unlinkedAssets(callback: { [weak self] (unlinkedAssets) in
-            guard unlinkedAssets.isNotEmpty else {
-                self?.view.makeToastie("There is no online-only content in your cloud storage.", duration: 5.0)
-                return
-            }
-            let photoCount = unlinkedAssets.filter{ $0.value.type == .photo }.count
-            let videoCount = unlinkedAssets.filter{ $0.value.type == .video }.count
-            assert(unlinkedAssets.count == (photoCount + videoCount))
-            let message = "This will remove \(photoCount) photos and \(videoCount) videos from your cloud storage. This action is irreversible."
-            let alert = UIAlertController(title: "Are you sure you want to remove online-only content from your cloud storage?", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-                self?.view.makeToastie("\(unlinkedAssets.count) items will be removed.", duration: 7.5)
-                self?.appContextInfo?.assetUIManager.removeAssets(ids: unlinkedAssets.keys)
-            }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-            self?.present(alert, animated: true, completion: nil)
-        })
-    }
-
     private func presentSaveAllAlert() {
         let alert = UIAlertController(title: "Save all media in TripUp to the Photos App?", message: nil, preferredStyle: .alert)
         let saveAction = UIAlertAction(title: "Yes", style: .default) { [weak self] (_) in
-            self?.saveAllToPhotosApp()
+            if let self = self, let assetService = self.assetServiceProvider {
+                self.saveAllAssets(assetService: assetService, presentingViewController: self)
+            }
         }
         alert.addAction(saveAction)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
-    }
-
-    private func saveAllToPhotosApp() {
-        var operationID: UUID?
-        let alert = UIAlertController(title: nil, message: "Saving to Photos App", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { [weak self] (action) in
-            if let operationID = operationID {
-                self?.appContextInfo?.assetUIManager.cancelOperation(id: operationID)
-            }
-        }))
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.gray
-        loadingIndicator.startAnimating()
-        alert.view.addSubview(loadingIndicator)
-
-        let progressBar = UIProgressView(progressViewStyle: .default)
-        alert.view.addSubview(progressBar)
-
-        var total: Int = 0
-        var completed: Int = 0
-        present(alert, animated: true, completion: { [weak self] in
-            // configure progress view – must be done after alert is presented
-            let margin: CGFloat = 16.0
-            let rect = CGRect(x: margin, y: 50.0, width: alert.view.frame.width - margin * 2.0, height: 2.0)
-            progressBar.frame = rect
-
-            operationID = self?.appContextInfo?.assetUIManager.saveAllAssets(initialCallback: { (count) in
-                total = count
-                progressBar.setProgress(Float(completed)/Float(total), animated: true)
-            }, finalCallback: { [weak self, weak alert] (result) in
-                alert?.dismiss(animated: true, completion: nil)
-                var message: String?
-                var errorMessage: String?
-                switch result {
-                case .success(_):
-                    message = "Saved all media to the Photos App"
-                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
-                    Logger.self.verbose("save all cancelled")
-                case .failure(let error):
-                    message = "Failed to save all media to the Photos App"
-                    errorMessage = String(describing: error)
-                    Logger.self.error("error saving all assets - error: \(errorMessage!)")
-                }
-                if let message = message {
-                    let completionAlert = UIAlertController(title: message, message: errorMessage, preferredStyle: .alert)
-                    completionAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    self?.present(completionAlert, animated: true, completion: nil)
-                }
-            }, progressHandler: { (justCompleted) in
-                completed += justCompleted
-                progressBar.setProgress(Float(completed)/Float(total), animated: true)
-            })
-        })
     }
 
     private func legal() {
@@ -306,3 +237,5 @@ extension PreferencesView: PurchasesObserver {
         self.drawStorage(tier: storageTier)
     }
 }
+
+extension PreferencesView: AssetActions {}

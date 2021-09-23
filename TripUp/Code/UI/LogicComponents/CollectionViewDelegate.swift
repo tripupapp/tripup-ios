@@ -1,38 +1,52 @@
 //
-//  PhotoViewDelegate.swift
+//  CollectionViewDelegate.swift
 //  TripUp
 //
-//  Created by Vinoth Ramiah on 21/08/2019.
-//  Copyright © 2019 Vinoth Ramiah. All rights reserved.
+//  Created by Vinoth Ramiah on 16/09/2021.
+//  Copyright © 2021 Vinoth Ramiah. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
-class PhotoViewDelegate: NSObject {
-    var isShared: ((_ asset: Asset) -> Bool)?
-    var onSelection: ((_ collectionView: UICollectionView, _ dataModel: PhotoViewDataModel, _ selectedIndexPath: IndexPath) -> Void)?
+import TripUpViews
 
-    private let headerReuseIdentifier = "AssetSectionHeader"
-    private let footerReuseIdentifier = "AssetSectionFooter"
-    private let cellPadding: CGFloat = 1.0
-    private let itemsPerRow: CGFloat = 4.0
+class CollectionViewDelegate: NSObject {
+    let itemsPerRow: CGFloat = 4.0
+
+    var collectionViewIsEmpty: Bool {
+        return dataModel.count == 0
+    }
+
+    var cellConfiguration: ((_ cell: CollectionViewCell, _ asset: Asset) -> Void)?
+    var isSelectable: ((_ asset: Asset) -> Bool)?
+    var onSelection: ((_ collectionView: UICollectionView, _ dataModel: CollectionViewDataModel, _ selectedIndexPath: IndexPath) -> Void)?
+    var onDeselection: ((_ collectionView: UICollectionView, _ dataModel: CollectionViewDataModel, _ deselectedIndexPath: IndexPath) -> Void)?
+    var onCollectionViewUpdate: Closure?
+
+    private let cellReuseIdentifier: String
+    private let sectionHeaderReuseIdentifier = "CollectionViewSectionHeader"
+    private let sectionFooterReuseIdentifier = "CollectionViewSectionFooter"
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM"
+        formatter.dateFormat = "dd MMM yyyy, E"
         return formatter
     }()
-
-    private let primaryUserID: UUID
+    private let cellPadding: CGFloat = 1.0
     private let assetDataRequester: AssetDataRequester?
-    private var dataModel: PhotoViewDataModel
+    private var dataModel: CollectionViewDataModel
     private let cache = NSCache<NSUUID, UIImage>()
 
-    init(primaryUserID: UUID, assets: [UUID: Asset], assetDataRequester: AssetDataRequester?) {
-        self.primaryUserID = primaryUserID
+    init(assetDataRequester: AssetDataRequester?, dateAscending: Bool = true, cellReuseIdentifier: String = "CollectionViewCell") {
         self.assetDataRequester = assetDataRequester
-        self.dataModel = PhotoViewDataModel(assets: assets)
-        self.cache.countLimit = 100
+        self.dataModel = CollectionViewDataModel(assets: [UUID : Asset](), dateAscending: dateAscending)
+        self.cache.countLimit = 200
+        self.cellReuseIdentifier = cellReuseIdentifier
+        super.init()
+    }
+
+    func insertPreliminaryData<T>(assets: T) where T: Sequence, T.Element == Asset {
+        _ = dataModel.insert(assets)
     }
 
     func indexPath(forIndex index: Int) -> IndexPath {
@@ -40,18 +54,12 @@ class PhotoViewDelegate: NSObject {
         return dataModel.indexPath(for: asset)
     }
 
-    func items(at indexPaths: [IndexPath]) -> [Asset] {
-        return dataModel.items(at: indexPaths)
-    }
-
     func indexPaths(for assets: [Asset]) -> [IndexPath] {
         return dataModel.indexPaths(for: assets)
     }
 
-    func swipeThresholdActivation(for collectionView: UICollectionView) -> CGFloat {
-        let viewWidth = collectionView.frame.width
-        let cellWidth = viewWidth / itemsPerRow
-        return cellWidth / 4
+    func items(at indexPaths: [IndexPath]) -> [Asset] {
+        return dataModel.items(at: indexPaths)
     }
 
     private func cellSize(for collectionView: UICollectionView) -> CGSize {
@@ -62,7 +70,7 @@ class PhotoViewDelegate: NSObject {
     }
 }
 
-extension PhotoViewDelegate {
+extension CollectionViewDelegate {
     func insert(_ assets: Set<Asset>, into collectionView: UICollectionView) {
         let (newSections, newItems) = dataModel.insert(assets)
         batchUpdate(collectionView, deletedSections: nil, newSections: newSections, movedSection: nil, deletedItems: nil, newItems: newItems, movedItem: nil)
@@ -110,64 +118,71 @@ extension PhotoViewDelegate {
                     collectionView.insertItems(at: [newIndexPath])
                 }
             }
-        }, completion: { _ in
+        }, completion: { [weak self] success in
+            guard success else { return }   // required as collectionView updates can be interrupted mid-way, causing scrollToItem to force a reloadData, causing a crash in the data model due to index being out of bounds
             if itemVisibleBeforeUpdate, let newIndexPath = movedItem?[1], collectionView.indexPathsForVisibleItems.contains(newIndexPath) {
                 collectionView.reloadItems(at: [newIndexPath])
             }
-            UIView.animate(withDuration: 0.25) {
-                collectionView.alpha = self.dataModel.count == 0 ? 0 : 1
-            }
+            self?.onCollectionViewUpdate?()
         })
     }
 }
 
-extension PhotoViewDelegate: UICollectionViewDelegate {
+extension CollectionViewDelegate: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if let isSelectable = isSelectable {
+            let asset = dataModel.item(at: indexPath)
+            return isSelectable(asset)
+        }
+        return true
+    }
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         onSelection?(collectionView, dataModel, indexPath)
     }
+
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        onDeselection?(collectionView, dataModel, indexPath)
+    }
 }
 
-extension PhotoViewDelegate: UICollectionViewDataSource {
+extension CollectionViewDelegate: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return cellSize(for: collectionView)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return cellPadding
+    }
+}
+
+extension CollectionViewDelegate: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return dataModel.numberOfItems(inSection: section)
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoViewCell.reuseIdentifier, for: indexPath) as! PhotoViewCell
-        let asset = dataModel.item(at: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! CollectionViewCell
 
+        let asset = dataModel.item(at: indexPath)
         cell.assetID = asset.uuid
+        cell.durationLabel.text = asset.duration?.formattedString
         cell.imageView.image = nil
         cell.imageView.contentMode = .scaleAspectFill
-        cell.activityIndicator.startAnimating()
-
-        let shared = isShared?(asset) ?? false
-        if #available(iOS 13.0, *), let image = UIImage(systemName: "eye") {
-            cell.shareIcon.image = image
+        if let selectedIndexPaths = collectionView.indexPathsForSelectedItems, Set(selectedIndexPaths).contains(indexPath) {
+            cell.select()
+        } else {
+            cell.deselect()
         }
-        cell.durationLabel.text = asset.duration?.formattedString
-        cell.shareIcon.isHidden = !shared
+
+        cellConfiguration?(cell, asset)
         cell.topGradient.isHidden = cell.topIconsHidden
         cell.bottomGradient.isHidden = cell.bottomIconsHidden
-        if asset.ownerID == primaryUserID {
-            if #available(iOS 13.0, *) {
-                cell.shareActionIcon.image = UIImage(systemName: "eye")
-                cell.unshareActionIcon.image = UIImage(systemName: "eye.slash")
-            }
-            cell.shareActionIconConstraint.isZoomed = shared
-            cell.unshareActionIconConstraint.isZoomed = !shared
-        } else {
-            if #available(iOS 13.0, *) {
-                cell.shareActionIcon.image = UIImage(systemName: "lock.circle")
-                cell.unshareActionIcon.image = UIImage(systemName: "lock.circle")
-            } else {
-                cell.shareActionIcon.image = UIImage(named: "lock-closed-outline")
-                cell.unshareActionIcon.image = UIImage(named: "lock-closed-outline")
-            }
-            cell.shareActionIconConstraint.isZoomed = true
-            cell.unshareActionIconConstraint.isZoomed = true
+
+        if #available(iOS 13.0, *) {
+            cell.activityIndicator.style = .medium
         }
-        cell.assetContents.isHidden = false // set to hidden in storyboard, but why?
+        cell.activityIndicator.startAnimating()
 
         if let image = cache.object(forKey: asset.uuid as NSUUID) {
             cell.imageView.image = image
@@ -205,53 +220,43 @@ extension PhotoViewDelegate: UICollectionViewDataSource {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
             let sectionKey = dataModel.key(at: indexPath.section)
-            let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PhotoViewSectionHeader
-            headerView.day.text = dateFormatter.string(from: sectionKey)
-            return headerView
+            if let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sectionHeaderReuseIdentifier, for: indexPath) as? CollectionViewSectionHeader {
+                headerView.day.text = dateFormatter.string(from: sectionKey)
+                return headerView
+            }
         case UICollectionView.elementKindSectionFooter:
-            let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: footerReuseIdentifier, for: indexPath) as! PhotoViewSectionFooter
-            return footerView
+            if let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sectionFooterReuseIdentifier, for: indexPath) as? CollectionViewSectionFooter {
+                return footerView
+            }
         default:
-            fatalError("viewForSupplementaryElementOfKind value: \(kind) is invalid")
+            assertionFailure("viewForSupplementaryElementOfKind value: \(kind) is invalid")
+        }
+        return UICollectionReusableView()
+    }
+}
+
+extension CollectionViewDelegate: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        let assets = dataModel.items(at: indexPaths)
+        let imageViewSize = cellSize(for: collectionView)
+        for asset in assets {
+            guard cache.object(forKey: asset.uuid as NSUUID) == nil else { continue }
+            let widthRatio = imageViewSize.width / asset.pixelSize.width
+            let heightRatio = imageViewSize.height / asset.pixelSize.height
+            let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
+            let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
+            assetDataRequester?.requestImage(for: asset, format: .lowQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
+                guard let self = self else { return }
+                guard let image = image, let resultInfo = resultInfo, resultInfo.final, self.cache.object(forKey: asset.uuid as NSUUID) == nil else { return }
+                self.cache.setObject(image, forKey: asset.uuid as NSUUID)
+            }
         }
     }
 }
 
-//extension PhotoViewDelegate: UICollectionViewDataSourcePrefetching {
-//    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-//        guard !gridMode else { return }
-//        let assets = dataModel.items(at: indexPaths)
-//        for asset in assets {
-//            guard resizedCache.object(forKey: asset.uuid as NSUUID) == nil else { continue }
-//            let size = cellSize(for: asset)
-//            let scale = collectionView.traitCollection.displayScale
-////            assetDataRequester.requestImage(for: asset, format: .opportunistic(size, scale)) { [weak self] (image, resultInfo) in
-////                assert(Thread.isMainThread)
-////                guard let self = self, let image = image else { return }
-////                if let resultInfo = resultInfo, resultInfo.expensive {
-////                    self.resizedCache.setObject(image, forKey: asset.uuid as NSUUID)
-////                }
-////            }
-//        }
-//    }
-//}
 
-extension PhotoViewDelegate: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return cellSize(for: collectionView)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return cellPadding
-    }
-}
-
-class PhotoViewSectionHeader: UICollectionReusableView {
-    static let reuseIdentifier = "AssetSectionHeader"
-
+class CollectionViewSectionHeader: UICollectionReusableView {
     @IBOutlet var day: UILabel!
 }
 
-class PhotoViewSectionFooter: UICollectionReusableView {
-    static let reuseIdentifier = "AssetSectionFooter"
-}
+class CollectionViewSectionFooter: UICollectionReusableView {}

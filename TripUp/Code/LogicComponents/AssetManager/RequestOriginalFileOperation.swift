@@ -22,7 +22,7 @@ class RequestOriginalFileOperation: AsynchronousOperation, AssetManagerOperation
     let id = UUID()
     let log = Logger.self
     let maxItems = 50
-    var assets = [Asset]()
+    var assets = Set<Asset>()
     var error: Error?
     var progressHandler: ((Int) -> Void)?
     var result = [Asset: URL]()
@@ -69,7 +69,7 @@ class RequestOriginalFileOperation: AsynchronousOperation, AssetManagerOperation
             }
         }
 
-        let unimportedAssets = Set(assets).subtracting(importedAssets)
+        let unimportedAssets = assets.subtracting(importedAssets)
         if unimportedAssets.isNotEmpty {
             unimportedAssets.forEach{ _ in dispatchGroup.enter() }
             assetController?.localIdentifiers(forAssets: unimportedAssets) { [weak self] (localIDMap) in

@@ -11,14 +11,14 @@ import struct AVFoundation.AVFileType
 
 protocol AssetDataRequester: AssetImageRequester, AssetAVRequester {
     func requestOriginalFile(forAsset asset: Asset, callback: @escaping (Result<URL, Error>) -> Void) -> UUID
-    func requestOriginalFiles(forAssets assets: [Asset], callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID
+    func requestOriginalFiles<T>(forAssets assets: T, callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID where T: Collection, T.Element == Asset
     func cancelOperation(id: UUID)
 }
 
 extension AssetManager: AssetDataRequester {
-    func requestOriginalFiles(forAssets assets: [Asset], callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID {
+    func requestOriginalFiles<T>(forAssets assets: T, callback: @escaping (Result<[Asset: URL], Error>) -> Void, progressHandler: ((Int) -> Void)?) -> UUID where T: Collection, T.Element == Asset {
         let operation = createRequestOperation(callback: callback, progressHandler: progressHandler)
-        operation.assets = assets
+        operation.assets = Set(assets)
         saveOperation(operation)
         generalOperationQueue.addOperation(operation)
         return operation.id
