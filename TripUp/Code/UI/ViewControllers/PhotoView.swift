@@ -412,6 +412,7 @@ extension PhotoView: CollectionViewMultiSelect {
         if selectMode {
             navigationController?.navigationBar.tintColor = .lightGray
             navigationController?.navigationBar.isUserInteractionEnabled = false
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = false
         } else {
             if #available(iOS 13.0, *) {
                 selectionShareToolbarItem.image = UIImage(systemName: "eye")
@@ -420,6 +421,7 @@ extension PhotoView: CollectionViewMultiSelect {
             }
             navigationController?.navigationBar.tintColor = .systemBlue
             navigationController?.navigationBar.isUserInteractionEnabled = true
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         }
     }
 
