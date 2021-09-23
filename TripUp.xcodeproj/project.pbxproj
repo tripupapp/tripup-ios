@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1338,7 +1338,7 @@
 				};
 			};
 			buildConfigurationList = 2071F4F61E7AEE3800E2CE4F /* Build configuration list for PBXProject "TripUp" */;
-			compatibilityVersion = "Xcode 11.0";
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1347,24 +1347,24 @@
 			);
 			mainGroup = 2071F4F21E7AEE3800E2CE4F;
 			packageReferences = (
-				20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa.git" */,
-				20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */,
+				20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */,
+				20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
 				20B8161626F5411B008CC26D /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 				20B8161926F542FD008CC26D /* XCRemoteSwiftPackageReference "connectivity" */,
-				20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge.git" */,
-				20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager.git" */,
+				20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge" */,
+				20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 				20B8162226F54E25008CC26D /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */,
-				20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire.git" */,
+				20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire" */,
 				20B8162A26F5514F008CC26D /* XCRemoteSwiftPackageReference "AlamofireNetworkActivityIndicator" */,
-				20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView.git" */,
-				20B8163026F586EC008CC26D /* XCRemoteSwiftPackageReference "Charts.git" */,
-				20B8163326F65BE5008CC26D /* XCRemoteSwiftPackageReference "CryptoSwift.git" */,
-				20B8163626F65CAE008CC26D /* XCRemoteSwiftPackageReference "FTLinearActivityIndicator.git" */,
-				20B8163926F65D0B008CC26D /* XCRemoteSwiftPackageReference "PhoneNumberKit.git" */,
-				20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios.git" */,
-				20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf.git" */,
-				20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver.git" */,
+				20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView" */,
+				20B8163026F586EC008CC26D /* XCRemoteSwiftPackageReference "Charts" */,
+				20B8163326F65BE5008CC26D /* XCRemoteSwiftPackageReference "CryptoSwift" */,
+				20B8163626F65CAE008CC26D /* XCRemoteSwiftPackageReference "FTLinearActivityIndicator" */,
+				20B8163926F65D0B008CC26D /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
+				20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios" */,
+				20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+				20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			productRefGroup = 2071F4FC1E7AEE3800E2CE4F /* Products */;
 			projectDirPath = "";
@@ -1729,7 +1729,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = "$PROJECT_TEMP_DIR/info_preprocess.h";
+				INFOPLIST_PREFIX_HEADER = $PROJECT_TEMP_DIR/info_preprocess.h;
 				INFOPLIST_PREPROCESS = YES;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -1749,7 +1749,7 @@
 				DEVELOPMENT_TEAM = 9338L6NMR2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = "$PROJECT_TEMP_DIR/info_preprocess.h";
+				INFOPLIST_PREFIX_HEADER = $PROJECT_TEMP_DIR/info_preprocess.h;
 				INFOPLIST_PREPROCESS = YES;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -2098,7 +2098,7 @@
 				);
 				INFOPLIST_FILE = TripUp/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = "$PROJECT_TEMP_DIR/info_preprocess.h";
+				INFOPLIST_PREFIX_HEADER = $PROJECT_TEMP_DIR/info_preprocess.h;
 				INFOPLIST_PREPROCESS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2130,7 +2130,7 @@
 				);
 				INFOPLIST_FILE = TripUp/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = "$PROJECT_TEMP_DIR/info_preprocess.h";
+				INFOPLIST_PREFIX_HEADER = $PROJECT_TEMP_DIR/info_preprocess.h;
 				INFOPLIST_PREPROCESS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2430,7 +2430,7 @@
 				minimumVersion = 5.1.0;
 			};
 		};
-		20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge.git" */ = {
+		20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/evgenyneu/swift-badge.git";
 			requirement = {
@@ -2438,7 +2438,7 @@
 				minimumVersion = 8.0.2;
 			};
 		};
-		20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager.git" */ = {
+		20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager.git";
 			requirement = {
@@ -2454,7 +2454,7 @@
 				minimumVersion = 3.8.0;
 			};
 		};
-		20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire.git" */ = {
+		20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
@@ -2470,7 +2470,7 @@
 				minimumVersion = 3.1.0;
 			};
 		};
-		20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView.git" */ = {
+		20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rwbutler/AnimatedGradientView.git";
 			requirement = {
@@ -2478,7 +2478,7 @@
 				minimumVersion = 3.1.1;
 			};
 		};
-		20B8163026F586EC008CC26D /* XCRemoteSwiftPackageReference "Charts.git" */ = {
+		20B8163026F586EC008CC26D /* XCRemoteSwiftPackageReference "Charts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/danielgindi/Charts.git";
 			requirement = {
@@ -2486,7 +2486,7 @@
 				minimumVersion = 4.0.1;
 			};
 		};
-		20B8163326F65BE5008CC26D /* XCRemoteSwiftPackageReference "CryptoSwift.git" */ = {
+		20B8163326F65BE5008CC26D /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift.git";
 			requirement = {
@@ -2494,7 +2494,7 @@
 				minimumVersion = 1.4.1;
 			};
 		};
-		20B8163626F65CAE008CC26D /* XCRemoteSwiftPackageReference "FTLinearActivityIndicator.git" */ = {
+		20B8163626F65CAE008CC26D /* XCRemoteSwiftPackageReference "FTLinearActivityIndicator" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/futuretap/FTLinearActivityIndicator.git";
 			requirement = {
@@ -2502,7 +2502,7 @@
 				minimumVersion = 1.4.2;
 			};
 		};
-		20B8163926F65D0B008CC26D /* XCRemoteSwiftPackageReference "PhoneNumberKit.git" */ = {
+		20B8163926F65D0B008CC26D /* XCRemoteSwiftPackageReference "PhoneNumberKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marmelroy/PhoneNumberKit.git";
 			requirement = {
@@ -2510,7 +2510,7 @@
 				minimumVersion = 3.3.3;
 			};
 		};
-		20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios.git" */ = {
+		20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
 			requirement = {
@@ -2518,7 +2518,7 @@
 				minimumVersion = 3.12.4;
 			};
 		};
-		20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa.git" */ = {
+		20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-cocoa.git";
 			requirement = {
@@ -2526,7 +2526,7 @@
 				minimumVersion = 10.5.0;
 			};
 		};
-		20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */ = {
+		20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
@@ -2542,7 +2542,7 @@
 				minimumVersion = 2.25.0;
 			};
 		};
-		20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf.git" */ = {
+		20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-protobuf.git";
 			requirement = {
@@ -2550,7 +2550,7 @@
 				minimumVersion = 1.16.0;
 			};
 		};
-		20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver.git" */ = {
+		20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
 			requirement = {
@@ -2573,12 +2573,12 @@
 		};
 		20B8161D26F54430008CC26D /* BadgeSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge.git" */;
+			package = 20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge" */;
 			productName = BadgeSwift;
 		};
 		20B8162026F544D0008CC26D /* IQKeyboardManagerSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager.git" */;
+			package = 20B8161F26F544D0008CC26D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
 			productName = IQKeyboardManagerSwift;
 		};
 		20B8162326F54E25008CC26D /* OneSignal */ = {
@@ -2593,7 +2593,7 @@
 		};
 		20B8162826F550F9008CC26D /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire.git" */;
+			package = 20B8162726F550F8008CC26D /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
 		};
 		20B8162B26F5514F008CC26D /* AlamofireNetworkActivityIndicator */ = {
@@ -2603,57 +2603,57 @@
 		};
 		20B8162E26F5519F008CC26D /* AnimatedGradientView */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView.git" */;
+			package = 20B8162D26F5519F008CC26D /* XCRemoteSwiftPackageReference "AnimatedGradientView" */;
 			productName = AnimatedGradientView;
 		};
 		20B8163126F586ED008CC26D /* Charts */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8163026F586EC008CC26D /* XCRemoteSwiftPackageReference "Charts.git" */;
+			package = 20B8163026F586EC008CC26D /* XCRemoteSwiftPackageReference "Charts" */;
 			productName = Charts;
 		};
 		20B8163426F65BE5008CC26D /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8163326F65BE5008CC26D /* XCRemoteSwiftPackageReference "CryptoSwift.git" */;
+			package = 20B8163326F65BE5008CC26D /* XCRemoteSwiftPackageReference "CryptoSwift" */;
 			productName = CryptoSwift;
 		};
 		20B8163726F65CAE008CC26D /* FTLinearActivityIndicator */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8163626F65CAE008CC26D /* XCRemoteSwiftPackageReference "FTLinearActivityIndicator.git" */;
+			package = 20B8163626F65CAE008CC26D /* XCRemoteSwiftPackageReference "FTLinearActivityIndicator" */;
 			productName = FTLinearActivityIndicator;
 		};
 		20B8163A26F65D0B008CC26D /* PhoneNumberKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8163926F65D0B008CC26D /* XCRemoteSwiftPackageReference "PhoneNumberKit.git" */;
+			package = 20B8163926F65D0B008CC26D /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
 			productName = PhoneNumberKit;
 		};
 		20B8163D26F66208008CC26D /* Purchases */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios.git" */;
+			package = 20B8163C26F66208008CC26D /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = Purchases;
 		};
 		20CE35AA265C2F4700683AD6 /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa.git" */;
+			package = 20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */;
 			productName = Realm;
 		};
 		20CE35AC265C2F4700683AD6 /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa.git" */;
+			package = 20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */;
 			productName = RealmSwift;
 		};
 		20EC25CA26E94AFB008DC077 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
 		20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseDynamicLinks;
 		};
 		20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
 		};
 		20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */ = {
@@ -2688,12 +2688,12 @@
 		};
 		20EFCE5A26F66F3600246F5B /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf.git" */;
+			package = 20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf" */;
 			productName = SwiftProtobuf;
 		};
 		20EFCE5D26F66FB500246F5B /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver.git" */;
+			package = 20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
 		};
 /* End XCSwiftPackageProductDependency section */
