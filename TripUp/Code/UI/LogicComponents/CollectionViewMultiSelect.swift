@@ -22,10 +22,11 @@ protocol CollectionViewMultiSelect: UIViewController {
     var scrollingAnimator: UIViewPropertyAnimator? { get set }
     var multiselectScrollingDown: Bool? { get set }
 
-    func enterSelectMode(_ selectMode: Bool)
-    func selectCell(_ select: Bool, atIndexPath indexPath: IndexPath)
+    func configureSelectMode()
+    func configureSelectModeExtra()
     func hideSelectionToolbar(_ hide: Bool)
     func hideOtherBottomBars(_ hide: Bool)
+    func selectCell(_ select: Bool, atIndexPath indexPath: IndexPath)
 
     func multiselect(with longPressGesture: UILongPressGestureRecognizer)
 }
@@ -39,7 +40,7 @@ extension CollectionViewMultiSelect {
         return assets.isNotEmpty ? assets : nil
     }
 
-    func enterSelectMode(_ selectMode: Bool) {
+    func configureSelectMode() {
         if !selectMode {
             selectButton.setTitle("Select", for: .normal)
             collectionView.indexPathsForSelectedItems?.forEach {
@@ -49,12 +50,17 @@ extension CollectionViewMultiSelect {
             selectionBadgeCounter.value = 0
             hideSelectionToolbar(true)
             hideOtherBottomBars(false)
+            configureSelectModeExtra()
         } else {
             selectButton.setTitle("Cancel", for: .normal)
             hideSelectionToolbar(false)
             hideOtherBottomBars(true)
+            configureSelectModeExtra()
         }
     }
+
+    func configureSelectModeExtra() {}
+    func hideOtherBottomBars(_ hide: Bool) {}
 
     func selectCell(_ select: Bool, atIndexPath indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
@@ -65,8 +71,6 @@ extension CollectionViewMultiSelect {
         }
         selectionBadgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
     }
-
-    func hideOtherBottomBars(_ hide: Bool) {}
 }
 
 extension CollectionViewMultiSelect {

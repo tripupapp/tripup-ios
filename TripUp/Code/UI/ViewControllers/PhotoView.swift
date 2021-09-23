@@ -46,7 +46,7 @@ class PhotoView: UIViewController {
     }
     var selectMode: Bool = false {
         didSet {
-            enterSelectMode(selectMode)
+            configureSelectMode()
         }
     }
     var lastLongPressedIndexPath: IndexPath?
@@ -408,8 +408,7 @@ extension PhotoView: CollectionViewMultiSelect {
         tabBarController?.navigationController?.setToolbarHidden(hide, animated: false)
     }
 
-    @IBAction func selectButtonTapped(_ sender: UIButton) {
-        selectMode.toggle()
+    func configureSelectModeExtra() {
         if selectMode {
             navigationController?.navigationBar.tintColor = .lightGray
             navigationController?.navigationBar.isUserInteractionEnabled = false
@@ -422,6 +421,10 @@ extension PhotoView: CollectionViewMultiSelect {
             navigationController?.navigationBar.tintColor = .systemBlue
             navigationController?.navigationBar.isUserInteractionEnabled = true
         }
+    }
+
+    @IBAction func selectButtonTapped(_ sender: UIButton) {
+        selectMode.toggle()
     }
 
     @IBAction func selectionToolbarAction(_ sender: UIBarButtonItem) {

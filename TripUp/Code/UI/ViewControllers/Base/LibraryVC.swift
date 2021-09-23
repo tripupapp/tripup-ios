@@ -38,7 +38,7 @@ class LibraryVC: UIViewController {
     var selectMode: Bool = false {
         didSet {
             if isViewLoaded {
-                enterSelectMode(selectMode)
+                configureSelectMode()
             }
         }
     }
