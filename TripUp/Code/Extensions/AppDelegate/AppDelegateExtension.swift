@@ -34,7 +34,7 @@ extension AppDelegate {
         }
         if let loginNavVC = window?.rootViewController as? LoginNavigationController, let loginVC = loginNavVC.viewControllers.first as? LoginView, loginVC.handle(link: url) {
             return true
-        } else if let mainVC = window?.rootViewController as? MainVC, let authVC = (mainVC.viewControllers?.last as? UINavigationController)?.visibleViewController as? AuthenticationView, authVC.handle(link: url) {
+        } else if let authVC = (((window?.rootViewController as? UINavigationController)?.topViewController as? MainVC)?.viewControllers?.last as? UINavigationController)?.visibleViewController as? AuthenticationView, authVC.handle(link: url) {
             return true
         } else if let context = context {
             return context.handle(url: url)
@@ -347,13 +347,14 @@ extension AppDelegate: AppDelegateExtension {
         context = AppContext(user: primaryUser, authenticationService: authenticationService, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService, appDelegate: self)
         userNotificationProvider?.receiver = context
         
-        let mainVC = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! MainVC
+        let navigationVC = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UINavigationController
+        let mainVC = navigationVC.topViewController as! MainVC
         context!.initialise(mainVC)
 
         if currentViewController == nil {
-            window?.rootViewController = mainVC
+            window?.rootViewController = navigationVC
         } else {
-            fadeWindow(to: mainVC)
+            fadeWindow(to: navigationVC)
         }
 
         if UIApplication.shared.applicationState != .background {

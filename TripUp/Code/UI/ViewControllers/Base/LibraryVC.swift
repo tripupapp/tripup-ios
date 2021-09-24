@@ -15,23 +15,40 @@ class LibraryVC: UIViewController {
     @IBOutlet var warningHeaderView: WarningHeaderView!
     @IBOutlet var cloudProgressSyncView: CloudProgressSync!
     @IBOutlet var collectionView: UICollectionView!
+    @IBOutlet var selectButton: UIButton!
 
-    private lazy var badgeCounter: BadgeCounter = {
+    @IBOutlet var selectionToolbar: UIToolbar!
+    @IBOutlet var selectionCountToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionPlaceholderToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionExportToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionSaveToolbarItem: UIBarButtonItem!
+    @IBOutlet var selectionDeleteToolbarItem: UIBarButtonItem!
+
+    lazy var selectionBadgeCounter: BadgeCounter = {
         let badge = BadgeView(color: .systemBlue)
         return badge
     }()
 
-    var selectedAssets: [Asset]? {
-        guard let indexPaths = collectionView.indexPathsForSelectedItems, indexPaths.isNotEmpty else { return nil }
-        let assets = collectionViewDelegate.items(at: indexPaths)
-        return assets.isNotEmpty ? assets : nil
+    var collectionViewDelegate: CollectionViewDelegate!
+    var pickerMode: Bool = false {
+        didSet {
+            selectMode = pickerMode
+        }
     }
-    var selectMode: Bool = false
+    var selectMode: Bool = false {
+        didSet {
+            if isViewLoaded {
+                configureSelectMode()
+            }
+        }
+    }
+    var lastLongPressedIndexPath: IndexPath?
+    var scrollingAnimator: UIViewPropertyAnimator?
+    var multiselectScrollingDown: Bool?
 
     private weak var appContextInfo: AppContextInfo?
     private weak var networkController: NetworkMonitorController?
     private var primaryUserID: UUID!
-    private var collectionViewDelegate: CollectionViewDelegate!
     private var assetManager: AssetManager?
     private var userFinder: UserFinder?
     private var autoBackupObserverToken: NSObjectProtocol?
@@ -43,7 +60,11 @@ class LibraryVC: UIViewController {
         self.userFinder = userFinder
         self.appContextInfo = appContextInfo
         self.networkController = networkController
-        self.collectionViewDelegate = CollectionViewDelegate(assetDataRequester: assetManager)
+        self.collectionViewDelegate = CollectionViewDelegate(
+            assetDataRequester: assetManager,
+            dateAscending: false,
+            cellReuseIdentifier: LibraryCollectionViewCell.reuseIdentifier
+        )
 
         assetFinder.allAssets { (allAssets) in
             let assets = allAssets.values.filter{ !$0.hidden }
@@ -80,18 +101,32 @@ class LibraryVC: UIViewController {
         collectionView.delegate = collectionViewDelegate
         collectionView.dataSource = collectionViewDelegate
 //        collectionView.prefetchDataSource = collectionViewDelegate
+        collectionView.allowsMultipleSelection = true
 
         let refreshControl = UIRefreshControl()
         collectionView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(networkReload), for: .valueChanged)
 
-        collectionViewDelegate.isSelectable = { [unowned self] (asset: Asset) in
-            if self.selectMode {
+        let isSelectable = { [unowned self] (asset: Asset) -> Bool in
+            if self.pickerMode {
                 return asset.ownerID == self.primaryUserID
             }
             return true
         }
-        collectionViewDelegate.onSelection = { [unowned self] (collectionView: UICollectionView, dataModel: PhotoViewDataModel, selectedIndexPath: IndexPath) in
+        collectionViewDelegate.cellConfiguration = { (cell: CollectionViewCell, asset: Asset) in
+            let cell = cell as! LibraryCollectionViewCell
+            cell.importedIcon.isHidden = !asset.imported
+            cell.importingIcon.isHidden = !cell.importedIcon.isHidden || !UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue)
+            cell.lockView.isHidden = isSelectable(asset)
+
+            if #available(iOS 13.0, *) {
+                cell.lockIcon.image = UIImage(systemName: "lock")
+                cell.importingIcon.image = UIImage(systemName: "arrow.up.circle")
+                cell.importedIcon.image = UIImage(systemName: "cloud")
+            }
+        }
+        collectionViewDelegate.isSelectable = isSelectable
+        collectionViewDelegate.onSelection = { [unowned self] (collectionView: UICollectionView, dataModel: CollectionViewDataModel, selectedIndexPath: IndexPath) in
             if !self.selectMode {
                 collectionView.deselectItem(at: selectedIndexPath, animated: false)
                 let fullscreenVCDelegate = FullscreenViewDelegateLibrary(dataModel: dataModel, primaryUserID: self.primaryUserID, assetManager: self.assetManager, userFinder: self.userFinder)
@@ -105,31 +140,37 @@ class LibraryVC: UIViewController {
                 self.present(fullscreenVC, animated: false, completion: nil)
                 self.fullscreenVC = fullscreenVC
             } else {
-                let cell = collectionView.cellForItem(at: selectedIndexPath) as? LibraryCollectionViewCell
-                cell?.select()
-                self.badgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
+                self.selectCell(true, atIndexPath: selectedIndexPath)
             }
         }
         collectionViewDelegate.onDeselection = { [unowned self] (collectionView: UICollectionView, _, deselectedIndexPath: IndexPath) in
-            guard self.selectMode else { return }
-            let cell = collectionView.cellForItem(at: deselectedIndexPath) as? LibraryCollectionViewCell
-            cell?.deselect()
-            self.badgeCounter.value = collectionView.indexPathsForSelectedItems?.count ?? 0
+            if self.selectMode {
+                self.selectCell(false, atIndexPath: deselectedIndexPath)
+            }
         }
         collectionViewDelegate.onCollectionViewUpdate = { [unowned self] in
             self.view.makeToastieActivity(false)
         }
 
-        if !selectMode {
+        if !pickerMode {
             navigationItem.leftBarButtonItems = nil
             navigationItem.rightBarButtonItems = nil
-        } else {
-            collectionView.allowsMultipleSelection = true
 
+            selectButton.layer.cornerRadius = 5.0
+            selectionCountToolbarItem.title = nil
+            selectionCountToolbarItem.customView = selectionBadgeCounter
+            selectionPlaceholderToolbarItem.title = nil
+            selectionPlaceholderToolbarItem.image = nil
+            if #available(iOS 13.0, *) {
+                selectionExportToolbarItem.image = UIImage(systemName: "square.and.arrow.up")
+                selectionSaveToolbarItem.image = UIImage(systemName: "square.and.arrow.down")
+                selectionDeleteToolbarItem.image = UIImage(systemName: "trash")
+            }
+        } else {
             navigationItem.title = nil
             navigationItem.titleView = nil
-            let button = UIBarButtonItem(customView: badgeCounter)
-            navigationItem.rightBarButtonItems?.append(button)
+            navigationItem.rightBarButtonItems?.append(UIBarButtonItem(customView: selectionBadgeCounter))
+            selectButton.isHidden = true
         }
 
         warningHeaderView.isHidden = true
@@ -166,10 +207,56 @@ class LibraryVC: UIViewController {
         dispatchGroup.notify(queue: .main) {
             self.handle(status: AppContext.Status(diskSpaceLow: diskSpaceLow, cloudSpaceLow: cloudSpaceLow, networkDown: false, photoLibraryAccessDenied: photoLibraryAccessDenied))
         }
+
+        tabBarController?.setToolbarItems(selectionToolbar.items, animated: false)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.setToolbarItems(nil, animated: false)
     }
 
     @objc private func networkReload(_ sender: UIRefreshControl) {
         networkController?.refresh()
+    }
+}
+
+extension LibraryVC: AssetActions {}
+
+extension LibraryVC: CollectionViewMultiSelect {
+    func hideSelectionToolbar(_ hide: Bool) {
+        tabBarController?.navigationController?.setToolbarHidden(hide, animated: false)
+    }
+
+    func hideOtherBottomBars(_ hide: Bool) {
+        tabBarController?.tabBar.isHidden = hide
+    }
+
+    @IBAction func selectButtonTapped(_ sender: UIButton) {
+        precondition(!pickerMode)
+        selectMode.toggle()
+    }
+
+    @IBAction func selectionToolbarAction(_ sender: UIBarButtonItem) {
+        guard let assetManager = assetManager, let selectedAssets = selectedAssets else {
+            return
+        }
+        switch sender {
+        case selectionExportToolbarItem:
+            export(assets: selectedAssets, assetRequester: assetManager, presentingViewController: self)
+        case selectionSaveToolbarItem:
+            save(assets: selectedAssets, assetService: assetManager, presentingViewController: self)
+        case selectionDeleteToolbarItem:
+            delete(assets: selectedAssets, assetService: assetManager, presentingViewController: self) { [weak self] in
+                self?.selectionBadgeCounter.value = 0
+            }
+        default:
+            assertionFailure()
+        }
+    }
+
+    @IBAction func longPressOnCollectionView(_ sender: UILongPressGestureRecognizer) {
+        multiselect(with: sender)
     }
 }
 
@@ -248,293 +335,5 @@ extension LibraryVC: FullscreenViewTransitionDelegate {
         collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
         let cellLayout = collectionView.layoutAttributesForItem(at: indexPath)! // cannot use cellForItem as cell is not visible
         return collectionView.convert(cellLayout.frame, to: nil)
-    }
-}
-
-extension LibraryVC {
-    class CollectionViewDelegate: NSObject {
-        var collectionViewIsEmpty: Bool {
-            return dataModel.count == 0
-        }
-
-        var isSelectable: ((_ asset: Asset) -> Bool)?
-        var onSelection: ((_ collectionView: UICollectionView, _ dataModel: PhotoViewDataModel, _ selectedIndexPath: IndexPath) -> Void)?
-        var onDeselection: ((_ collectionView: UICollectionView, _ dataModel: PhotoViewDataModel, _ deselectedIndexPath: IndexPath) -> Void)?
-        var onCollectionViewUpdate: Closure?
-
-        private let dateFormatter: DateFormatter = {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd MMM yyyy, E"
-            return formatter
-        }()
-        private let cellPadding: CGFloat = 1.0
-        private let itemsPerRow: CGFloat = 4.0
-        private let assetDataRequester: AssetDataRequester?
-        private var dataModel: PhotoViewDataModel
-        private let cache = NSCache<NSUUID, UIImage>()
-
-        init(assetDataRequester: AssetDataRequester?) {
-            self.assetDataRequester = assetDataRequester
-            self.dataModel = PhotoViewDataModel(assets: [UUID : Asset](), dateAscending: false)
-            self.cache.countLimit = 200
-        }
-
-        func insertPreliminaryData<T>(assets: T) where T: Sequence, T.Element == Asset {
-            _ = dataModel.insert(assets)
-        }
-
-        func indexPath(forIndex index: Int) -> IndexPath {
-            let asset = dataModel[index]
-            return dataModel.indexPath(for: asset)
-        }
-
-        func items(at indexPaths: [IndexPath]) -> [Asset] {
-            return dataModel.items(at: indexPaths)
-        }
-
-        private func cellSize(for collectionView: UICollectionView) -> CGSize {
-            let paddingSpace = cellPadding * (itemsPerRow - 1)
-            let availableWidth = collectionView.frame.width - paddingSpace
-            let widthPerItem = availableWidth / itemsPerRow
-            return CGSize(width: widthPerItem, height: widthPerItem)
-        }
-    }
-}
-
-extension LibraryVC.CollectionViewDelegate {
-    func insert(_ assets: Set<Asset>, into collectionView: UICollectionView) {
-        let (newSections, newItems) = dataModel.insert(assets)
-        batchUpdate(collectionView, deletedSections: nil, newSections: newSections, movedSection: nil, deletedItems: nil, newItems: newItems, movedItem: nil)
-    }
-
-    func delete(_ assets: Set<Asset>, from collectionView: UICollectionView) {
-        let (deletedSections, deletedItems) = dataModel.remove(assets)
-        batchUpdate(collectionView, deletedSections: deletedSections, newSections: nil, movedSection: nil, deletedItems: deletedItems, newItems: nil, movedItem: nil)
-    }
-
-    func update(_ asset: Asset, with newAsset: Asset, in collectionView: UICollectionView) {
-        let (movedSection, movedItem) = dataModel.update(asset, to: newAsset)
-        batchUpdate(collectionView, deletedSections: nil, newSections: nil, movedSection: movedSection, deletedItems: nil, newItems: nil, movedItem: movedItem)
-    }
-
-    private func batchUpdate(_ collectionView: UICollectionView, deletedSections: IndexSet?, newSections: IndexSet?, movedSection: [Int?]?, deletedItems: [IndexPath]?, newItems: [IndexPath]?, movedItem: [IndexPath?]?) {
-        var itemVisibleBeforeUpdate = false
-        if let previousIndexPath = movedItem?[0], collectionView.indexPathsForVisibleItems.contains(previousIndexPath) {
-            itemVisibleBeforeUpdate = true
-        }
-        collectionView.performBatchUpdates({
-            if let deletedItems = deletedItems, deletedItems.isNotEmpty {
-                collectionView.deleteItems(at: deletedItems)
-            }
-            if let deletedSections = deletedSections, deletedSections.isNotEmpty {
-                collectionView.deleteSections(deletedSections)
-            }
-            if let newSections = newSections, newSections.isNotEmpty {
-                collectionView.insertSections(newSections)
-            }
-            if let newItems = newItems, newItems.isNotEmpty {
-                collectionView.insertItems(at: newItems)
-            }
-            if let movedSection = movedSection, let newSection = movedSection[1] {
-                if let oldSection = movedSection[0] {
-                    collectionView.moveSection(oldSection, toSection: newSection)
-                } else {
-                    collectionView.insertSections(IndexSet([newSection]))
-                }
-            }
-            if let movedItem = movedItem, let newIndexPath = movedItem[1], newIndexPath != movedItem[0] {
-                if let oldIndexPath = movedItem[0] {
-                    collectionView.moveItem(at: oldIndexPath, to: newIndexPath)
-                } else {
-                    collectionView.insertItems(at: [newIndexPath])
-                }
-            }
-        }, completion: { [weak self] success in
-            guard success else { return }   // required as collectionView updates can be interrupted mid-way, causing scrollToItem to force a reloadData, causing a crash in the data model due to index being out of bounds
-            self?.onCollectionViewUpdate?()
-            if itemVisibleBeforeUpdate, let newIndexPath = movedItem?[1], collectionView.indexPathsForVisibleItems.contains(newIndexPath) {
-                collectionView.reloadItems(at: [newIndexPath])
-            }
-        })
-    }
-}
-
-extension LibraryVC.CollectionViewDelegate: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if let isSelectable = isSelectable {
-            let asset = dataModel.item(at: indexPath)
-            return isSelectable(asset)
-        }
-        return true
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        onSelection?(collectionView, dataModel, indexPath)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        onDeselection?(collectionView, dataModel, indexPath)
-    }
-}
-
-extension LibraryVC.CollectionViewDelegate: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return cellSize(for: collectionView)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return cellPadding
-    }
-}
-
-extension LibraryVC.CollectionViewDelegate: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dataModel.numberOfItems(inSection: section)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: LibraryCollectionViewCell.reuseIdentifier, for: indexPath) as! LibraryCollectionViewCell
-        cell.imageView.image = nil
-        cell.imageView.contentMode = .scaleAspectFill
-        if let selectedIndexPaths = collectionView.indexPathsForSelectedItems, Set(selectedIndexPaths).contains(indexPath) {
-            cell.select()
-        } else {
-            cell.deselect()
-        }
-
-        let asset = dataModel.item(at: indexPath)
-        cell.assetID = asset.uuid
-        cell.durationLabel.text = asset.duration?.formattedString
-        cell.importedIcon.isHidden = !asset.imported
-        cell.importingIcon.isHidden = !cell.importedIcon.isHidden || !UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue)
-        cell.topGradient.isHidden = cell.topIconsHidden
-        cell.bottomGradient.isHidden = cell.bottomIconsHidden
-        cell.lockView.isHidden = isSelectable?(asset) ?? true
-
-        if #available(iOS 13.0, *) {
-            cell.activityIndicator.style = .medium
-            cell.lockIcon.image = UIImage(systemName: "lock")
-            cell.importingIcon.image = UIImage(systemName: "arrow.up.circle")
-            cell.importedIcon.image = UIImage(systemName: "cloud")
-        }
-        cell.activityIndicator.startAnimating()
-
-        if let image = cache.object(forKey: asset.uuid as NSUUID) {
-            cell.imageView.image = image
-            cell.activityIndicator.stopAnimating()
-        } else {
-            let imageViewSize = cell.imageView.bounds.size
-            let widthRatio = imageViewSize.width / asset.pixelSize.width
-            let heightRatio = imageViewSize.height / asset.pixelSize.height
-            let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
-            let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
-            assetDataRequester?.requestImage(for: asset, format: .lowQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
-                guard cell.assetID == asset.uuid, let resultInfo = resultInfo else { return }
-                if resultInfo.final {
-                    if let image = image {
-                        cell.imageView.image = image
-                        if let cache = self?.cache, cache.object(forKey: asset.uuid as NSUUID) == nil {
-                            cache.setObject(image, forKey: asset.uuid as NSUUID)
-                        }
-                    }
-                } else if cell.imageView.image == nil {
-                    cell.imageView.image = image
-                }
-                cell.activityIndicator.stopAnimating()
-            }
-        }
-
-        return cell
-    }
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return dataModel.numberOfSections
-    }
-
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch kind {
-        case UICollectionView.elementKindSectionHeader:
-            let sectionKey = dataModel.key(at: indexPath.section)
-            let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: PhotoViewSectionHeader.reuseIdentifier, for: indexPath) as! PhotoViewSectionHeader
-            headerView.day.text = dateFormatter.string(from: sectionKey)
-            return headerView
-        case UICollectionView.elementKindSectionFooter:
-            let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: PhotoViewSectionFooter.reuseIdentifier, for: indexPath) as! PhotoViewSectionFooter
-            return footerView
-        default:
-            fatalError("viewForSupplementaryElementOfKind value: \(kind) is invalid")
-        }
-    }
-}
-
-extension LibraryVC.CollectionViewDelegate: UICollectionViewDataSourcePrefetching {
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        let assets = dataModel.items(at: indexPaths)
-        let imageViewSize = cellSize(for: collectionView)
-        for asset in assets {
-            guard cache.object(forKey: asset.uuid as NSUUID) == nil else { continue }
-            let widthRatio = imageViewSize.width / asset.pixelSize.width
-            let heightRatio = imageViewSize.height / asset.pixelSize.height
-            let ratio = asset.pixelSize.width > asset.pixelSize.height ? heightRatio : widthRatio
-            let targetSize = CGSize(width: asset.pixelSize.width * ratio, height: asset.pixelSize.height * ratio)
-            assetDataRequester?.requestImage(for: asset, format: .lowQuality(targetSize, UIScreen.main.scale)) { [weak self] (image, resultInfo) in
-                guard let self = self else { return }
-                guard let image = image, let resultInfo = resultInfo, resultInfo.final, self.cache.object(forKey: asset.uuid as NSUUID) == nil else { return }
-                self.cache.setObject(image, forKey: asset.uuid as NSUUID)
-            }
-        }
-    }
-}
-
-class LibraryCollectionViewCell: UICollectionViewCell {
-    static let reuseIdentifier = "AssetCell"
-
-    @IBOutlet var imageView: UIImageView!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var topGradient: UIGradientView!
-    @IBOutlet var bottomGradient: UIGradientView!
-    @IBOutlet var checkmarkView: UIImageView!
-    @IBOutlet var lockView: UIView!
-    @IBOutlet var lockIcon: UIImageView!
-
-    @IBOutlet var durationLabel: UILabel!
-    // use 2 separate icons for this, because we use System Symbols in iOS 13+, which don't behave well when switching image with different aspect ratio
-    @IBOutlet var importedIcon: UIImageView!
-    @IBOutlet var importingIcon: UIImageView!
-
-    var assetID: UUID!
-    var topIconsHidden: Bool {
-        return durationLabel.text?.isEmpty ?? true
-    }
-    var bottomIconsHidden: Bool {
-        return importedIcon.isHidden && importingIcon.isHidden
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        /*
-         tintColorDidChange fixes tintColor not being set from storyboard when cell is first created (seems fine once a cell is reused though)
-         https://stackoverflow.com/questions/41121425/uiimageview-doesnt-always-tint-template-image - apple radar: http://www.openradar.me/radar?id=5005434293321728
-         https://stackoverflow.com/questions/52992077/uiimageview-tint-color-weirdness - apple radar: http://openradar.appspot.com/23759908
-         not sure which one is the issue
-         - This issue did not appear in XCode 9, iOS 11 SDK, iPhone X running iOS 11.4.1
-         - Only presented itself once upgraded to XCode 10, still on iOS 11 SDK, iPhone X running iOS 11.4.1
-         - Fixed in Xcode 11.3.1: fixed for iOS 13.3 iPhone X simulator, still broken for iOS 12.4 iPhone 5S simulator
-        */
-        if #available(iOS 13.0, *) {} else {
-            importedIcon.tintColorDidChange()
-            importingIcon.tintColorDidChange()
-        }
-    }
-
-    func select() {
-        checkmarkView.isHidden = false
-        imageView.alpha = 0.75
-    }
-
-    func deselect() {
-        checkmarkView.isHidden = true
-        imageView.alpha = 1.0
     }
 }

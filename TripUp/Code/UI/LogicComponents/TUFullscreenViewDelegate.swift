@@ -22,9 +22,9 @@ class TUFullscreenViewDelegate {
     private let assetRequester: AssetDataRequester?
     private let userFinder: UserFinder?
     private let cache = NSCache<NSUUID, UIImage>()
-    private var dataModel: PhotoViewDataModel
+    private var dataModel: CollectionViewDataModel
 
-    init(primaryUserID: UUID, dataModel: PhotoViewDataModel, assetRequester: AssetDataRequester?, userFinder: UserFinder?, bottomToolbarItems: [UIBarButtonItem]?) {
+    init(primaryUserID: UUID, dataModel: CollectionViewDataModel, assetRequester: AssetDataRequester?, userFinder: UserFinder?, bottomToolbarItems: [UIBarButtonItem]?) {
         self.primaryUserID = primaryUserID
         self.dataModel = dataModel
         self.assetRequester = assetRequester
@@ -44,82 +44,6 @@ class TUFullscreenViewDelegate {
     }
 
     func bottomToolbarAction(_ fullscreenVC: FullscreenViewController, button: UIBarButtonItem, itemIndex: Int) {}
-
-    fileprivate func fullscreenShareSheet(_ fullscreenVC: FullscreenViewController, forAsset asset: Asset) {
-        var operationID: UUID?
-        let alert = UIAlertController(title: nil, message: "Retrieving \(asset.type.rawValue)", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-            if let operationID = operationID {
-                self.assetRequester?.cancelOperation(id: operationID)
-            }
-        }))
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.gray
-        loadingIndicator.startAnimating()
-
-        alert.view.addSubview(loadingIndicator)
-        fullscreenVC.present(alert, animated: true, completion: {
-            operationID = self.assetRequester?.requestOriginalFile(forAsset: asset, callback: { [weak alert, weak fullscreenVC] (result) in
-                alert?.dismiss(animated: true, completion: nil)
-                switch result {
-                case .success(let url):
-                    let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                    activityController.completionWithItemsHandler = { [weak fullscreenVC] _, _, _, error in
-                        if let error = error {
-                            fullscreenVC?.view.makeToastie("Failed to share item", duration: 5.0, position: .top)
-                            Logger.self.error("error exporting asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
-                        }
-                    }
-                    activityController.excludedActivityTypes = [.saveToCameraRoll]
-                    fullscreenVC?.present(activityController, animated: true, completion: nil)
-                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
-                    Logger.self.verbose("share cancelled - assetid: \(asset.uuid.string)")
-                case .failure(let error):
-                    fullscreenVC?.view.makeToastie("Failed to retrieve \(asset.type.rawValue)", duration: 7.5, position: .top)
-                    Logger.self.error("error requesting original asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
-                }
-            })
-        })
-    }
-
-    fileprivate func fullscreenSaveToDevice(_ fullscreenVC: FullscreenViewController, assetManager: AssetManager?, forAsset asset: Asset) {
-        var operationID: UUID?
-        let alert = UIAlertController(title: nil, message: "Saving to Photos App", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-            if let operationID = operationID {
-                assetManager?.cancelOperation(id: operationID)
-            }
-        }))
-
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = UIActivityIndicatorView.Style.gray
-        loadingIndicator.startAnimating()
-
-        alert.view.addSubview(loadingIndicator)
-        fullscreenVC.present(alert, animated: true, completion: {
-            operationID = assetManager?.save(asset: asset, callback: { [weak alert, weak fullscreenVC] (result) in
-                alert?.dismiss(animated: true, completion: nil)
-                var message: String?
-                switch result {
-                case .success(true):
-                    message = "\(asset.type.rawValue.capitalized) already saved to Photos App"
-                case .success(false):
-                    message = "Saved to Photos App"
-                case .failure(let error as AssetManager.OperationError) where error == .cancelled:
-                    Logger.self.verbose("save cancelled - assetid: \(asset.uuid.string)")
-                case .failure(let error):
-                    message = "Failed to save to Photos App"
-                    Logger.self.error("error saving asset - assetid: \(asset.uuid.string), error: \(String(describing: error))")
-                }
-                if let message = message {
-                    fullscreenVC?.view.makeToastie(message, duration: 5.0, position: .top)
-                }
-            })
-        })
-    }
 }
 
 extension TUFullscreenViewDelegate: FullscreenViewDelegate {
@@ -250,10 +174,12 @@ extension TUFullscreenViewDelegate: FullscreenViewDelegate {
     }
 }
 
+extension TUFullscreenViewDelegate: AssetActions {}
+
 class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
     private let assetManager: AssetManager?
 
-    init(dataModel: PhotoViewDataModel, primaryUserID: UUID, assetManager: AssetManager?, userFinder: UserFinder?) {
+    init(dataModel: CollectionViewDataModel, primaryUserID: UUID, assetManager: AssetManager?, userFinder: UserFinder?) {
         self.assetManager = assetManager
 
         var bottomToolbarImages: [UIImage?]!
@@ -269,20 +195,17 @@ class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
 
     override func bottomToolbarAction(_ fullscreenVC: FullscreenViewController, button: UIBarButtonItem, itemIndex: Int) {
         let asset = assets[itemIndex]
+        guard let assetManager = assetManager else {
+            assertionFailure()
+            return
+        }
         switch button {
         case bottomToolbarItems![0]: // EXPORT
-            fullscreenShareSheet(fullscreenVC, forAsset: asset)
+            export(assets: [asset], assetRequester: assetManager, presentingViewController: fullscreenVC)
         case bottomToolbarItems![1]: // SAVE
-            fullscreenSaveToDevice(fullscreenVC, assetManager: assetManager, forAsset: asset)
+            save(assets: [asset], assetService: assetManager, presentingViewController: fullscreenVC)
         case bottomToolbarItems![2]: // DELETE
-            let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
-                self.assetManager?.delete([asset])
-            }
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in }
-            let deleteAlert = UIAlertController(title: nil, message: "Photo will be removed from all albums", preferredStyle: .actionSheet)
-            deleteAlert.addAction(deleteAction)
-            deleteAlert.addAction(cancelAction)
-            fullscreenVC.present(deleteAlert, animated: true)
+            delete(assets: [asset], assetService: assetManager, presentingViewController: fullscreenVC, completionHandler: nil)
         default:
             assertionFailure()
             break
@@ -296,7 +219,7 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
     private let assetManager: AssetManager?
     private let groupManager: GroupManager?
 
-    init(group: Group, primaryUserID: UUID, dataModel: PhotoViewDataModel, assetManager: AssetManager?, groupManager: GroupManager?, userFinder: UserFinder?) {
+    init(group: Group, primaryUserID: UUID, dataModel: CollectionViewDataModel, assetManager: AssetManager?, groupManager: GroupManager?, userFinder: UserFinder?) {
         self.group = group
         self.assetManager = assetManager
         self.groupManager = groupManager
@@ -327,12 +250,16 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
 
     override func bottomToolbarAction(_ fullscreenVC: FullscreenViewController, button: UIBarButtonItem, itemIndex: Int) {
         let asset = assets[itemIndex]
+        guard let assetManager = assetManager else {
+            assertionFailure()
+            return
+        }
         switch button {
         case bottomToolbarItems![0]: // TOGGLE SHARE STATE
             if group.album.sharedAssets[asset.uuid] == nil {
                 groupManager?.shareAssets([asset], withGroup: group) { success in
                     if success {
-                        fullscreenVC.view.makeToastie("Item is now visible to the rest of the group 🤳", position: .top)
+                        fullscreenVC.view.makeToastie("Item is now visible to the rest of the group 🤳", duration: 6.0, position: .top)
                     } else {
                         fullscreenVC.view.makeToastie("There was a problem sharing this photo with the group", position: .top)
                     }
@@ -340,16 +267,16 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
             } else {
                 groupManager?.unshareAssets([asset], fromGroup: group) { success in
                     if success {
-                        fullscreenVC.view.makeToastie("Item is no longer visible to the rest of the group 🤫", position: .top)
+                        fullscreenVC.view.makeToastie("Item is no longer visible to the rest of the group 🤫", duration: 6.0, position: .top)
                     } else {
                         fullscreenVC.view.makeToastie("There was a problem unsharing this photo from the group", position: .top)
                     }
                 }
             }
         case bottomToolbarItems![1]: // EXPORT
-            fullscreenShareSheet(fullscreenVC, forAsset: asset)
+            export(assets: [asset], assetRequester: assetManager, presentingViewController: fullscreenVC)
         case bottomToolbarItems![2]: // SAVE
-            fullscreenSaveToDevice(fullscreenVC, assetManager: assetManager, forAsset: asset)
+            save(assets: [asset], assetService: assetManager, presentingViewController: fullscreenVC)
         case bottomToolbarItems![3]: // DELETE
             let ownedAsset = asset.ownerID == primaryUserID
             let deleteAction = UIAlertAction(title: ownedAsset ? "Delete" : "Delete for Me", style: .destructive) { _ in

@@ -37,7 +37,6 @@ protocol KeychainDelegate: AnyObject {
 }
 
 protocol AppContextInfo: AnyObject {
-    var assetUIManager: AssetUIManager { get }
     var photoLibraryAccessDenied: Bool? { get }
     func usedStorage(callback: @escaping (UsedStorage?) -> Void)
     func lowDiskSpace(callback: @escaping ClosureBool)
@@ -60,10 +59,6 @@ protocol AppContextObserverRegister {
 }
 
 extension AppContext: AppContextInfo {
-    var assetUIManager: AssetUIManager {
-        return assetManager
-    }
-
     var photoLibraryAccessDenied: Bool? {
         if let photoLibraryAccess = photoLibrary.canAccess {
             return !photoLibraryAccess
@@ -124,7 +119,7 @@ extension AppContext: DependencyInjector {
     }
 
     func initialise(preferencesView: PreferencesView) {
-        preferencesView.initialise(primaryUser: primaryUser, appContextInfo: self, purchasesController: purchasesController, appDelegateExtension: appDelegate, dependencyInjector: self)
+        preferencesView.initialise(primaryUser: primaryUser, appContextInfo: self, assetServiceProvider: assetManager, purchasesController: purchasesController, appDelegateExtension: appDelegate, dependencyInjector: self)
     }
 
     func initialise(authenticationView: AuthenticationView) {
