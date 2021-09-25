@@ -8,6 +8,8 @@
 
 import Foundation
 
+import CryptoSwift
+
 class Schema0to1UpgradeOperation: UpgradeOperation {
     override func main() {
         super.main()
