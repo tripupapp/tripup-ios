@@ -390,7 +390,8 @@ class CameraView: UIViewController {
             addBlurAndStop(session: captureSession)
 
             flipAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
-                UIView.setAnimationTransition(self.frontCameraActive ? .flipFromLeft: .flipFromRight, for: self.mainView, cache: true)
+                // FIXME
+//                UIView.setAnimationTransition(self.frontCameraActive ? .flipFromLeft: .flipFromRight, for: self.mainView, cache: true)
             }
             flipAnimator?.addCompletion { position in
                 if position == .end {
