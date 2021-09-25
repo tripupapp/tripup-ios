@@ -178,10 +178,6 @@ extension CollectionViewDelegate: UICollectionViewDataSource {
         cellConfiguration?(cell, asset)
         cell.topGradient.isHidden = cell.topIconsHidden
         cell.bottomGradient.isHidden = cell.bottomIconsHidden
-
-        if #available(iOS 13.0, *) {
-            cell.activityIndicator.style = .medium
-        }
         cell.activityIndicator.startAnimating()
 
         if let image = cache.object(forKey: asset.uuid as NSUUID) {

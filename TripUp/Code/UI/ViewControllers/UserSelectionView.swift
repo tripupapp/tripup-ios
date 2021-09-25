@@ -29,7 +29,6 @@ protocol UserSelectionViewDelegate: AnyObject {
 class UserSelectionView: UIViewController {
     @IBOutlet var tableView: UITableView!
     @IBOutlet var permissionsView: UIView!
-    @IBOutlet var alertIcon: UIImageView!
 
     var loadModally: Bool!
     var preselectedIDs = [UUID]()
@@ -54,10 +53,6 @@ class UserSelectionView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         assertDependencies()
-
-        if #available(iOS 13.0, *), let image = UIImage(systemName: "exclamationmark.circle.fill") {
-            alertIcon.image = image
-        }
 
         if loadModally {
             self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(UserSelectionView.CreateTrip(_:)))
@@ -259,11 +254,7 @@ extension UserSelectionViewModel: UITableViewDataSource {
             cell.detailTextLabel?.text = primaryUser.localContact?.addressable ?? primaryUser.uuid.string
             let shareButton = UIButton(type: .custom)
             shareButton.setTitle(nil, for: .normal)
-            if #available(iOS 13.0, *) {
-                shareButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
-            } else {
-                shareButton.setImage(UIImage(named: "share-outline-toolbar"), for: .normal)
-            }
+            shareButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
             shareButton.addTarget(self, action: #selector(loadPrimaryUserlink), for: .touchUpInside)
             shareButton.sizeToFit()
             cell.accessoryView = shareButton

@@ -19,7 +19,6 @@ import UIKit
     */
 
     var contentView : UIView?
-    @IBOutlet public var alertIcon: UIImageView!
     @IBOutlet public var label: UILabel!
 
     override init(frame: CGRect) {
@@ -44,10 +43,6 @@ import UIKit
 
         // Adding custom subview on top of our view (over any custom drawing > see note below)
         addSubview(contentView!)
-
-        if #available(iOS 13.0, *) {
-            alertIcon.image = UIImage(systemName: "exclamationmark.circle.fill")
-        }
     }
 
     private func loadViewFromNib() -> UIView! {

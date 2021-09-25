@@ -52,16 +52,7 @@ import UIKit
         let imageAttachment = NSTextAttachment()
         imageAttachment.image = replacementIcon
 
-        if #available(iOS 13.0, *) {
-
-        } else {
-            // when not using SF icons (pre-iOS 13), image not precisely vertically aligned, so bounds need adjustment
-            // NB – don't bother trying to resize vector image from its original size... resize works, but the vector image loses tint color for some reason
-            imageAttachment.bounds = CGRect(x: 0, y: -(verticalOffset), width: replacementIcon.size.width, height: replacementIcon.size.height)
-        }
-
         let replacementString = NSAttributedString(attachment: imageAttachment)
-
         initialString.replaceCharacters(in: NSRange(range, in: text), with: replacementString)
 
         self.attributedText = initialString

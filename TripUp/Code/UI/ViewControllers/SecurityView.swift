@@ -46,11 +46,7 @@ class SecurityView: UIViewController, UIViewControllerTransparent {
         if #available(iOS 14.0, *), let image = UIImage(systemName: "key") {
             keyImage.image = image
         }
-        if !transparent, #available(iOS 13.0, *) {
-            iCloudKeychainBox.backgroundColor = UIColor.label.withAlphaComponent(0.15)
-        } else {
-            iCloudKeychainBox.backgroundColor = UIColor.black.withAlphaComponent(0.15)
-        }
+        iCloudKeychainBox.backgroundColor = transparent ? UIColor.black.withAlphaComponent(0.15) : UIColor.label.withAlphaComponent(0.15)
         iCloudKeychainBox.layer.cornerRadius = 5.0
         nextButton.layer.cornerRadius = 5.0
 
@@ -95,9 +91,8 @@ class SecurityView: UIViewController, UIViewControllerTransparent {
         #else
         iCloudKeychainSwitch.setOn(primaryUserPassOniCloud, animated: false)
         #endif
-        if #available(iOS 13.0, *) {
-            userKeyPassword.font = UIFont.monospacedSystemFont(ofSize: 35.0, weight: .regular)
-        }
+
+        userKeyPassword.font = UIFont.monospacedSystemFont(ofSize: 35.0, weight: .regular)
     }
 
     private func securitySettings(visible: Bool) {

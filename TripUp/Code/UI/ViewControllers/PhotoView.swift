@@ -13,7 +13,6 @@ import TripUpViews
 
 class PhotoView: UIViewController {
     @IBOutlet var inAppGuideContainerView: UIView!
-    @IBOutlet var firstInstructionsLabel: UILabelIcon!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var swipePhotoGesture: UIPanGestureRecognizer!
     @IBOutlet var selectButton: UIButton!
@@ -107,26 +106,14 @@ class PhotoView: UIViewController {
         collectionViewDelegate.cellConfiguration = { [unowned self] (cell: CollectionViewCell, asset: Asset) in
             let cell = cell as! AlbumCollectionViewCell
             let shared = self.group.album.sharedAssets[asset.uuid] != nil
-            if #available(iOS 13.0, *), let image = UIImage(systemName: "eye") {
-                cell.shareIcon.image = image
-            }
             cell.shareIcon.isHidden = !shared
 
             if asset.ownerID == self.primaryUserID {
-                if #available(iOS 13.0, *) {
-                    cell.shareActionIcon.image = UIImage(systemName: "eye")
-                    cell.unshareActionIcon.image = UIImage(systemName: "eye.slash")
-                }
                 cell.shareActionIconConstraint.isZoomed = shared
                 cell.unshareActionIconConstraint.isZoomed = !shared
             } else {
-                if #available(iOS 13.0, *) {
-                    cell.shareActionIcon.image = UIImage(systemName: "lock.circle")
-                    cell.unshareActionIcon.image = UIImage(systemName: "lock.circle")
-                } else {
-                    cell.shareActionIcon.image = UIImage(named: "lock-closed-outline")
-                    cell.unshareActionIcon.image = UIImage(named: "lock-closed-outline")
-                }
+                cell.shareActionIcon.image = UIImage(systemName: "lock.circle")
+                cell.unshareActionIcon.image = UIImage(systemName: "lock.circle")
                 cell.shareActionIconConstraint.isZoomed = true
                 cell.unshareActionIconConstraint.isZoomed = true
             }
@@ -162,13 +149,7 @@ class PhotoView: UIViewController {
         }
 
         self.title = group.name
-        let userAddImage: UIImage?
-        if #available(iOS 13.0, *), let image = UIImage(systemName: "person.badge.plus.fill") {
-            userAddImage = image
-        } else {
-            userAddImage = UIImage(named: "user-plus")
-        }
-        let userSelectionButton = UIBarButtonItem(image: userAddImage, style: .plain, target: self, action: #selector(PhotoView.loadUserSelection))
+        let userSelectionButton = UIBarButtonItem(image: UIImage(systemName: "person.badge.plus.fill"), style: .plain, target: self, action: #selector(PhotoView.loadUserSelection))
         self.navigationItem.leftItemsSupplementBackButton = true
         self.navigationItem.leftBarButtonItems = [userSelectionButton]
         let addFromIOSButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(PhotoView.photoPicker))
@@ -181,20 +162,6 @@ class PhotoView: UIViewController {
         selectButton.layer.cornerRadius = 5.0
         selectionCountToolbarItem.title = nil
         selectionCountToolbarItem.customView = selectionBadgeCounter
-        if #available(iOS 13.0, *) {
-            selectionShareToolbarItem.image = UIImage(systemName: "eye")
-            selectionExportToolbarItem.image = UIImage(systemName: "square.and.arrow.up")
-            selectionSaveToolbarItem.image = UIImage(systemName: "square.and.arrow.down")
-            selectionDeleteToolbarItem.image = UIImage(systemName: "trash")
-        }
-
-        firstInstructionsLabel.textToReplace = "plus"
-        if #available(iOS 13.0, *), let image = UIImage(systemName: "plus") {
-            firstInstructionsLabel.replacementIcon = image.withRenderingMode(.alwaysTemplate)
-        } else {
-            firstInstructionsLabel.verticalOffset = 1.25
-            firstInstructionsLabel.replacementIcon = UIImage(named: "ios-add")!
-        }
 
 //        if let child = children.first(where: { $0 is GuideBox }), let guideBoxVC = child as? GuideBox, UserDefaults.standard.bool(forKey: "\(group.uuid.string)–NewAlbum") {
 //            guideBoxVC.removeFromPhotoView()
@@ -414,11 +381,7 @@ extension PhotoView: CollectionViewMultiSelect {
             navigationController?.navigationBar.isUserInteractionEnabled = false
             navigationController?.interactivePopGestureRecognizer?.isEnabled = false
         } else {
-            if #available(iOS 13.0, *) {
-                selectionShareToolbarItem.image = UIImage(systemName: "eye")
-            } else {
-                selectionShareToolbarItem.image = UIImage(named: "eye-outline-toolbar")
-            }
+            selectionShareToolbarItem.image = UIImage(systemName: "eye")
             navigationController?.navigationBar.tintColor = .systemBlue
             navigationController?.navigationBar.isUserInteractionEnabled = true
             navigationController?.interactivePopGestureRecognizer?.isEnabled = true
@@ -507,17 +470,9 @@ extension PhotoView: CollectionViewMultiSelect {
     private func shareToolbarButtonState() {
         if let selectedAssets = selectedAssets {
             let allShared = selectedAssets.allSatisfy{ group.album.sharedAssets[$0.uuid] != nil }
-            if #available(iOS 13.0, *) {
-                selectionShareToolbarItem.image = allShared ? UIImage(systemName: "eye.slash") : UIImage(systemName: "eye")
-            } else {
-                selectionShareToolbarItem.image = allShared ? UIImage(named: "eye-off-outline-toolbar") : UIImage(named: "eye-outline-toolbar")
-            }
+            selectionShareToolbarItem.image = allShared ? UIImage(systemName: "eye.slash") : UIImage(systemName: "eye")
         } else {
-            if #available(iOS 13.0, *) {
-                selectionShareToolbarItem.image = UIImage(systemName: "eye")
-            } else {
-                selectionShareToolbarItem.image = UIImage(named: "eye-outline-toolbar")
-            }
+            selectionShareToolbarItem.image = UIImage(systemName: "eye")
         }
     }
 }

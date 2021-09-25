@@ -23,6 +23,13 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <color key="textColor" systemColor="systemGrayColor"/>
                                 <nil key="highlightedColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="verticalOffset">
+                                        <real key="value" value="1.25"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="image" keyPath="replacementIcon" value="plus" catalog="system"/>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="textToReplace" value="plus"/>
+                                </userDefinedRuntimeAttributes>
                             </label>
                             <collectionView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.5" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="VVb-fn-TfL">
                                 <rect key="frame" x="0.0" y="44" width="375" height="768"/>
@@ -47,15 +54,15 @@
                                                         <view multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LBF-4h-rK1" userLabel="actionIconContents">
                                                             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                                             <subviews>
-                                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" image="eye-outline-toolbar" translatesAutoresizingMaskIntoConstraints="NO" id="HiW-ZP-Aeb" userLabel="share">
-                                                                    <rect key="frame" x="6" y="43.666666666666664" width="13" height="13"/>
+                                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" image="eye" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="HiW-ZP-Aeb" userLabel="share">
+                                                                    <rect key="frame" x="6" y="46" width="13" height="9"/>
                                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" secondItem="HiW-ZP-Aeb" secondAttribute="height" multiplier="1:1" id="uzW-bL-3BS"/>
                                                                     </constraints>
                                                                 </imageView>
-                                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" image="eye-off-outline-toolbar" translatesAutoresizingMaskIntoConstraints="NO" id="ATN-Pr-Ozg" userLabel="unshare">
-                                                                    <rect key="frame" x="81" y="43.666666666666664" width="13" height="13"/>
+                                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" image="eye.slash" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ATN-Pr-Ozg" userLabel="unshare">
+                                                                    <rect key="frame" x="81" y="45.333333333333329" width="13" height="10.000000000000007"/>
                                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" secondItem="ATN-Pr-Ozg" secondAttribute="height" multiplier="1:1" id="1Tb-8g-eKq"/>
@@ -116,15 +123,15 @@
                                                                         </userDefinedRuntimeAttribute>
                                                                     </userDefinedRuntimeAttributes>
                                                                 </view>
-                                                                <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="eye-outline-toolbar" translatesAutoresizingMaskIntoConstraints="NO" id="eKz-mr-U8o" userLabel="share icon">
-                                                                    <rect key="frame" x="5" y="75" width="20" height="20"/>
+                                                                <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="eye" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="eKz-mr-U8o" userLabel="share icon">
+                                                                    <rect key="frame" x="5" y="77.333333333333329" width="20" height="16"/>
                                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="20" id="6Cu-2x-z1a"/>
                                                                         <constraint firstAttribute="width" secondItem="eKz-mr-U8o" secondAttribute="height" multiplier="1:1" id="msU-XA-anL"/>
                                                                     </constraints>
                                                                 </imageView>
-                                                                <activityIndicatorView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="5Vj-Ey-ng6">
+                                                                <activityIndicatorView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="5Vj-Ey-ng6">
                                                                     <rect key="frame" x="40" y="40" width="20" height="20"/>
                                                                 </activityIndicatorView>
                                                             </subviews>
@@ -269,7 +276,6 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="VVb-fn-TfL" id="X7J-bO-sNe"/>
-                        <outlet property="firstInstructionsLabel" destination="Kbe-rH-OsE" id="Qyn-kE-f1W"/>
                         <outlet property="inAppGuideContainerView" destination="VWA-aZ-Sg4" id="LWK-KV-Qml"/>
                         <outlet property="selectButton" destination="R26-hm-LpA" id="7yV-JO-b49"/>
                         <outlet property="selectionCountToolbarItem" destination="pQa-yy-oCt" id="zl4-bM-4Nu"/>
@@ -288,25 +294,25 @@
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="khR-7a-ejz"/>
                         <barButtonItem title="5" id="pQa-yy-oCt" userLabel="count"/>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="ve0-GF-H2P"/>
-                        <barButtonItem title="Item" image="eye-outline-toolbar" id="0He-dj-wQ0" userLabel="placeholder">
+                        <barButtonItem title="Item" image="eye" catalog="system" id="0He-dj-wQ0" userLabel="placeholder">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="pz9-Og-s6C"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="Xq0-Ng-yqA"/>
-                        <barButtonItem title="Item" image="share-outline-toolbar" id="eEf-Oc-RMT" userLabel="export">
+                        <barButtonItem title="Item" image="square.and.arrow.up" catalog="system" id="eEf-Oc-RMT" userLabel="export">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="lZZ-Rv-RL0"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="CiM-77-NJ6"/>
-                        <barButtonItem title="Item" image="download-outline-toolbar" id="TYE-UX-90C" userLabel="save">
+                        <barButtonItem title="Item" image="square.and.arrow.down" catalog="system" id="TYE-UX-90C" userLabel="save">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="CbE-Eu-LVf"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="v4M-hR-njH"/>
-                        <barButtonItem title="Item" image="trash-toolbar" id="7W7-Kl-dLc" userLabel="delete">
+                        <barButtonItem title="Item" image="trash" catalog="system" id="7W7-Kl-dLc" userLabel="delete">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="Rxy-MQ-YFJ" id="4wi-LK-acK"/>
                             </connections>
@@ -389,9 +395,9 @@
                                                         <outlet property="delegate" destination="kUW-at-gGA" id="2hc-W3-ElI"/>
                                                     </connections>
                                                 </scrollView>
-                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="zmO-05-zVg">
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="zmO-05-zVg">
                                                     <rect key="frame" x="328" y="765" width="37" height="37"/>
-                                                    <color key="color" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <color key="color" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </activityIndicatorView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Full resolution not available" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YdB-nC-5nM" userLabel="Original Missing Label">
                                                     <rect key="frame" x="19.666666666666657" y="775.66666666666663" width="337.33333333333337" height="15.666666666666629"/>
@@ -528,7 +534,7 @@
                                                     <outlet property="scrubber" destination="oK9-E0-H7u" id="GjR-PB-LZZ"/>
                                                 </connections>
                                             </view>
-                                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7x6-sr-QdH">
+                                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7x6-sr-QdH">
                                                 <rect key="frame" x="0.0" y="105" width="375" height="49"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
@@ -700,7 +706,7 @@
     </scenes>
     <designables>
         <designable name="Kbe-rH-OsE">
-            <size key="intrinsicContentSize" width="477.33333333333331" height="28.666666666666668"/>
+            <size key="intrinsicContentSize" width="452.33333333333331" height="28.666666666666668"/>
         </designable>
     </designables>
     <resources>
@@ -708,12 +714,13 @@
         <image name="check-circle-filled" width="372" height="372"/>
         <image name="chevron-back-outline" width="14" height="24"/>
         <image name="close-circle" width="312" height="312"/>
-        <image name="download-outline-toolbar" width="19" height="24"/>
-        <image name="eye-off-outline-toolbar" width="24" height="20"/>
-        <image name="eye-outline-toolbar" width="24" height="16"/>
+        <image name="eye" catalog="system" width="128" height="81"/>
+        <image name="eye.slash" catalog="system" width="128" height="86"/>
         <image name="play" width="240" height="276"/>
-        <image name="share-outline-toolbar" width="19" height="24"/>
-        <image name="trash-toolbar" width="21" height="24"/>
+        <image name="plus" catalog="system" width="128" height="113"/>
+        <image name="square.and.arrow.down" catalog="system" width="121" height="128"/>
+        <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
+        <image name="trash" catalog="system" width="121" height="128"/>
         <systemColor name="lightTextColor">
             <color white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

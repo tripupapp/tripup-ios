@@ -84,10 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         userNotificationProvider = UserNotificationProvider(appID: config.onesignalAppID, didFinishLaunchingWithOptions: launchOptions)
         log.debug(config)
         presentNextRootViewController()
-
-        if #available(iOS 13.0, *) {
-            registerBackgroundTasks()
-        }
+        registerBackgroundTasks()
 
         return true
     }
@@ -101,20 +98,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         if let (importsInProgress, containsManualImports) = context?.assetManager.imports, importsInProgress {
-            let message: String
-            if containsManualImports {
-                message = "Manual imports are in progress. Please keep TripUp open to finish syncing."
-            } else {
-                if #available(iOS 13.0, *) {
-                    message = "Library will continue backing up when your device is idle and connected to power."
-                } else {
-                    message = "Library is still backing up. Please keep TripUp open app until backup is complete."
-                }
-            }
+            let message = containsManualImports ? "Manual imports are in progress. Please keep TripUp open to finish syncing." : "Library will continue backing up when your device is idle and connected to power."
             userNotificationProvider?.local(message: message)
         }
 
-        if #available(iOS 13.0, *), UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) {
+        if UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue) {
             scheduleBackgroundTasks()
         }
     }

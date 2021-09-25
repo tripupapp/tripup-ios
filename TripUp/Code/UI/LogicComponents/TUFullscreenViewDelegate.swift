@@ -182,13 +182,11 @@ class FullscreenViewDelegateLibrary: TUFullscreenViewDelegate {
     init(dataModel: CollectionViewDataModel, primaryUserID: UUID, assetManager: AssetManager?, userFinder: UserFinder?) {
         self.assetManager = assetManager
 
-        var bottomToolbarImages: [UIImage?]!
-        if #available(iOS 13.0, *) {
-            bottomToolbarImages = [UIImage(systemName: "square.and.arrow.up"), UIImage(systemName: "square.and.arrow.down"), UIImage(systemName: "trash")]
-        } else {
-            bottomToolbarImages = [UIImage(named: "share-outline-toolbar"), UIImage(named: "download-outline-toolbar"), UIImage(named: "trash-toolbar")]
-        }
-        let bottomToolbarButtons = bottomToolbarImages.map{ UIBarButtonItem(image: $0, style: .plain, target: nil, action: nil) }
+        let bottomToolbarButtons = [
+            UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: nil, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down"), style: .plain, target: nil, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "trash"), style: .plain, target: nil, action: nil),
+        ]
 
         super.init(primaryUserID: primaryUserID, dataModel: dataModel, assetRequester: assetManager, userFinder: userFinder, bottomToolbarItems: bottomToolbarButtons)
     }
@@ -224,13 +222,12 @@ class FullscreenViewDelegateGroup: TUFullscreenViewDelegate {
         self.assetManager = assetManager
         self.groupManager = groupManager
 
-        var bottomToolbarImages: [UIImage?]!
-        if #available(iOS 13.0, *) {
-            bottomToolbarImages = [UIImage(systemName: "eye"), UIImage(systemName: "square.and.arrow.up"), UIImage(systemName: "square.and.arrow.down"), UIImage(systemName: "trash")]
-        } else {
-            bottomToolbarImages = [UIImage(named: "eye-outline-toolbar"), UIImage(named: "share-outline-toolbar"), UIImage(named: "download-outline-toolbar"), UIImage(named: "trash-toolbar")]
-        }
-        let bottomToolbarButtons = bottomToolbarImages.map{ UIBarButtonItem(image: $0, style: .plain, target: nil, action: nil) }
+        let bottomToolbarButtons = [
+            UIBarButtonItem(image: UIImage(systemName: "eye"), style: .plain, target: nil, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: nil, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down"), style: .plain, target: nil, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "trash"), style: .plain, target: nil, action: nil),
+        ]
 
         super.init(primaryUserID: primaryUserID, dataModel: dataModel, assetRequester: assetManager, userFinder: userFinder, bottomToolbarItems: bottomToolbarButtons)
     }

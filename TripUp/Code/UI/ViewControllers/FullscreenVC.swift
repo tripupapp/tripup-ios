@@ -44,18 +44,10 @@ class FullscreenViewController: UIViewController {
     var onDismiss: (() -> Void)?
 
     private lazy var playButtonImage: UIImage? = {
-        if #available(iOS 13.0, *) {
-            return UIImage(systemName: "play.fill")
-        } else {
-            return UIImage(named: "play")
-        }
+        return UIImage(systemName: "play.fill")
     }()
     private lazy var pauseButtonImage: UIImage? = {
-        if #available(iOS 13.0, *) {
-            return UIImage(systemName: "pause.fill")
-        } else {
-            return UIImage(named: "pause")
-        }
+        return UIImage(systemName: "pause.fill")
     }()
     private var initialIndex: Int!
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?
@@ -135,14 +127,9 @@ class FullscreenViewController: UIViewController {
             avControlsView.scrubber.value = 0
         }
 
-        if #available(iOS 13.0, *) {
-            let toolbarAppearance = UIToolbarAppearance()
-            toolbarAppearance.configureWithTransparentBackground()
-            bottomToolbar.standardAppearance = toolbarAppearance
-        } else {
-            bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
-            bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-        }
+//        let toolbarAppearance = UIToolbarAppearance()
+//        toolbarAppearance.configureWithTransparentBackground()
+//        bottomToolbar.standardAppearance = toolbarAppearance
         bottomToolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)]
         if let bottomBarItems = delegate.bottomToolbarItems {
             for item in bottomBarItems {

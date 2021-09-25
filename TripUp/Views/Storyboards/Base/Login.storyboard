@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="xph-Ds-09h">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="xph-Ds-09h">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -450,7 +450,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="imageView" destination="jXb-s9-1bB" id="Qzx-nt-54O"/>
+                        <outlet property="imageView" destination="jXb-s9-1bB" id="Nuo-N6-15y"/>
                         <outlet property="initialViews" destination="Zuv-h3-MCS" id="XHE-Zy-43a"/>
                         <outlet property="progressPercentage" destination="kTK-IF-iCg" id="izE-CO-REk"/>
                         <outlet property="progressView" destination="Jjz-UH-nkl" id="6FO-Ue-Jd1"/>
@@ -479,8 +479,8 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloudy" translatesAutoresizingMaskIntoConstraints="NO" id="Dii-Jj-Rr3">
-                                <rect key="frame" x="131.66666666666666" y="267.66666666666669" width="111.66666666666666" height="97"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloud.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Dii-Jj-Rr3">
+                                <rect key="frame" x="131.66666666666666" y="270" width="111.66666666666666" height="92"/>
                                 <color key="tintColor" systemColor="systemIndigoColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="Dii-Jj-Rr3" secondAttribute="height" multiplier="23:20" id="HpD-VW-QZn"/>
@@ -560,9 +560,6 @@
                             <constraint firstItem="RIc-41-Xfv" firstAttribute="width" secondItem="ZXN-IZ-8hD" secondAttribute="width" multiplier="0.85" id="vde-Jc-ODF"/>
                         </constraints>
                     </view>
-                    <connections>
-                        <outlet property="cloudIcon" destination="Dii-Jj-Rr3" id="gN4-eo-Wpj"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ra3-qs-Edp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -602,9 +599,9 @@
         <segue reference="sKN-G7-iNi"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="Logo" width="158" height="158"/>
+        <image name="Logo" width="250" height="40"/>
         <image name="chevron-back-outline" width="14" height="24"/>
-        <image name="cloudy" width="384" height="264"/>
+        <image name="cloud.fill" catalog="system" width="128" height="88"/>
         <image name="hardware-chip-outline" width="336" height="336"/>
         <systemColor name="systemIndigoColor">
             <color red="0.34509803921568627" green="0.33725490196078434" blue="0.83921568627450982" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -56,21 +56,16 @@ class LoginView: UIViewController, UIViewControllerTransparent {
         super.viewDidLoad()
         view.backgroundColor = .clear
 
-        if #available(iOS 13.0, *) {
-            helpButton.setTitle(nil, for: .normal)
-            helpButton.setImage(UIImage(systemName: "questionmark.circle"), for: .normal)
+        helpButton.setTitle(nil, for: .normal)
+        helpButton.setImage(UIImage(systemName: "questionmark.circle"), for: .normal)
 
-            let authorizationButton = ASAuthorizationAppleIDButton(type: .default, style: .white)
-            authorizationButton.addTarget(self, action: #selector(authenticateWithAppleID), for: .touchUpInside)
-            signInOptions.addArrangedSubview(authorizationButton)
+        let authorizationButton = ASAuthorizationAppleIDButton(type: .default, style: .white)
+        authorizationButton.addTarget(self, action: #selector(authenticateWithAppleID), for: .touchUpInside)
+        signInOptions.addArrangedSubview(authorizationButton)
 
-            phoneEmailButton.layer.cornerRadius = authorizationButton.cornerRadius
-            phoneEmailButton.layer.borderWidth = 1.0
-            phoneEmailButton.layer.borderColor = UIColor.init(white: 0, alpha: 0.25).cgColor
-        } else {
-            signInOptions.isHidden = true
-            phoneEmailViews.forEach{ $0.isHidden = false }
-        }
+        phoneEmailButton.layer.cornerRadius = authorizationButton.cornerRadius
+        phoneEmailButton.layer.borderWidth = 1.0
+        phoneEmailButton.layer.borderColor = UIColor.init(white: 0, alpha: 0.25).cgColor
 
         let segmentTitleAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.white,

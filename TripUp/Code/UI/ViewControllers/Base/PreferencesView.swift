@@ -33,10 +33,6 @@ class PreferencesView: UITableViewController {
         self.dependencyInjector = dependencyInjector
 
         purchasesController.addObserver(self)
-
-        if #available(iOS 13.0, *) {
-            tabBarItem?.image = UIImage(systemName: "gear")
-        }
     }
 
     deinit {
@@ -222,11 +218,7 @@ extension PreferencesView {
         chartView.xAxis.enabled = false
         chartView.extraBottomOffset = 10.0
         chartView.legend.font = chartView.legend.font.withSize(12.0)
-        if #available(iOS 13.0, *) {
-            chartView.legend.textColor = .label
-        } else {
-            chartView.legend.textColor = .black
-        }
+        chartView.legend.textColor = .label
         chartView.legend.xEntrySpace = 15.0
         chartView.animate(yAxisDuration: 1.0)
     }
