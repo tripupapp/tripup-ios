@@ -44,10 +44,10 @@ class FullscreenViewController: UIViewController {
     var onDismiss: (() -> Void)?
 
     private lazy var playButtonImage: UIImage? = {
-        return UIImage(systemName: "play.fill")
+        return UIImage(named: "play")
     }()
     private lazy var pauseButtonImage: UIImage? = {
-        return UIImage(systemName: "pause.fill")
+        return UIImage(named: "pause")
     }()
     private var initialIndex: Int!
     private var avPlayerPlayPauseObserver: NSKeyValueObservation?

@@ -513,9 +513,7 @@
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                        <state key="normal" image="play">
-                                                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30"/>
-                                                        </state>
+                                                        <state key="normal" image="play"/>
                                                         <connections>
                                                             <action selector="playPauseAction:" destination="Zuw-Ig-Mc7" eventType="touchUpInside" id="GUM-ns-VDU"/>
                                                         </connections>
