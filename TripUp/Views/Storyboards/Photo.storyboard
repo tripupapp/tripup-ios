@@ -19,7 +19,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap plus to add a photo from your photo library" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kbe-rH-OsE" userLabel="Instructions" customClass="UILabelIcon" customModule="TripUpViews">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap plus to add a photo or video from your library" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kbe-rH-OsE" userLabel="Instructions" customClass="UILabelIcon" customModule="TripUpViews">
                                 <rect key="frame" x="18.666666666666657" y="382.33333333333331" width="337.66666666666674" height="57.333333333333314"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <color key="textColor" systemColor="systemGrayColor"/>
@@ -28,7 +28,9 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="verticalOffset">
                                         <real key="value" value="1.25"/>
                                     </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="image" keyPath="replacementIcon" value="plus" catalog="system"/>
+                                    <userDefinedRuntimeAttribute type="image" keyPath="replacementIcon">
+                                        <imageReference key="value" image="plus" catalog="system" symbolScale="large" renderingMode="template"/>
+                                    </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="string" keyPath="textToReplace" value="plus"/>
                                 </userDefinedRuntimeAttributes>
                             </label>
@@ -707,7 +709,7 @@
     </scenes>
     <designables>
         <designable name="Kbe-rH-OsE">
-            <size key="intrinsicContentSize" width="452.33333333333331" height="28.666666666666668"/>
+            <size key="intrinsicContentSize" width="478.33333333333331" height="28.666666666666668"/>
         </designable>
     </designables>
     <resources>
