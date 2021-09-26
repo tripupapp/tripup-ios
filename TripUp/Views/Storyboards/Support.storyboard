@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="KJs-sd-hWi">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="KJs-sd-hWi">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -105,8 +105,8 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wKF-xq-Lac">
                                                 <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="envelope" translatesAutoresizingMaskIntoConstraints="NO" id="JkF-9N-NR3" userLabel="Image">
-                                                        <rect key="frame" x="2.3333333333333286" y="2.6666666666666856" width="45" height="45"/>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="envelope.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="JkF-9N-NR3" userLabel="Image">
+                                                        <rect key="frame" x="0.0" y="2.3333333333333321" width="50" height="46"/>
                                                         <color key="tintColor" systemColor="linkColor"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="JkF-9N-NR3" secondAttribute="height" multiplier="1:1" id="7gT-OH-rqo"/>
@@ -120,10 +120,10 @@
                                                 </subviews>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="trailing" secondItem="JkF-9N-NR3" secondAttribute="trailing" constant="2.5" id="0qx-2M-Mrc"/>
-                                                    <constraint firstAttribute="bottom" secondItem="JkF-9N-NR3" secondAttribute="bottom" constant="2.5" id="5KD-WR-l9R"/>
-                                                    <constraint firstItem="JkF-9N-NR3" firstAttribute="top" secondItem="wKF-xq-Lac" secondAttribute="top" constant="2.5" id="Ij7-dR-AAb"/>
-                                                    <constraint firstItem="JkF-9N-NR3" firstAttribute="leading" secondItem="wKF-xq-Lac" secondAttribute="leading" constant="2.5" id="fRN-A5-0Ir"/>
+                                                    <constraint firstAttribute="trailing" secondItem="JkF-9N-NR3" secondAttribute="trailing" id="0qx-2M-Mrc"/>
+                                                    <constraint firstAttribute="bottom" secondItem="JkF-9N-NR3" secondAttribute="bottom" id="5KD-WR-l9R"/>
+                                                    <constraint firstItem="JkF-9N-NR3" firstAttribute="top" secondItem="wKF-xq-Lac" secondAttribute="top" id="Ij7-dR-AAb"/>
+                                                    <constraint firstItem="JkF-9N-NR3" firstAttribute="leading" secondItem="wKF-xq-Lac" secondAttribute="leading" id="fRN-A5-0Ir"/>
                                                 </constraints>
                                             </view>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g44-2W-hlh" userLabel="Label">
@@ -184,7 +184,7 @@
         <image name="Discord" width="132" height="150"/>
         <image name="Reddit" width="128" height="128"/>
         <image name="WhatsApp" width="496" height="497"/>
-        <image name="envelope" width="384" height="288"/>
+        <image name="envelope.fill" catalog="system" width="128" height="93"/>
         <systemColor name="linkColor">
             <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

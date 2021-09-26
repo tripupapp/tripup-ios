@@ -32,22 +32,4 @@ class LibraryCollectionViewCell: UICollectionViewCell, CollectionViewCell  {
     }
 
     var assetID: UUID!
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        /*
-         tintColorDidChange fixes tintColor not being set from storyboard when cell is first created (seems fine once a cell is reused though)
-         https://stackoverflow.com/questions/41121425/uiimageview-doesnt-always-tint-template-image - apple radar: http://www.openradar.me/radar?id=5005434293321728
-         https://stackoverflow.com/questions/52992077/uiimageview-tint-color-weirdness - apple radar: http://openradar.appspot.com/23759908
-         not sure which one is the issue
-         - This issue did not appear in XCode 9, iOS 11 SDK, iPhone X running iOS 11.4.1
-         - Only presented itself once upgraded to XCode 10, still on iOS 11 SDK, iPhone X running iOS 11.4.1
-         - Fixed in Xcode 11.3.1: fixed for iOS 13.3 iPhone X simulator, still broken for iOS 12.4 iPhone 5S simulator
-        */
-        if #available(iOS 13.0, *) {} else {
-            importedIcon.tintColorDidChange()
-            importingIcon.tintColorDidChange()
-        }
-    }
 }

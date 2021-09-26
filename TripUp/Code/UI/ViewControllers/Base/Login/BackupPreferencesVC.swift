@@ -10,17 +10,12 @@ import Foundation
 import UIKit
 
 class BackupPreferencesVC: UIViewController, UIViewControllerTransparent {
-    @IBOutlet var cloudIcon: UIImageView!
-
     weak var appDelegateExtension: AppDelegateExtension?
     var transparent: Bool = true
     var navigationBarHidden: Bool = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        if #available(iOS 13.0, *) {
-            cloudIcon.image = UIImage(systemName: "cloud.fill")
-        }
         view.backgroundColor = .clear
     }
 

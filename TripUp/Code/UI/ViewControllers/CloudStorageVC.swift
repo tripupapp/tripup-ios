@@ -53,13 +53,6 @@ class CloudStorageVC: UIViewController, UIViewControllerTransparent, UIViewContr
             view.backgroundColor = .clear
             labels.forEach{ $0.textColor = .white }
         }
-
-        if #available(iOS 13.0, *) {
-            activityIndicator.style = .large
-        } else {
-            activityIndicator.style = transparent ? .whiteLarge : .gray
-        }
-
         stackView.arrangedSubviews.forEach({ $0.removeFromSuperview() })
         stackView.isHidden = true
         freeButton.layer.cornerRadius = 7.5
@@ -89,11 +82,7 @@ class CloudStorageVC: UIViewController, UIViewControllerTransparent, UIViewContr
                 button.heightAnchor.constraint(equalTo: button.widthAnchor, multiplier: 4.0/20.0).isActive = true
                 button.layer.cornerRadius = 7.5
                 button.layer.borderColor = UIColor.white.cgColor
-                if #available(iOS 13.0, *) {
-                    button.backgroundColor = .systemIndigo
-                } else {
-                    button.backgroundColor = .systemPurple
-                }
+                button.backgroundColor = .systemIndigo
                 button.setTitleColor(.white, for: .normal)
 
                 let title = "\(String(describing: parcel.storageTier)) \(parcel.price) / \(parcel.subscriptionPeriod)"

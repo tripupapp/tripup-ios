@@ -30,11 +30,7 @@ extension AssetActions {
 
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
-        if #available(iOS 13.0, *) {
-            loadingIndicator.style = .medium
-        } else {
-            loadingIndicator.style = .gray
-        }
+        loadingIndicator.style = .medium
         loadingIndicator.startAnimating()
         alert.view.addSubview(loadingIndicator)
 
@@ -87,11 +83,7 @@ extension AssetActions {
 
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
-        if #available(iOS 13.0, *) {
-            loadingIndicator.style = .medium
-        } else {
-            loadingIndicator.style = .gray
-        }
+        loadingIndicator.style = .medium
         loadingIndicator.startAnimating()
         alert.view.addSubview(loadingIndicator)
 
@@ -139,11 +131,7 @@ extension AssetActions {
 
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
-        if #available(iOS 13.0, *) {
-            loadingIndicator.style = .medium
-        } else {
-            loadingIndicator.style = .gray
-        }
+        loadingIndicator.style = .medium
         loadingIndicator.startAnimating()
         alert.view.addSubview(loadingIndicator)
 

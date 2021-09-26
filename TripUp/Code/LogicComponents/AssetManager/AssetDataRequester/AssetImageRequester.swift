@@ -173,7 +173,7 @@ extension AssetManager: AssetImageRequester {
                     requestOptions.version = .current
                     requestOptions.isNetworkAccessAllowed = true
 
-                    self.iosImageManager.requestImageData(for: iosAsset, options: requestOptions) { (data: Data?, uti: String?, _: UIImage.Orientation, _: [AnyHashable : Any]?) in
+                    self.iosImageManager.requestImageDataAndOrientation(for: iosAsset, options: requestOptions) { (data: Data?, uti: String?, _: CGImagePropertyOrientation, _: [AnyHashable : Any]?) in
                         precondition(Thread.isMainThread)
                         switch format {
                         case .best, .fast:

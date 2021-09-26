@@ -29,16 +29,16 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ndh-Cv-TeU" customClass="WarningHeaderView" customModule="TripUpViews">
-                                        <rect key="frame" x="0.0" y="25" width="414" height="43.5"/>
+                                        <rect key="frame" x="0.0" y="25" width="414" height="70"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="07N-SN-Wea"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VCl-NO-F4l">
-                                        <rect key="frame" x="0.0" y="68.5" width="414" height="739.5"/>
+                                        <rect key="frame" x="0.0" y="95" width="414" height="713"/>
                                         <subviews>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="fur-U0-jYo">
-                                                <rect key="frame" x="0.0" y="0.0" width="414" height="739.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="414" height="713"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="bzt-fb-cw6">
                                                     <size key="itemSize" width="100" height="100"/>
@@ -92,16 +92,16 @@
                                                                         </userDefinedRuntimeAttribute>
                                                                     </userDefinedRuntimeAttributes>
                                                                 </view>
-                                                                <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloudy-outline" translatesAutoresizingMaskIntoConstraints="NO" id="Yd4-Ix-PF9">
-                                                                    <rect key="frame" x="75" y="75" width="20" height="20"/>
+                                                                <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloud" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Yd4-Ix-PF9">
+                                                                    <rect key="frame" x="75" y="76.5" width="20" height="15.5"/>
                                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="height" constant="20" id="LYw-hN-Jf7"/>
                                                                         <constraint firstAttribute="width" secondItem="Yd4-Ix-PF9" secondAttribute="height" multiplier="1:1" id="PhW-Yx-0b4"/>
                                                                     </constraints>
                                                                 </imageView>
-                                                                <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow-up-circle-outline" translatesAutoresizingMaskIntoConstraints="NO" id="8Ma-Ot-Nfb">
-                                                                    <rect key="frame" x="75" y="75" width="20" height="20"/>
+                                                                <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow.up.circle" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="8Ma-Ot-Nfb">
+                                                                    <rect key="frame" x="75" y="75.5" width="20" height="19"/>
                                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="height" constant="20" id="sSc-9Z-SWb"/>
@@ -111,8 +111,8 @@
                                                                 <view hidden="YES" alpha="0.65000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dou-9H-eem">
                                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                                                     <subviews>
-                                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lock-closed-outline" translatesAutoresizingMaskIntoConstraints="NO" id="3zs-nW-vPi">
-                                                                            <rect key="frame" x="32.5" y="32.5" width="35" height="35"/>
+                                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="3zs-nW-vPi">
+                                                                            <rect key="frame" x="32.5" y="33" width="35" height="33.5"/>
                                                                             <constraints>
                                                                                 <constraint firstAttribute="width" secondItem="3zs-nW-vPi" secondAttribute="height" multiplier="1:1" id="XhY-Sk-KXG"/>
                                                                             </constraints>
@@ -125,7 +125,7 @@
                                                                         <constraint firstItem="3zs-nW-vPi" firstAttribute="centerX" secondItem="Dou-9H-eem" secondAttribute="centerX" id="zeW-u9-C7N"/>
                                                                     </constraints>
                                                                 </view>
-                                                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="4n1-p7-k5u">
+                                                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="4n1-p7-k5u">
                                                                     <rect key="frame" x="40" y="40" width="20" height="20"/>
                                                                 </activityIndicatorView>
                                                             </subviews>
@@ -234,7 +234,7 @@
                             <constraint firstItem="b02-1Q-nan" firstAttribute="trailing" secondItem="imC-pD-OMK" secondAttribute="trailing" id="nSf-nQ-GcX"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Library" image="images-outline-toolbar" id="csP-es-qBD"/>
+                    <tabBarItem key="tabBarItem" title="Library" image="photo.on.rectangle" catalog="system" id="csP-es-qBD"/>
                     <navigationItem key="navigationItem" id="n7B-i0-9WE">
                         <nil key="title"/>
                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="Wdt-aT-656">
@@ -293,21 +293,21 @@
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="Xlz-s7-6ir"/>
                         <barButtonItem title="5" id="hId-oV-gw7" userLabel="count"/>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="33x-LL-yqe"/>
-                        <barButtonItem title="Item" image="eye-outline-toolbar" id="lfb-k1-QBT" userLabel="placeholder"/>
+                        <barButtonItem title="Item" image="eye" catalog="system" id="lfb-k1-QBT" userLabel="placeholder"/>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="YRD-jt-mYr"/>
-                        <barButtonItem title="Item" image="share-outline-toolbar" id="NlO-9X-NoJ" userLabel="export">
+                        <barButtonItem title="Item" image="square.and.arrow.up" catalog="system" id="NlO-9X-NoJ" userLabel="export">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="PZ1-6Y-Igh"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="qdl-kW-I1u"/>
-                        <barButtonItem title="Item" image="download-outline-toolbar" id="Exd-5E-Bvh" userLabel="save">
+                        <barButtonItem title="Item" image="square.and.arrow.down" catalog="system" id="Exd-5E-Bvh" userLabel="save">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="OyI-TV-DKP"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="xEp-3G-SyY"/>
-                        <barButtonItem title="Item" image="trash-toolbar" id="XBd-Je-Y33" userLabel="delete">
+                        <barButtonItem title="Item" image="trash" catalog="system" id="XBd-Je-Y33" userLabel="delete">
                             <connections>
                                 <action selector="selectionToolbarAction:" destination="SYo-lS-ss7" id="iLH-Wb-HRv"/>
                             </connections>
@@ -339,15 +339,15 @@
     </scenes>
     <resources>
         <image name="NavBarTitle" width="223" height="86"/>
-        <image name="arrow-up-circle-outline" width="312" height="312"/>
+        <image name="arrow.up.circle" catalog="system" width="128" height="121"/>
         <image name="check-circle-filled" width="372" height="372"/>
-        <image name="cloudy-outline" width="384" height="264"/>
-        <image name="download-outline-toolbar" width="19" height="24"/>
-        <image name="eye-outline-toolbar" width="24" height="16"/>
-        <image name="images-outline-toolbar" width="22" height="22"/>
-        <image name="lock-closed-outline" width="264" height="360"/>
-        <image name="share-outline-toolbar" width="19" height="24"/>
-        <image name="trash-toolbar" width="21" height="24"/>
+        <image name="cloud" catalog="system" width="128" height="88"/>
+        <image name="eye" catalog="system" width="128" height="81"/>
+        <image name="lock" catalog="system" width="128" height="128"/>
+        <image name="photo.on.rectangle" catalog="system" width="128" height="97"/>
+        <image name="square.and.arrow.down" catalog="system" width="121" height="128"/>
+        <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
+        <image name="trash" catalog="system" width="121" height="128"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

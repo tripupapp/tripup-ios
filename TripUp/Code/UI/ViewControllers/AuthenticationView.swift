@@ -48,52 +48,50 @@ class AuthenticationView: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if #available(iOS 13.0, *) {
-            let appleButton = ASAuthorizationAppleIDButton(type: .continue, style: traitCollection.userInterfaceStyle == .light ? .white : .black)
-            appleButton.cornerRadius = 0
-            appleButton.addTarget(self, action: #selector(signInWithApple), for: .touchUpInside)
-            appleButtonContainer.addSubview(appleButton)
+        let appleButton = ASAuthorizationAppleIDButton(type: .continue, style: traitCollection.userInterfaceStyle == .light ? .white : .black)
+        appleButton.cornerRadius = 0
+        appleButton.addTarget(self, action: #selector(signInWithApple), for: .touchUpInside)
+        appleButtonContainer.addSubview(appleButton)
 
-            appleButton.translatesAutoresizingMaskIntoConstraints = false
-            var constraints = [NSLayoutConstraint]()
-            // Center button vertically in its container
-            constraints.append(NSLayoutConstraint(
-              item: appleButton,
-              attribute: NSLayoutConstraint.Attribute.centerY,
-              relatedBy: NSLayoutConstraint.Relation.equal,
-              toItem: appleButtonContainer,
-              attribute: NSLayoutConstraint.Attribute.centerY,
-              multiplier: 1, constant: 0)
-            )
-            // Center button horizontally in its container
-            constraints.append(NSLayoutConstraint(
-              item: appleButton,
-              attribute: NSLayoutConstraint.Attribute.centerX,
-              relatedBy: NSLayoutConstraint.Relation.equal,
-              toItem: appleButtonContainer,
-              attribute: NSLayoutConstraint.Attribute.centerX,
-              multiplier: 1, constant: 0)
-            )
-            // Button has equal height to its container
-            constraints.append(NSLayoutConstraint(
-              item: appleButton,
-              attribute: NSLayoutConstraint.Attribute.height,
-              relatedBy: NSLayoutConstraint.Relation.equal,
-              toItem: appleButtonContainer,
-              attribute: NSLayoutConstraint.Attribute.height,
-              multiplier: 1, constant: 0)
-            )
-            // Button has equal width to its container
-            constraints.append(NSLayoutConstraint(
-              item: appleButton,
-              attribute: NSLayoutConstraint.Attribute.width,
-              relatedBy: NSLayoutConstraint.Relation.equal,
-              toItem: appleButtonContainer,
-              attribute: NSLayoutConstraint.Attribute.width,
-              multiplier: 1, constant: 0)
-            )
-            appleButtonContainer.addConstraints(constraints)
-        }
+        appleButton.translatesAutoresizingMaskIntoConstraints = false
+        var constraints = [NSLayoutConstraint]()
+        // Center button vertically in its container
+        constraints.append(NSLayoutConstraint(
+          item: appleButton,
+          attribute: NSLayoutConstraint.Attribute.centerY,
+          relatedBy: NSLayoutConstraint.Relation.equal,
+          toItem: appleButtonContainer,
+          attribute: NSLayoutConstraint.Attribute.centerY,
+          multiplier: 1, constant: 0)
+        )
+        // Center button horizontally in its container
+        constraints.append(NSLayoutConstraint(
+          item: appleButton,
+          attribute: NSLayoutConstraint.Attribute.centerX,
+          relatedBy: NSLayoutConstraint.Relation.equal,
+          toItem: appleButtonContainer,
+          attribute: NSLayoutConstraint.Attribute.centerX,
+          multiplier: 1, constant: 0)
+        )
+        // Button has equal height to its container
+        constraints.append(NSLayoutConstraint(
+          item: appleButton,
+          attribute: NSLayoutConstraint.Attribute.height,
+          relatedBy: NSLayoutConstraint.Relation.equal,
+          toItem: appleButtonContainer,
+          attribute: NSLayoutConstraint.Attribute.height,
+          multiplier: 1, constant: 0)
+        )
+        // Button has equal width to its container
+        constraints.append(NSLayoutConstraint(
+          item: appleButton,
+          attribute: NSLayoutConstraint.Attribute.width,
+          relatedBy: NSLayoutConstraint.Relation.equal,
+          toItem: appleButtonContainer,
+          attribute: NSLayoutConstraint.Attribute.width,
+          multiplier: 1, constant: 0)
+        )
+        appleButtonContainer.addConstraints(constraints)
 
         phoneNumberField.toolbarPlaceholder = "Phone number"
         phoneNumberVerificationField.toolbarPlaceholder = "Verification code"
@@ -196,14 +194,8 @@ class AuthenticationView: UITableViewController {
                 appleUnlinkButton.isHidden = false
                 appleUnlinkButton.addTarget(self, action: #selector(signInWithApple), for: .touchUpInside)
             } else {
-                if #available(iOS 13.0, *) {
-                    appleButtonContainer.isHidden = false
-                    appleIDLabel.isHidden = true
-                } else {
-                    appleButtonContainer.isHidden = true
-                    appleIDLabel.isHidden = false
-                    appleIDLabel.text = "Not available on iOS 12"
-                }
+                appleButtonContainer.isHidden = false
+                appleIDLabel.isHidden = true
                 appleUnlinkButton.isHidden = true
             }
         default:
@@ -432,7 +424,6 @@ class AuthenticationView: UITableViewController {
             return
         }
         if authenticatedUser.appleID == nil {
-            guard #available(iOS 13.0, *) else { preconditionFailure() }
             authenticationService.linkApple(api: api, presentingController: self) { [unowned self] success in
                 if success {
                     self.tableView.reloadRows(at: [IndexPath(row: 0, section: 2)], with: .none)
@@ -480,7 +471,6 @@ extension AuthenticationView: UITextFieldDelegate {
     }
 }
 
-@available(iOS 13.0, *)
 extension AuthenticationView: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return view.window!

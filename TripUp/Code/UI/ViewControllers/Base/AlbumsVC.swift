@@ -14,7 +14,6 @@ import TripUpViews
 class AlbumsVC: UIViewController {
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var cloudProgressSyncView: CloudProgressSync!
-    @IBOutlet var instructionsLabel: UILabelIcon!
 
     private weak var networkController: NetworkMonitorController?
     private var collectionViewDelegate: CollectionViewDelegate!
@@ -31,22 +30,10 @@ class AlbumsVC: UIViewController {
 
         groupObserverRegister?.addObserver(self)
         assetManager?.syncTracker.addObserver(self)
-
-        if #available(iOS 13.0, *) {
-            tabBarItem?.image = UIImage(systemName: "rectangle.stack.fill")
-        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        instructionsLabel.textToReplace = "plus"
-        if #available(iOS 13.0, *), let image = UIImage(systemName: "plus") {
-            instructionsLabel.replacementIcon = image.withRenderingMode(.alwaysTemplate)
-        } else {
-            instructionsLabel.verticalOffset = 3.0
-            instructionsLabel.replacementIcon = UIImage(named: "ios-add")!
-        }
 
         let refreshControl = UIRefreshControl()
         collectionView.refreshControl = refreshControl

@@ -82,10 +82,6 @@ class LibraryVC: UIViewController {
 
         assetManager?.syncTracker.addObserver(self)
         assetObserverRegister?.addObserver(self)
-
-        if #available(iOS 13.0, *) {
-            tabBarItem?.image = UIImage(systemName: "photo.on.rectangle")
-        }
     }
 
     deinit {
@@ -118,12 +114,6 @@ class LibraryVC: UIViewController {
             cell.importedIcon.isHidden = !asset.imported
             cell.importingIcon.isHidden = !cell.importedIcon.isHidden || !UserDefaults.standard.bool(forKey: UserDefaultsKey.AutoBackup.rawValue)
             cell.lockView.isHidden = isSelectable(asset)
-
-            if #available(iOS 13.0, *) {
-                cell.lockIcon.image = UIImage(systemName: "lock")
-                cell.importingIcon.image = UIImage(systemName: "arrow.up.circle")
-                cell.importedIcon.image = UIImage(systemName: "cloud")
-            }
         }
         collectionViewDelegate.isSelectable = isSelectable
         collectionViewDelegate.onSelection = { [unowned self] (collectionView: UICollectionView, dataModel: CollectionViewDataModel, selectedIndexPath: IndexPath) in
@@ -161,11 +151,6 @@ class LibraryVC: UIViewController {
             selectionCountToolbarItem.customView = selectionBadgeCounter
             selectionPlaceholderToolbarItem.title = nil
             selectionPlaceholderToolbarItem.image = nil
-            if #available(iOS 13.0, *) {
-                selectionExportToolbarItem.image = UIImage(systemName: "square.and.arrow.up")
-                selectionSaveToolbarItem.image = UIImage(systemName: "square.and.arrow.down")
-                selectionDeleteToolbarItem.image = UIImage(systemName: "trash")
-            }
         } else {
             navigationItem.title = nil
             navigationItem.titleView = nil

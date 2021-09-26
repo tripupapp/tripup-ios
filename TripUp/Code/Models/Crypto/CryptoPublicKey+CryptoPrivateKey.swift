@@ -326,11 +326,7 @@ fileprivate class CryptoFileWriter: NSObject {
 extension CryptoFileWriter: CryptoWriterProtocol {
     func write(_ data: Data?, n: UnsafeMutablePointer<Int>?) throws {
         if let data = data {
-            if #available(iOS 13.4, *) {
-                try fileHandle.write(contentsOf: data)
-            } else {
-                fileHandle.write(data)
-            }
+            try fileHandle.write(contentsOf: data)
             n?.pointee = data.count
         } else {
             n?.pointee = 0

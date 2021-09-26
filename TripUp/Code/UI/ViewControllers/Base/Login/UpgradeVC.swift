@@ -27,7 +27,7 @@ class UpgradeVC: UIViewController, UIViewControllerTransparent {
         view.backgroundColor = .clear
         progressView.progress = 0
         progressPercentage.text = "0 %"
-        if #available(iOS 13.0, *), let image = UIImage(systemName: "cpu") {
+        if #available(iOS 14.0, *), let image = UIImage(systemName: "cpu") {
             imageView.image = image
         }
         upgradeOperation?.progressUpdateUI = { [weak self] (completed: Int, total: Int) in
