@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -679,7 +680,9 @@
                                     <constraint firstAttribute="width" secondItem="Md5-Pb-1a8" secondAttribute="height" multiplier="1:1" id="jZG-Gb-UOF"/>
                                 </constraints>
                                 <color key="tintColor" systemColor="systemGrayColor"/>
-                                <state key="normal" image="close-circle"/>
+                                <state key="normal">
+                                    <imageReference key="image" image="multiply.circle.fill" catalog="system" symbolScale="large"/>
+                                </state>
                                 <connections>
                                     <action selector="dismiss" destination="5be-yb-gra" eventType="touchUpInside" id="JAe-DF-Z2h"/>
                                 </connections>
@@ -713,9 +716,9 @@
         <image name="CollaborativeAlbum" width="1404" height="2807"/>
         <image name="check-circle-filled" width="372" height="372"/>
         <image name="chevron-back-outline" width="14" height="24"/>
-        <image name="close-circle" width="312" height="312"/>
         <image name="eye" catalog="system" width="128" height="81"/>
         <image name="eye.slash" catalog="system" width="128" height="86"/>
+        <image name="multiply.circle.fill" catalog="system" width="128" height="121"/>
         <image name="play" width="240" height="276"/>
         <image name="plus" catalog="system" width="128" height="113"/>
         <image name="square.and.arrow.down" catalog="system" width="121" height="128"/>
