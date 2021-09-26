@@ -247,6 +247,13 @@
 			remoteGlobalIDString = 2043E9A825D598D100BE23A9;
 			remoteInfo = OneSignalNotificationServiceExtension;
 		};
+		209A52BA2700E19B00C88271 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2071F4F31E7AEE3800E2CE4F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 203510E725D9EC4800569712;
+			remoteInfo = TripUpShared;
+		};
 		20B40E0525DFE73900706811 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2071F4F31E7AEE3800E2CE4F /* Project object */;
@@ -1199,6 +1206,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				209A52BB2700E19B00C88271 /* PBXTargetDependency */,
 			);
 			name = OneSignalNotificationServiceExtension;
 			packageProductDependencies = (
@@ -1726,6 +1734,11 @@
 			isa = PBXTargetDependency;
 			target = 2043E9A825D598D100BE23A9 /* OneSignalNotificationServiceExtension */;
 			targetProxy = 2043E9AE25D598D100BE23A9 /* PBXContainerItemProxy */;
+		};
+		209A52BB2700E19B00C88271 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 203510E725D9EC4800569712 /* TripUpShared */;
+			targetProxy = 209A52BA2700E19B00C88271 /* PBXContainerItemProxy */;
 		};
 		20B40E0625DFE73900706811 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
