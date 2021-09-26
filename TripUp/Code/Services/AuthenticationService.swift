@@ -60,8 +60,6 @@ class AuthenticationService {
 
     private let log = Logger.self
     private let emailAuthenticationFallbackURL: URL
-
-    @available(iOS 13.0, *)
     private lazy var appleAuthContext = AppleAuthContext()
 
     init(emailAuthenticationFallbackURL: URL) {
@@ -120,7 +118,6 @@ extension AuthenticationService {
         }
     }
 
-    @available(iOS 13, *)
     func loginWithApple(presentingController: ASAuthorizationControllerPresentationContextProviding, callback: @escaping Callback) {
         signInWithApple(presentingController: presentingController) { [weak self] credential in
             if let credential = credential {
@@ -193,7 +190,6 @@ extension AuthenticationService {
         }
     }
 
-    @available(iOS 13, *)
     func linkApple(api: LoginAPI?, presentingController: ASAuthorizationControllerPresentationContextProviding, callback: @escaping ClosureBool) {
         signInWithApple(presentingController: presentingController) { [weak self] credential in
             if let credential = credential {
@@ -267,7 +263,6 @@ extension AuthenticationService {
     }
 }
 
-@available(iOS 13.0, *)
 extension AuthenticationService {
     class AppleAuthContext: NSObject, ASAuthorizationControllerDelegate {
         var callback: ((ASAuthorization?, Error?) -> Void)?

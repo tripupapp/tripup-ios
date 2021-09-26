@@ -9,7 +9,6 @@
 import Foundation
 import BackgroundTasks
 
-@available(iOS 13.0, *)
 extension AppDelegate {
     func registerBackgroundTasks() {
         // declared under the "Permitted background task scheduler identifiers" item in Info.plist

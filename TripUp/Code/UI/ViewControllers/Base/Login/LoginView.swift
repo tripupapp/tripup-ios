@@ -321,7 +321,6 @@ class LoginView: UIViewController, UIViewControllerTransparent {
         activity_view.startAnimating()
     }
 
-    @available(iOS 13, *)
     @IBAction func authenticateWithAppleID() {
         authenticationService.loginWithApple(presentingController: self) { [unowned self] state in
             self.handle(state)
@@ -507,7 +506,6 @@ extension LoginView: UITextFieldDelegate {
     }
 }
 
-@available(iOS 13.0, *)
 extension LoginView: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return view.window!

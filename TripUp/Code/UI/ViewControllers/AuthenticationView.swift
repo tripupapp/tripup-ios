@@ -471,7 +471,6 @@ extension AuthenticationView: UITextFieldDelegate {
     }
 }
 
-@available(iOS 13.0, *)
 extension AuthenticationView: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return view.window!
