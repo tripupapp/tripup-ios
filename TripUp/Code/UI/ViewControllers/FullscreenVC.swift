@@ -127,9 +127,9 @@ class FullscreenViewController: UIViewController {
             avControlsView.scrubber.value = 0
         }
 
-//        let toolbarAppearance = UIToolbarAppearance()
-//        toolbarAppearance.configureWithTransparentBackground()
-//        bottomToolbar.standardAppearance = toolbarAppearance
+        let toolbarAppearance = UIToolbarAppearance()
+        toolbarAppearance.configureWithTransparentBackground()
+        bottomToolbar.standardAppearance = toolbarAppearance
         bottomToolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)]
         if let bottomBarItems = delegate.bottomToolbarItems {
             for item in bottomBarItems {
