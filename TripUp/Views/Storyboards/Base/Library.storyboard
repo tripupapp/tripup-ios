@@ -179,7 +179,7 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l9D-Mh-j7e">
-                                                            <rect key="frame" x="8" y="2.5" width="31" height="17"/>
+                                                            <rect key="frame" x="8" y="2.5" width="406" height="17"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -187,6 +187,7 @@
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstItem="l9D-Mh-j7e" firstAttribute="leading" secondItem="GCU-tR-7oN" secondAttribute="leadingMargin" id="3Ok-8O-bKt"/>
+                                                        <constraint firstAttribute="trailing" secondItem="l9D-Mh-j7e" secondAttribute="trailing" id="EIv-3B-TvO"/>
                                                         <constraint firstItem="l9D-Mh-j7e" firstAttribute="centerY" secondItem="GCU-tR-7oN" secondAttribute="centerY" id="uCq-jG-0dr"/>
                                                     </constraints>
                                                     <connections>
