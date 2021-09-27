@@ -29,16 +29,16 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ndh-Cv-TeU" customClass="WarningHeaderView" customModule="TripUpViews">
-                                        <rect key="frame" x="0.0" y="25" width="414" height="70"/>
+                                        <rect key="frame" x="0.0" y="25" width="414" height="43.5"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="07N-SN-Wea"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VCl-NO-F4l">
-                                        <rect key="frame" x="0.0" y="95" width="414" height="713"/>
+                                        <rect key="frame" x="0.0" y="68.5" width="414" height="739.5"/>
                                         <subviews>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="fur-U0-jYo">
-                                                <rect key="frame" x="0.0" y="0.0" width="414" height="713"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="414" height="739.5"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="bzt-fb-cw6">
                                                     <size key="itemSize" width="100" height="100"/>
@@ -202,7 +202,7 @@
                                             </collectionView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8m-AD-WWC">
                                                 <rect key="frame" x="335" y="10" width="59" height="23"/>
-                                                <color key="backgroundColor" systemColor="secondaryLabelColor"/>
+                                                <color key="backgroundColor" white="0.33333333333333331" alpha="0.85220025510204078" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <inset key="contentEdgeInsets" minX="7.5" minY="2.5" maxX="7.5" maxY="2.5"/>
                                                 <state key="normal" title="Select">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -353,9 +353,6 @@
         <image name="square.and.arrow.down" catalog="system" width="121" height="128"/>
         <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
         <image name="trash" catalog="system" width="121" height="128"/>
-        <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

@@ -231,7 +231,7 @@
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R26-hm-LpA">
                                 <rect key="frame" x="296" y="54" width="59" height="23"/>
-                                <color key="backgroundColor" systemColor="secondaryLabelColor"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="0.8526519982993197" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <inset key="contentEdgeInsets" minX="7.5" minY="2.5" maxX="7.5" maxY="2.5"/>
                                 <state key="normal" title="Select">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -709,7 +709,7 @@
     </scenes>
     <designables>
         <designable name="Kbe-rH-OsE">
-            <size key="intrinsicContentSize" width="478.33333333333331" height="28.666666666666668"/>
+            <size key="intrinsicContentSize" width="500" height="28.666666666666668"/>
         </designable>
     </designables>
     <resources>
