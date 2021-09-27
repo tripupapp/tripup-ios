@@ -102,8 +102,8 @@
                                                                         </userDefinedRuntimeAttribute>
                                                                     </userDefinedRuntimeAttributes>
                                                                 </view>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1M1-Pb-4PN" userLabel="DurationLabel">
-                                                                    <rect key="frame" x="65" y="5" width="30" height="17"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1M1-Pb-4PN" userLabel="DurationLabel">
+                                                                    <rect key="frame" x="30" y="5" width="65" height="17"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <nil key="highlightedColor"/>
@@ -143,6 +143,7 @@
                                                                 <constraint firstAttribute="trailing" secondItem="HYa-0Y-eBt" secondAttribute="trailing" id="58A-qW-UC5"/>
                                                                 <constraint firstItem="iqL-Be-wEB" firstAttribute="width" secondItem="WxS-cN-JbP" secondAttribute="width" id="66j-cT-GIA"/>
                                                                 <constraint firstAttribute="top" secondItem="HYa-0Y-eBt" secondAttribute="top" id="8aX-v0-LQB"/>
+                                                                <constraint firstItem="1M1-Pb-4PN" firstAttribute="leading" secondItem="VrW-yu-XCs" secondAttribute="trailing" constant="5" id="A1S-r2-DY6"/>
                                                                 <constraint firstItem="5Vj-Ey-ng6" firstAttribute="centerY" secondItem="WxS-cN-JbP" secondAttribute="centerY" id="EWK-vY-iZv"/>
                                                                 <constraint firstAttribute="bottom" secondItem="HYa-0Y-eBt" secondAttribute="bottom" id="I8O-lR-MvT"/>
                                                                 <constraint firstItem="VrW-yu-XCs" firstAttribute="top" secondItem="WxS-cN-JbP" secondAttribute="top" id="LD5-b7-1Zp"/>
@@ -709,7 +710,7 @@
     </scenes>
     <designables>
         <designable name="Kbe-rH-OsE">
-            <size key="intrinsicContentSize" width="500" height="28.666666666666668"/>
+            <size key="intrinsicContentSize" width="478.33333333333331" height="28.666666666666668"/>
         </designable>
     </designables>
     <resources>

@@ -68,8 +68,8 @@
                                                                         </userDefinedRuntimeAttribute>
                                                                     </userDefinedRuntimeAttributes>
                                                                 </view>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dc9-UF-5EU" userLabel="DurationLabel">
-                                                                    <rect key="frame" x="65" y="5" width="30" height="17"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dc9-UF-5EU" userLabel="DurationLabel">
+                                                                    <rect key="frame" x="30" y="5" width="65" height="17"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <nil key="highlightedColor"/>
@@ -154,6 +154,7 @@
                                                                 <constraint firstAttribute="bottom" secondItem="e32-67-deF" secondAttribute="bottom" id="l7T-dd-d16"/>
                                                                 <constraint firstAttribute="bottom" secondItem="Yd4-Ix-PF9" secondAttribute="bottom" constant="5" id="mp9-ZZ-cPG"/>
                                                                 <constraint firstItem="e32-67-deF" firstAttribute="height" secondItem="Fhf-ob-zaA" secondAttribute="height" multiplier="0.3" id="nDX-iA-1Bf"/>
+                                                                <constraint firstItem="Dc9-UF-5EU" firstAttribute="leading" secondItem="Y80-bf-3w4" secondAttribute="trailing" constant="5" id="o9q-Rm-6AG"/>
                                                                 <constraint firstItem="gJJ-aN-Gdo" firstAttribute="height" secondItem="Fhf-ob-zaA" secondAttribute="height" multiplier="0.3" id="oGv-Pb-atL"/>
                                                                 <constraint firstAttribute="trailing" secondItem="8Ma-Ot-Nfb" secondAttribute="trailing" constant="5" id="tpf-67-8lt"/>
                                                                 <constraint firstAttribute="trailing" secondItem="oZK-qI-dIq" secondAttribute="trailing" id="z8F-Kj-uxl"/>
