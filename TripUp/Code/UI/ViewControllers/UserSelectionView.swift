@@ -299,7 +299,8 @@ extension UserSelectionViewModel: UITableViewDataSource {
 
 extension UserSelectionViewModel: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return section == 0 ? 0 : tableView.sectionHeaderHeight
+        return 0
+//        return section == 0 ? 0 : tableView.sectionHeaderHeight
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
