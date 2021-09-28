@@ -102,8 +102,8 @@
                                                                         </userDefinedRuntimeAttribute>
                                                                     </userDefinedRuntimeAttributes>
                                                                 </view>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1M1-Pb-4PN" userLabel="DurationLabel">
-                                                                    <rect key="frame" x="65" y="5" width="30" height="17"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1M1-Pb-4PN" userLabel="DurationLabel">
+                                                                    <rect key="frame" x="30" y="5" width="65" height="17"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <nil key="highlightedColor"/>
@@ -143,6 +143,7 @@
                                                                 <constraint firstAttribute="trailing" secondItem="HYa-0Y-eBt" secondAttribute="trailing" id="58A-qW-UC5"/>
                                                                 <constraint firstItem="iqL-Be-wEB" firstAttribute="width" secondItem="WxS-cN-JbP" secondAttribute="width" id="66j-cT-GIA"/>
                                                                 <constraint firstAttribute="top" secondItem="HYa-0Y-eBt" secondAttribute="top" id="8aX-v0-LQB"/>
+                                                                <constraint firstItem="1M1-Pb-4PN" firstAttribute="leading" secondItem="VrW-yu-XCs" secondAttribute="trailing" constant="5" id="A1S-r2-DY6"/>
                                                                 <constraint firstItem="5Vj-Ey-ng6" firstAttribute="centerY" secondItem="WxS-cN-JbP" secondAttribute="centerY" id="EWK-vY-iZv"/>
                                                                 <constraint firstAttribute="bottom" secondItem="HYa-0Y-eBt" secondAttribute="bottom" id="I8O-lR-MvT"/>
                                                                 <constraint firstItem="VrW-yu-XCs" firstAttribute="top" secondItem="WxS-cN-JbP" secondAttribute="top" id="LD5-b7-1Zp"/>
@@ -206,8 +207,8 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lrw-it-yDN">
-                                            <rect key="frame" x="8" y="0.66666666666666607" width="38.666666666666664" height="21"/>
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                            <rect key="frame" x="8" y="2.6666666666666661" width="367" height="17"/>
+                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -215,6 +216,7 @@
                                     <constraints>
                                         <constraint firstItem="lrw-it-yDN" firstAttribute="leading" secondItem="aWQ-JW-aHi" secondAttribute="leadingMargin" id="92z-Rw-vOh"/>
                                         <constraint firstItem="lrw-it-yDN" firstAttribute="centerY" secondItem="aWQ-JW-aHi" secondAttribute="centerY" id="Ae9-gi-5uD"/>
+                                        <constraint firstAttribute="trailing" secondItem="lrw-it-yDN" secondAttribute="trailing" id="IeT-c8-eLI"/>
                                     </constraints>
                                     <connections>
                                         <outlet property="day" destination="lrw-it-yDN" id="IlP-If-qIA"/>
@@ -709,7 +711,7 @@
     </scenes>
     <designables>
         <designable name="Kbe-rH-OsE">
-            <size key="intrinsicContentSize" width="500" height="28.666666666666668"/>
+            <size key="intrinsicContentSize" width="478.33333333333331" height="28.666666666666668"/>
         </designable>
     </designables>
     <resources>
