@@ -30,7 +30,6 @@ class BadgeView: BadgeSwift {
     private func setup(color: UIColor = .red) {
         badgeColor = color
         textColor = .white
-        value = 44  // 44 occupies largest font width space for 2 digits – text is truncated otherwise for double digits inside certain views (like uibarbuttonitem)
         isHidden = true
     }
 }
@@ -55,7 +54,12 @@ extension BadgeView: BadgeCounter {
         }
         set {
             text = String(newValue)
-            isHidden = newValue <= 0
+            if newValue > 0 {
+                isHidden = false
+                sizeToFit()
+            } else {
+                isHidden = true
+            }
         }
     }
 }
