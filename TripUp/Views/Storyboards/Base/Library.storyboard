@@ -15,11 +15,11 @@
             <objects>
                 <viewController id="SYo-lS-ss7" customClass="LibraryVC" customModule="TripUp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="GeA-vr-vsr">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="imC-pD-OMK">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                                <rect key="frame" x="0.0" y="88" width="414" height="808"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gc-LY-S0Z" customClass="CloudProgressSync" customModule="TripUpViews">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="25"/>
@@ -29,16 +29,16 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ndh-Cv-TeU" customClass="WarningHeaderView" customModule="TripUpViews">
-                                        <rect key="frame" x="0.0" y="25" width="414" height="70"/>
+                                        <rect key="frame" x="0.0" y="25" width="414" height="43.5"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="07N-SN-Wea"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VCl-NO-F4l">
-                                        <rect key="frame" x="0.0" y="95" width="414" height="713"/>
+                                        <rect key="frame" x="0.0" y="68.5" width="414" height="739.5"/>
                                         <subviews>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="fur-U0-jYo">
-                                                <rect key="frame" x="0.0" y="0.0" width="414" height="713"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="414" height="739.5"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="bzt-fb-cw6">
                                                     <size key="itemSize" width="100" height="100"/>
@@ -68,8 +68,8 @@
                                                                         </userDefinedRuntimeAttribute>
                                                                     </userDefinedRuntimeAttributes>
                                                                 </view>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dc9-UF-5EU" userLabel="DurationLabel">
-                                                                    <rect key="frame" x="65" y="5" width="30" height="17"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:20" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dc9-UF-5EU" userLabel="DurationLabel">
+                                                                    <rect key="frame" x="30" y="5" width="65" height="17"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                     <nil key="highlightedColor"/>
@@ -154,6 +154,7 @@
                                                                 <constraint firstAttribute="bottom" secondItem="e32-67-deF" secondAttribute="bottom" id="l7T-dd-d16"/>
                                                                 <constraint firstAttribute="bottom" secondItem="Yd4-Ix-PF9" secondAttribute="bottom" constant="5" id="mp9-ZZ-cPG"/>
                                                                 <constraint firstItem="e32-67-deF" firstAttribute="height" secondItem="Fhf-ob-zaA" secondAttribute="height" multiplier="0.3" id="nDX-iA-1Bf"/>
+                                                                <constraint firstItem="Dc9-UF-5EU" firstAttribute="leading" secondItem="Y80-bf-3w4" secondAttribute="trailing" constant="5" id="o9q-Rm-6AG"/>
                                                                 <constraint firstItem="gJJ-aN-Gdo" firstAttribute="height" secondItem="Fhf-ob-zaA" secondAttribute="height" multiplier="0.3" id="oGv-Pb-atL"/>
                                                                 <constraint firstAttribute="trailing" secondItem="8Ma-Ot-Nfb" secondAttribute="trailing" constant="5" id="tpf-67-8lt"/>
                                                                 <constraint firstAttribute="trailing" secondItem="oZK-qI-dIq" secondAttribute="trailing" id="z8F-Kj-uxl"/>
@@ -178,7 +179,7 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l9D-Mh-j7e">
-                                                            <rect key="frame" x="8" y="2.5" width="31" height="17"/>
+                                                            <rect key="frame" x="8" y="2.5" width="406" height="17"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -186,6 +187,7 @@
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstItem="l9D-Mh-j7e" firstAttribute="leading" secondItem="GCU-tR-7oN" secondAttribute="leadingMargin" id="3Ok-8O-bKt"/>
+                                                        <constraint firstAttribute="trailing" secondItem="l9D-Mh-j7e" secondAttribute="trailing" id="EIv-3B-TvO"/>
                                                         <constraint firstItem="l9D-Mh-j7e" firstAttribute="centerY" secondItem="GCU-tR-7oN" secondAttribute="centerY" id="uCq-jG-0dr"/>
                                                     </constraints>
                                                     <connections>
@@ -202,7 +204,7 @@
                                             </collectionView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8m-AD-WWC">
                                                 <rect key="frame" x="335" y="10" width="59" height="23"/>
-                                                <color key="backgroundColor" systemColor="secondaryLabelColor"/>
+                                                <color key="backgroundColor" white="0.33333333333333331" alpha="0.85220025510204078" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <inset key="contentEdgeInsets" minX="7.5" minY="2.5" maxX="7.5" maxY="2.5"/>
                                                 <state key="normal" title="Select">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -246,14 +248,13 @@
                             <rect key="frame" x="207" y="22" width="0.0" height="0.0"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
-                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="NavBarTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Oh6-Dx-NiJ">
+                                <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="NavBarTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Oh6-Dx-NiJ">
                                     <rect key="frame" x="-111.5" y="-22" width="223" height="44"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="44" id="VMo-qB-aBV"/>
                                     </constraints>
                                 </imageView>
                             </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstItem="Oh6-Dx-NiJ" firstAttribute="centerY" secondItem="tWw-tt-ySz" secondAttribute="centerY" id="ThQ-X5-ydZ"/>
                                 <constraint firstItem="Oh6-Dx-NiJ" firstAttribute="centerX" secondItem="tWw-tt-ySz" secondAttribute="centerX" id="rlq-rz-Z1T"/>
@@ -323,9 +324,15 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="xWJ-So-N2z" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="ZNj-3M-ImH">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ZNj-3M-ImH">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <navigationBarAppearance key="standardAppearance">
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        </navigationBarAppearance>
+                        <navigationBarAppearance key="scrollEdgeAppearance">
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        </navigationBarAppearance>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
@@ -348,9 +355,6 @@
         <image name="square.and.arrow.down" catalog="system" width="121" height="128"/>
         <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
         <image name="trash" catalog="system" width="121" height="128"/>
-        <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
