@@ -239,18 +239,15 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
     }
 
     // 100 KB default chunk size
-    func decrypt(fileAtURL url: URL, chunkSize: Int = 100000) -> URL? {
-        assert(!Thread.isMainThread)
+    func decrypt(fileAtURL url: URL, chunkSize: Int = 100000) throws -> URL {
         let inputReader: HelperMobileReaderProtocol
         do {
             inputReader = try CryptoFileReader(url)
         } catch {
-            assertionFailure(String(describing: error))
-            return nil
+            fatalError(String(describing: error))
         }
         guard let goInputReader = HelperNewMobile2GoReader(inputReader) else {
-            assertionFailure()
-            return nil
+            fatalError()
         }
 
         let privateKeyRing = self.privateKeyRing
@@ -262,21 +259,19 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
         do {
             outputReader = try privateKeyRing.decryptStream(goInputReader, verifyKeyRing: nil, verifyTime: CryptoGetUnixTime())
         } catch let error as NSError where error.domain == "go" && error.code == 1 && error.localizedDescription == "gopenpgp: error in reading message: openpgp: invalid data: tag byte does not have MSB set" {
-            return nil
+            throw KeyMessageError.invalidPGPMessage
+        } catch let error as NSError where error.domain == "go" && error.code == 1 && error.localizedDescription == "gopenpgp: error in reading message: openpgp: incorrect key" {
+            throw KeyMessageError.incorrectKeyUsedToDecrypt
         } catch {
-            print(String(describing: error))
-            assertionFailure()
-            return nil
+            fatalError(String(describing: error))
         }
 
         guard let goOutputReader = HelperNewGo2IOSReader(outputReader) else {
-            assertionFailure()
-            return nil
+            fatalError()
         }
 
         guard let outputURL = FileManager.default.uniqueTempFile(filename: url.lastPathComponent) else {
-            assertionFailure()
-            return nil
+            fatalError()
         }
 
         var outputWriterError: Error?
@@ -291,9 +286,9 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
             }
         }, toURL: outputURL)
 
-        guard outputWriterError == nil else {
+        if let outputWriterError = outputWriterError {
             try? FileManager.default.removeItem(at: outputURL)
-            return nil
+            throw outputWriterError
         }
 
         return outputURL

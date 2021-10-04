@@ -583,17 +583,17 @@ extension AssetManager {
                 DispatchQueue.global(qos: .utility).async {
                     // 100 KB chunk size for photos, 500 KB chunk size for everything else
                     let chunkSize = asset.logicalAsset.type == .photo ? 100000 : 500000
-                    if let url = assetKey.decrypt(fileAtURL: fileSource, chunkSize: chunkSize) {
-                        do {
-                            try FileManager.default.moveItem(at: url, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)
-                            callback(nil)
-                        } catch {
-                            self.log.error(String(describing: error))
-                            assertionFailure()
+                    var url: URL?
+                    do {
+                        url = try assetKey.decrypt(fileAtURL: fileSource, chunkSize: chunkSize)
+                        try FileManager.default.moveItem(at: url!, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)
+                        callback(nil)
+                    } catch {
+                        self.log.error(String(describing: error))
+                        assertionFailure()
+                        if let url = url {
                             try? FileManager.default.removeItem(at: url)
-                            callback(.recoverable)
                         }
-                    } else {
                         callback(.recoverable)
                     }
                 }

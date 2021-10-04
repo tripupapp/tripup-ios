@@ -19,6 +19,7 @@ enum KeyConstructionError: Error {
 enum KeyMessageError: Error {
     case invalidSignature
     case incorrectKeyUsedToDecrypt
+    case invalidPGPMessage
     case invalidLegacyPGPData
     case noData
 }
@@ -55,5 +56,5 @@ protocol AsymmetricPrivateKey: AsymmetricPublicKey {
     func decrypt(_ cipher: String, signedBy: PublicKey?) throws -> String
     func decrypt(_ cipher: String, signedByOneOf potentialSignatories: [PublicKey]) throws -> (String, PublicKey)
     func decrypt(_ binary: Data) throws -> Data
-    func decrypt(fileAtURL url: URL, chunkSize: Int) -> URL?
+    func decrypt(fileAtURL url: URL, chunkSize: Int) throws -> URL
 }
