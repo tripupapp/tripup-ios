@@ -66,6 +66,14 @@ extension KeychainTests {
         func encrypt(_ binary: Data) -> Data {
             return binary.base64EncodedData()
         }
+
+        func encrypt(fileAtURL url: URL, chunkSize: Int, outputFilename: String) -> URL? {
+            let data = try! Data(contentsOf: url)
+            let encoded = data.base64EncodedData()
+            let outputURL = FileManager.default.uniqueTempFile(filename: "encoded")!
+            try! encoded.write(to: outputURL)
+            return outputURL
+        }
     }
 
     class TestPrivateKey: TestPublicKey, AsymmetricPrivateKey {
@@ -114,6 +122,14 @@ extension KeychainTests {
 
         func decrypt(_ binary: Data) throws -> Data {
             return Data(base64Encoded: binary)!
+        }
+
+        func decrypt(fileAtURL url: URL, chunkSize: Int) throws -> URL {
+            let data = try! Data(contentsOf: url)
+            let decryptedData = Data(base64Encoded: data)
+            let outputURL = FileManager.default.uniqueTempFile(filename: "decoded")!
+            try decryptedData?.write(to: outputURL)
+            return outputURL
         }
     }
 }

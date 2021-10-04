@@ -96,7 +96,6 @@ extension CryptoPublicKey: AsymmetricPublicKey {
 
     // 100 KB default chunk size
     func encrypt(fileAtURL url: URL, chunkSize: Int = 100000, outputFilename: String) -> URL? {
-        assert(!Thread.isMainThread)
         guard let encryptedOutputFile = FileManager.default.uniqueTempFile(filename: outputFilename) else {
             return nil
         }

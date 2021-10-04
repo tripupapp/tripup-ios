@@ -14,7 +14,6 @@ class FileSystem {
 
 extension FileSystem {
     func processFile(atURL url: URL, chunkSize: Int, block: (Data) -> Void) {
-        assert(!Thread.isMainThread)
         let fileHandle: FileHandle
         do {
             try fileHandle = FileHandle(forReadingFrom: url)
@@ -35,7 +34,6 @@ extension FileSystem {
     }
 
     func write(streamData: () -> Data?, toURL url: URL) {
-        assert(!Thread.isMainThread)
         FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil)
         let fileHandle: FileHandle
         do {
