@@ -78,6 +78,22 @@ extension CryptoPublicKey: AsymmetricPublicKey {
         return cipher
     }
 
+    func encrypt(_ binary: Data) -> Data {
+        do {
+            var error: NSError?
+            guard let encryptedData = HelperEncryptAttachment(binary, nil, publicKeyRing, &error) else {
+                throw error ?? "unknown error occurred while encrypting data"
+            }
+            let encryptedDataOutput = PGPData.with {
+                $0.keyPacket = encryptedData.keyPacket!
+                $0.dataPacket = encryptedData.dataPacket!
+            }
+            return try encryptedDataOutput.serializedData()
+        } catch {
+            fatalError(String(describing: error))
+        }
+    }
+
     // 100 KB default chunk size
     func encrypt(fileAtURL url: URL, chunkSize: Int = 100000, outputFilename: String) -> URL? {
         assert(!Thread.isMainThread)
