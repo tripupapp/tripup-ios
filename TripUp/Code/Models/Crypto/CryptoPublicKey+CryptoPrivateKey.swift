@@ -78,22 +78,6 @@ extension CryptoPublicKey: AsymmetricPublicKey {
         return cipher
     }
 
-    func encrypt(_ binary: Data) -> Data {
-        do {
-            var error: NSError?
-            guard let encryptedData = HelperEncryptAttachment(binary, nil, publicKeyRing, &error) else {
-                throw error ?? "unknown error occurred while encrypting data"
-            }
-            let encryptedDataOutput = PGPData.with {
-                $0.keyPacket = encryptedData.keyPacket!
-                $0.dataPacket = encryptedData.dataPacket!
-            }
-            return try encryptedDataOutput.serializedData()
-        } catch {
-            fatalError(String(describing: error))
-        }
-    }
-
     // 100 KB default chunk size
     func encrypt(fileAtURL url: URL, chunkSize: Int = 100000, outputFilename: String) -> URL? {
         assert(!Thread.isMainThread)
@@ -235,7 +219,7 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
 
     func decrypt(_ binary: Data) throws -> Data {
         guard binary.isNotEmpty else { throw KeyMessageError.noData }
-        guard let encrypted = try? PGPData(serializedData: binary) else { throw KeyMessageError.invalidPGPData }
+        guard let encrypted = try? PGPData(serializedData: binary) else { throw KeyMessageError.invalidLegacyPGPData }
 
         let privateKeyRing = self.privateKeyRing
         defer {
@@ -277,6 +261,8 @@ extension CryptoPrivateKey: AsymmetricPrivateKey {
         let outputReader: CryptoPlainMessageReader
         do {
             outputReader = try privateKeyRing.decryptStream(goInputReader, verifyKeyRing: nil, verifyTime: CryptoGetUnixTime())
+        } catch let error as NSError where error.domain == "go" && error.code == 1 && error.localizedDescription == "gopenpgp: error in reading message: openpgp: invalid data: tag byte does not have MSB set" {
+            return nil
         } catch {
             print(String(describing: error))
             assertionFailure()

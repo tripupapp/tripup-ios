@@ -378,7 +378,7 @@ class CryptoKeyTests: XCTestCase {
         }
         XCTAssertThrowsError(try testKey.decrypt("Data()".data(using: .utf8)!)) { errorThrown in
             guard let error = errorThrown as? KeyMessageError else { print(errorThrown); XCTFail(); return }
-            XCTAssertEqual(error, KeyMessageError.invalidPGPData)
+            XCTAssertEqual(error, KeyMessageError.invalidLegacyPGPData)
         }
     }
 }

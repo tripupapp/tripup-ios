@@ -393,15 +393,8 @@ extension AssetManager {
 
                 dispatchGroup.enter()
                 switch asset.logicalAsset.type {
-                case .photo:
-                    encryptPhoto(asset: asset) { (returnedError) in
-                        if let error = returnedError {
-                            self.set(error: error)
-                        }
-                        dispatchGroup.leave()
-                    }
-                case .video:
-                    encryptVideo(asset: asset) { (returnedError) in
+                case .photo, .video:
+                    encrypt(asset: asset) { (returnedError) in
                         if let error = returnedError {
                             self.set(error: error)
                         }
@@ -417,16 +410,16 @@ extension AssetManager {
             }
         }
 
-        // TODO: make default way for all types
-        private func encryptVideo(asset: MutablePhysicalAsset, callback: @escaping (AssetSubOperationError?) -> Void) {
+        private func encrypt(asset: MutablePhysicalAsset, callback: @escaping (AssetSubOperationError?) -> Void) {
             delegate.keychainQueue.async { [weak self] in
                 guard let self = self, let assetKey = self.delegate.key(for: asset.logicalAsset) else {
                     callback(.recoverable)
                     return
                 }
                 DispatchQueue.global(qos: .utility).async {
-                    // 500 KB chunk size for videos
-                    guard let encryptedURL = assetKey.encrypt(fileAtURL: asset.localPath, chunkSize: 500000, outputFilename: asset.uuid.string) else {
+                    // 100 KB chunk size for photos, 500 KB chunk size for everything else
+                    let chunkSize = asset.logicalAsset.type == .photo ? 100000 : 500000
+                    guard let encryptedURL = assetKey.encrypt(fileAtURL: asset.localPath, chunkSize: chunkSize, outputFilename: asset.uuid.string) else {
                         callback(.recoverable)
                         return
                     }
@@ -438,37 +431,6 @@ extension AssetManager {
                         assertionFailure()
                         try? FileManager.default.removeItem(at: encryptedURL)
                         callback(.recoverable)
-                    }
-                }
-            }
-        }
-
-        private func encryptPhoto(asset: MutablePhysicalAsset, callback: @escaping (AssetSubOperationError?) -> Void) {
-            guard let data = delegate.load(asset.localPath) else {
-                callback(.recoverable)
-                return
-            }
-            delegate.keychainQueue.async {
-                guard let assetKey = self.delegate.key(for: asset.logicalAsset) else {
-                    callback(.recoverable)
-                    return
-                }
-                DispatchQueue.global(qos: .utility).async {
-                    // must drain autoreleasepool after each encrypt/decrypt, because Crypto PGP framework uses NSData. Without this, memory usage will accumulate over time (memory leak)
-                    autoreleasepool {
-                        guard !self.isCancelled else {
-                            callback(.notRun)
-                            return
-                        }
-
-                        let encryptedData = assetKey.encrypt(data)
-
-                        if !self.delegate.write(encryptedData, to: self.tempURLForEncryptedItem(physicalAsset: asset)) {
-                            self.log.error("\(asset.uuid.string): failed to write encrypted data")
-                            callback(.recoverable)
-                        } else {
-                            callback(nil)
-                        }
                     }
                 }
             }
@@ -577,15 +539,25 @@ extension AssetManager {
                 dispatchGroup.enter()
                 switch asset.logicalAsset.type {
                 case .photo:
-                    decryptPhoto(asset: asset, fileSource: fileSource) { (returnedError) in
-                        try? FileManager.default.removeItem(at: fileSource)
-                        if let error = returnedError {
-                            self.set(error: error)
+                    decrypt(asset: asset, fileSource: fileSource) { (returnedError) in
+                        if returnedError == .recoverable {
+                            self.decryptLegacyPhoto(asset: asset, fileSource: fileSource) { (returnedError) in
+                                try? FileManager.default.removeItem(at: fileSource)
+                                if let error = returnedError {
+                                    self.set(error: error)
+                                }
+                                dispatchGroup.leave()
+                            }
+                        } else {
+                            try? FileManager.default.removeItem(at: fileSource)
+                            if let error = returnedError {
+                                self.set(error: error)
+                            }
+                            dispatchGroup.leave()
                         }
-                        dispatchGroup.leave()
                     }
                 case .video:
-                    decryptVideo(asset: asset, fileSource: fileSource) { (returnedError) in
+                    decrypt(asset: asset, fileSource: fileSource) { (returnedError) in
                         try? FileManager.default.removeItem(at: fileSource)
                         if let error = returnedError {
                             self.set(error: error)
@@ -602,16 +574,16 @@ extension AssetManager {
             }
         }
 
-        // TODO: make default way for all file types
-        private func decryptVideo(asset: MutablePhysicalAsset, fileSource: URL, callback: @escaping (AssetSubOperationError?) -> Void) {
+        private func decrypt(asset: MutablePhysicalAsset, fileSource: URL, callback: @escaping (AssetSubOperationError?) -> Void) {
             delegate.keychainQueue.async { [weak self] in
                 guard let self = self, let assetKey = self.delegate.key(for: asset.logicalAsset) else {
                     callback(.recoverable)
                     return
                 }
                 DispatchQueue.global(qos: .utility).async {
-                    // 500 KB chunk size for videos
-                    if let url = assetKey.decrypt(fileAtURL: fileSource, chunkSize: 500000) {
+                    // 100 KB chunk size for photos, 500 KB chunk size for everything else
+                    let chunkSize = asset.logicalAsset.type == .photo ? 100000 : 500000
+                    if let url = assetKey.decrypt(fileAtURL: fileSource, chunkSize: chunkSize) {
                         do {
                             try FileManager.default.moveItem(at: url, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)
                             callback(nil)
@@ -628,7 +600,7 @@ extension AssetManager {
             }
         }
 
-        private func decryptPhoto(asset: MutablePhysicalAsset, fileSource: URL, callback: @escaping (AssetSubOperationError?) -> Void) {
+        private func decryptLegacyPhoto(asset: MutablePhysicalAsset, fileSource: URL, callback: @escaping (AssetSubOperationError?) -> Void) {
             guard let encryptedData = delegate.load(fileSource) else {
                 log.error("\(asset.uuid.string): unable to load file - fileSource: \(String(describing: fileSource))")
                 callback(.recoverable)
