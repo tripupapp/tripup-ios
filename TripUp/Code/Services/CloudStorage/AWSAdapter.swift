@@ -90,6 +90,7 @@ class AWSAdapter {
     private let bucket: String
     private let s3endpoint: URL
     private let credentialsProvider: AWSCognitoCredentialsProvider
+    private let uploadCallbackQueue = DispatchQueue(label: String(describing: AWSAdapter.self) + ".uploadCallback", qos: .default, target: DispatchQueue.global())
 
     init(authenticatedUser: AuthenticatedUser, federationProvider: String, identityPoolID: String, region: String, bucket: String) throws {
         let awsRegion: AWSRegionType
@@ -187,27 +188,22 @@ extension AWSAdapter: DataService {
             }
             let s3object = AWSS3Object(bucket: bucket, identityID: task.result! as String, localURL: url)
 
-            let completionAlreadyCalled = AtomicVar<Bool>(false)    // because AWS SDK sucks, so need to have this to prevent SDK from calling completion handler multiple times on (multipart) failure
+            // because AWS SDK sucks, so need to have this to prevent SDK from calling completion handler multiple times on (multipart) failure
+            let completionCalled = MutableReference(value: false)
             let completionHandler: (Any, Error?) -> Void = { [log, s3endpoint] (_, error) in
-                var toContinue = true
-                completionAlreadyCalled.mutate { completionCalled in
-                    if completionCalled {
-                        toContinue = false
-                    } else {
-                        completionCalled = true
+                self.uploadCallbackQueue.async {
+                    guard !completionCalled.value else {
+                        return
                     }
-                }
-                guard toContinue else {
-                    return
-                }
-                completionAlreadyCalled.mutate{ $0 = true }
-                if let error = error {
-                    log.error("upload failed - bucket: \(s3object.bucket), key: \(s3object.key), error: \(String(describing: error))")
-                    callback(nil)
-                } else {
-                    let publicURL = s3endpoint.appendingPathComponent(s3object.bucket).appendingPathComponent(s3object.key)
-                    log.debug("uploaded - bucket: \(s3object.bucket), key: \(s3object.key), fullURL: \(publicURL.absoluteString)")
-                    callback(publicURL)
+                    if let error = error {
+                        log.error("upload failed - bucket: \(s3object.bucket), key: \(s3object.key), error: \(String(describing: error))")
+                        callback(nil)
+                    } else {
+                        let publicURL = s3endpoint.appendingPathComponent(s3object.bucket).appendingPathComponent(s3object.key)
+                        log.debug("uploaded - bucket: \(s3object.bucket), key: \(s3object.key), fullURL: \(publicURL.absoluteString)")
+                        callback(publicURL)
+                    }
+                    completionCalled.update(with: true)
                 }
             }
             let attr = try? FileManager.default.attributesOfItem(atPath: url.path)
