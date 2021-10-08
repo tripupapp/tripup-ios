@@ -184,6 +184,7 @@
 		20CE35AB265C2F4700683AD6 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 20CE35AA265C2F4700683AD6 /* Realm */; };
 		20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 20CE35AC265C2F4700683AD6 /* RealmSwift */; };
 		20CE93E826D7C11B00C26BC1 /* SaveToLibraryOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */; };
+		20D7235A271104790078D477 /* Reference+MutableReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D72359271104790078D477 /* Reference+MutableReference.swift */; };
 		20D75169229C39FF00F1D37D /* FullscreenVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D75168229C39FF00F1D37D /* FullscreenVC.swift */; };
 		20E3F68D23F0390300E25E3E /* SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3F68C23F0390300E25E3E /* SecureEnclave.swift */; };
 		20E7743A2327178700F2AB0C /* AlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E774392327178700F2AB0C /* AlbumCollectionViewCell.swift */; };
@@ -467,6 +468,7 @@
 		20C9F6F325F3CA85009D28F0 /* AsynchronousOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsynchronousOperation.swift; sourceTree = "<group>"; };
 		20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveToLibraryOperation.swift; sourceTree = "<group>"; };
 		20D56E532395298C0058FC4A /* UILabelIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelIcon.swift; sourceTree = "<group>"; };
+		20D72359271104790078D477 /* Reference+MutableReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reference+MutableReference.swift"; sourceTree = "<group>"; };
 		20D75168229C39FF00F1D37D /* FullscreenVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenVC.swift; sourceTree = "<group>"; };
 		20E3F68C23F0390300E25E3E /* SecureEnclave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclave.swift; sourceTree = "<group>"; };
 		20E774392327178700F2AB0C /* AlbumCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -821,6 +823,7 @@
 			isa = PBXGroup;
 			children = (
 				2053969F21BEE12500C323F5 /* AtomicVar.swift */,
+				20D72359271104790078D477 /* Reference+MutableReference.swift */,
 				2016881B210A552300FA5D53 /* SwiftAlgorithmClub */,
 				209E6BB1255B0699006A078E /* UIStoryBoardSegueWithCompletion.swift */,
 			);
@@ -1636,6 +1639,7 @@
 				20168818210A550400FA5D53 /* AWSAdapter.swift in Sources */,
 				20258215213D8AA100E40A67 /* AppContext.swift in Sources */,
 				20569A6E246C1961008998AA /* UIView.swift in Sources */,
+				20D7235A271104790078D477 /* Reference+MutableReference.swift in Sources */,
 				208E4D2B24ED1BED0043CCCD /* LibraryVC.swift in Sources */,
 				209D7C86234D48F5005F0AE2 /* CGSize.swift in Sources */,
 				2062CE0026F532E100E9D788 /* CollectionViewMultiSelect.swift in Sources */,
