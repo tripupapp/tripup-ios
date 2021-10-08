@@ -13,6 +13,7 @@ struct AppConfig {
     let appVersion: String
     let appStoreID: String
     let appStoreURL: String
+    let awsCognitoIdentityPoolID: String
     let awsAssetsBucket: String
     let awsAssetsBucketRegion: String
     let domain: String
@@ -49,6 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             appVersion: "\(infoPlist["CFBundleShortVersionString"] as! String).\(infoPlist["CFBundleVersion"] as! String)",
             appStoreID: infoPlistAppConfig["APP_STORE_ID"] as! String,
             appStoreURL: infoPlistAppConfig["APP_STORE_URL"] as! String,
+            awsCognitoIdentityPoolID: infoPlistAppConfig["AWS_COGNITO_IDENTITYPOOLID"] as! String,
             awsAssetsBucket: infoPlistAppConfig["AWS_ASSETS_BUCKET"] as! String,
             awsAssetsBucketRegion: infoPlistAppConfig["AWS_ASSETS_BUCKET_REGION"] as! String,
             domain: infoPlistAppConfig["DOMAIN"] as! String,
@@ -80,7 +82,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // initialise
         setup()
-        dataService = AWSAdapter()
         userNotificationProvider = UserNotificationProvider(appID: config.onesignalAppID, didFinishLaunchingWithOptions: launchOptions)
         log.debug(config)
         presentNextRootViewController()

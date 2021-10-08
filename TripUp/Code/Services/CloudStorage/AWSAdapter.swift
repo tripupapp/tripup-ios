@@ -9,7 +9,6 @@
 import Foundation
 
 import AWSCore
-import AWSMobileClientXCF
 import AWSS3
 
 class AWSAdapter {
@@ -43,95 +42,93 @@ class AWSAdapter {
         }
     }
 
-    weak var authenticatedUser: AuthenticatedUser? {
-        didSet {
-            process(AWSMobileClient.default().currentUserState)
+    private class AWSOIDCProvider: NSObject, AWSIdentityProviderManager {
+        enum AWSOIDCProviderError: Error {
+            case tokenInvalid
+            case oidcProviderDeinited
+        }
+
+        private let authenticatedUser: AuthenticatedUser
+        private let oidcProviderName: String
+        private let log = Logger.self
+
+        init(authenticatedUser: AuthenticatedUser, oidcProviderName: String) {
+            self.authenticatedUser = authenticatedUser
+            self.oidcProviderName = oidcProviderName
+        }
+
+        func logins() -> AWSTask<NSDictionary> {
+            let taskCompletion = AWSTaskCompletionSource<NSString>()
+            authenticatedUser.token { token in
+                if let token = token, token.notExpired {
+                    taskCompletion.set(result: token.value as NSString)
+                } else {
+                    taskCompletion.set(error: AWSOIDCProviderError.tokenInvalid)
+                }
+            }
+
+            return taskCompletion.task.continueOnSuccessWith { [weak self] task -> AWSTask<NSDictionary>? in
+                guard let self = self else {
+                    return AWSTask(error: AWSOIDCProviderError.oidcProviderDeinited)
+                }
+                if let token = task.result {
+                    return AWSTask(result: [self.oidcProviderName: token])
+                } else {
+                    self.log.error(String(describing: task.error!))
+                    return AWSTask(error: task.error!)
+                }
+            } as! AWSTask<NSDictionary>
         }
     }
-    var bucket: String?
-    var federationProviderName: String?
-    var region: String?
 
     private let log = Logger.self
     private let transferUtilityKey = "transfer-utility-with-advanced-options"
     private let retryLimit = 1      // retry one time - default value is 0
     private let timeout = 50 * 60   // 50 minute timeout - default value
-    private let listenerToken = NSObject()
+    private let oidcProvider: AWSOIDCProvider
+    private let region: String
+    private let bucket: String
+    private let s3endpoint: URL
+    private let credentialsProvider: AWSCognitoCredentialsProvider
 
-    // TODO: https://aws.amazon.com/blogs/aws/amazon-s3-path-deprecation-plan-the-rest-of-the-story/
-    private var s3endpoint: URL {
-        return URL(string: "https://s3.\(region!).amazonaws.com")!
-    }
+    init(authenticatedUser: AuthenticatedUser, federationProvider: String, identityPoolID: String, region: String, bucket: String) throws {
+        let awsRegion: AWSRegionType
+        switch region {
+        case "eu-west-2":
+            awsRegion = .EUWest2
+        default:
+            throw "invalid region - \(region)"
+        }
 
-    init() {
-        AWSMobileClient.default().initialize { [weak self] initialUserState, error in
-            guard let self = self else { return }
-            if let initialUserState = initialUserState {
-                self.log.debug("AWSMobileClient initialised – userState: \(String(describing: initialUserState))")
-            } else if let error = error {
+        self.oidcProvider = AWSOIDCProvider(authenticatedUser: authenticatedUser, oidcProviderName: federationProvider)
+        self.region = region
+        self.bucket = bucket
+        // TODO: https://aws.amazon.com/blogs/aws/amazon-s3-path-deprecation-plan-the-rest-of-the-story/
+        self.s3endpoint = URL(string: "https://s3.\(region).amazonaws.com")!
+
+//        credentialsProvider = AWSStaticCredentialsProvider(accessKey: accessKey, secretKey: secretKey)
+        credentialsProvider = AWSCognitoCredentialsProvider(regionType: awsRegion, identityPoolId: identityPoolID, identityProviderManager: oidcProvider)
+        let configuration = AWSServiceConfiguration(region: awsRegion, credentialsProvider: credentialsProvider)!
+        AWSServiceManager.default().defaultServiceConfiguration = configuration
+
+        let transferConfig = AWSS3TransferUtilityConfiguration()
+        transferConfig.retryLimit = retryLimit
+        transferConfig.timeoutIntervalForResource = timeout
+        AWSS3TransferUtility.register(with: configuration, transferUtilityConfiguration: transferConfig, forKey: transferUtilityKey) { error in
+            if let error = error {
                 fatalError(String(describing: error))
             }
-            AWSMobileClient.default().addUserStateListener(self.listenerToken) { [unowned self] userState, info in
-                self.process(userState)
-            }
-            let transferConfig = AWSS3TransferUtilityConfiguration()
-            transferConfig.retryLimit = self.retryLimit
-            transferConfig.timeoutIntervalForResource = self.timeout
-            let configuration = AWSServiceConfiguration(region: .EUWest2, credentialsProvider: AWSMobileClient.default())!
-            AWSS3TransferUtility.register(with: configuration, transferUtilityConfiguration: transferConfig, forKey: self.transferUtilityKey) { error in
-                if let error = error {
-                    fatalError(String(describing: error))
-                }
-            }
-//            AWSServiceManager.default()!.defaultServiceConfiguration = configuration    // needed for AWS services other than AWSS3TransferUtility, like AWSS3.default()
         }
     }
 
     deinit {
         AWSS3TransferUtility.remove(forKey: transferUtilityKey)
-        AWSMobileClient.default().removeUserStateListener(listenerToken)
-    }
-
-    func signOut() {
-        AWSMobileClient.default().signOut()
-        AWSMobileClient.default().invalidateCachedTemporaryCredentials()
-        log.debug("AWSMobileClient signed out – userState: \(String(describing: AWSMobileClient.default().currentUserState))")
+        credentialsProvider.clearKeychain()
     }
 
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
         // Store the completion handler.
         AWSS3TransferUtility.interceptApplication(application, handleEventsForBackgroundURLSession: identifier, completionHandler: completionHandler)
-    }
-
-    private func process(_ userState: UserState) {
-        guard let authenticatedUser = authenticatedUser else { log.verbose("authenticatedUser nil"); return }
-        switch userState {
-        case .guest, .signedOut, .signedOutFederatedTokensInvalid:
-            log.debug("aws user state is: \(String(describing: userState)), need to (re)authenticate")
-            authenticatedUser.token { [weak self] token in
-                guard let self = self else {
-                    return
-                }
-                guard let federationProviderName = self.federationProviderName else {
-                    self.log.error("no providerName set")
-                    return
-                }
-                guard let token = token, token.notExpired else {
-                    self.log.error("token from authenticatedUser is invalid")
-                    return
-                }
-                AWSMobileClient.default().federatedSignIn(providerName: federationProviderName, token: token.value) { [log = self.log] federatedState, federatedError in
-                    log.debug("aws user state is now: \(String(describing: federatedState))")
-                    if federatedState == .none || federatedState != .some(.signedIn) {
-                        log.error(federatedError?.localizedDescription ?? "federated sign in failed. state is: \(String(describing: federatedState))")
-                    }
-                }
-            }
-        case .signedIn:
-            break
-        default:
-            log.error("aws user state: \(userState) is unsupported")
-        }
     }
 }
 
@@ -182,14 +179,9 @@ extension AWSAdapter: DataService {
     }
 
     func uploadFile(at url: URL, callback: @escaping (_ url: URL?) -> Void) {
-        AWSMobileClient.default().getIdentityId().continueOnSuccessWith { [log, transferUtilityKey, bucket, s3endpoint] task -> Any? in
+        credentialsProvider.getIdentityId().continueOnSuccessWith { [log, transferUtilityKey, bucket, s3endpoint] task -> Any? in
             guard let transferUtility = AWSS3TransferUtility.s3TransferUtility(forKey: transferUtilityKey) else {
                 log.error("can't find transfer utility with key: \(transferUtilityKey)")
-                callback(nil)
-                return nil
-            }
-            guard let bucket = bucket else {
-                log.error("bucket not set")
                 callback(nil)
                 return nil
             }

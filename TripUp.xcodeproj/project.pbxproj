@@ -90,7 +90,6 @@
 		205396A021BEE12500C323F5 /* AtomicVar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2053969F21BEE12500C323F5 /* AtomicVar.swift */; };
 		2055054422CE873900B391C1 /* TULocation.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055054222CE873500B391C1 /* TULocation.pb.swift */; };
 		2055054722CE87BA00B391C1 /* TULocationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055054622CE87BA00B391C1 /* TULocationExtensions.swift */; };
-		20551961258C13F200FEB548 /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = 20551960258C13F200FEB548 /* awsconfiguration.json */; };
 		20569A6E246C1961008998AA /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20569A6D246C1961008998AA /* UIView.swift */; };
 		2057B78A2306030F00F41BB2 /* AppDelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2057B7892306030F00F41BB2 /* AppDelegateExtension.swift */; };
 		2057B78E2306149C00F41BB2 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2057B78D2306149C00F41BB2 /* Logger.swift */; };
@@ -391,7 +390,6 @@
 		2055054222CE873500B391C1 /* TULocation.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TULocation.pb.swift; sourceTree = "<group>"; };
 		2055054322CE873700B391C1 /* TULocation.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.protobuf; path = TULocation.proto; sourceTree = "<group>"; };
 		2055054622CE87BA00B391C1 /* TULocationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TULocationExtensions.swift; sourceTree = "<group>"; };
-		20551960258C13F200FEB548 /* awsconfiguration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
 		20569A6D246C1961008998AA /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		2057B7892306030F00F41BB2 /* AppDelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateExtension.swift; sourceTree = "<group>"; };
 		2057B78D2306149C00F41BB2 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -1013,7 +1011,6 @@
 			isa = PBXGroup;
 			children = (
 				2071F5081E7AEE3800E2CE4F /* Assets.xcassets */,
-				20551960258C13F200FEB548 /* awsconfiguration.json */,
 				20168792210A50B200FA5D53 /* Code */,
 				208280F824699D7800DFEF2B /* GoogleService-Info.plist */,
 				20418453203CB727007F87A8 /* info_preprocesser_generator.sh */,
@@ -1447,7 +1444,6 @@
 				202D6332250946490095FA36 /* CloudStorage.storyboard in Resources */,
 				20080CFF21408E0E009BE6C8 /* Audiowide.ttf in Resources */,
 				2016886C210A568400FA5D53 /* LaunchScreen.storyboard in Resources */,
-				20551961258C13F200FEB548 /* awsconfiguration.json in Resources */,
 				2079D58C242E4D310050E0AF /* InAppPurchase.storyboard in Resources */,
 				2016886A210A568400FA5D53 /* Albums.storyboard in Resources */,
 				20026BAE229EFD5800FBCA82 /* intro-music.aac in Resources */,
