@@ -588,6 +588,9 @@ extension AssetManager {
                         url = try assetKey.decrypt(fileAtURL: fileSource, chunkSize: chunkSize)
                         try FileManager.default.moveItem(at: url!, to: asset.localPath, createIntermediateDirectories: true, overwrite: true)
                         callback(nil)
+                    } catch KeyMessageError.invalidPGPMessage {
+                        self.log.verbose(KeyMessageError.invalidPGPMessage)
+                        callback(.recoverable)
                     } catch {
                         self.log.error(String(describing: error))
                         assertionFailure()
@@ -615,15 +618,16 @@ extension AssetManager {
                 DispatchQueue.global(qos: .utility).async {
                     // must drain autoreleasepool after each encrypt/decrypt, because Crypto PGP framework uses NSData. Without this, memory usage will accumulate over time (memory leak)
                     autoreleasepool {
-                        guard let data = try? assetKey.decrypt(encryptedData) else {
-                            self.log.error("\(asset.uuid.string): failed to decrypt data")
-                            callback(.recoverable)
-                            return
-                        }
-                        if self.delegate.write(data, to: asset.localPath) {
-                            callback(nil)
-                        } else {
-                            self.log.error("\(asset.uuid.string): failed to write decrypted data to disk")
+                        do {
+                            let data = try assetKey.decrypt(encryptedData)
+                            if self.delegate.write(data, to: asset.localPath) {
+                                callback(nil)
+                            } else {
+                                self.log.error("\(asset.uuid.string): failed to write decrypted data to disk")
+                                callback(.recoverable)
+                            }
+                        } catch {
+                            self.log.error("\(asset.uuid.string): failed to decrypt data - error: \(String(describing: error))")
                             callback(.recoverable)
                         }
                     }
