@@ -121,9 +121,7 @@ extension AppDelegate {
         }
         database.clear()
         purchasesController.signOut()
-        if let awsAdapter = dataService as? AWSAdapter {
-            awsAdapter.signOut()
-        }
+        dataService = nil
         authenticationService.signOutAuthenticatedUser()
         context = nil
         try? keychain.clear()
@@ -248,14 +246,17 @@ extension AppDelegate: AppDelegateExtension {
         if api.authenticatedUser == nil {
             api.authenticatedUser = authenticatedUser
         }
-        guard let dataService = dataService else {
-            fatalError()
-        }
-        if let awsAdapter = dataService as? AWSAdapter, awsAdapter.authenticatedUser == nil {
-            awsAdapter.bucket = config.awsAssetsBucket
-            awsAdapter.federationProviderName = config.federationProvider
-            awsAdapter.region = config.awsAssetsBucketRegion
-            awsAdapter.authenticatedUser = authenticatedUser
+        if dataService == nil {
+            do {
+                dataService = try AWSAdapter(
+                    authenticatedUser: authenticatedUser,
+                    federationProvider: config.federationProvider,
+                    identityPoolID: config.awsCognitoIdentityPoolID,
+                    region: config.awsAssetsBucketRegion,
+                    bucket: config.awsAssetsBucket)
+            } catch {
+                fatalError(String(describing: error))
+            }
         }
         userNotificationProvider?.signIn(userID: primaryUser.uuid)
 
@@ -344,7 +345,7 @@ extension AppDelegate: AppDelegateExtension {
             UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKey.AppVersionNumber.rawValue)
         }
 
-        context = AppContext(user: primaryUser, authenticationService: authenticationService, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService, appDelegate: self)
+        context = AppContext(user: primaryUser, authenticationService: authenticationService, webAPI: api, keychain: keychain, database: database, config: config, purchasesController: purchasesController, dataService: dataService!, appDelegate: self)
         userNotificationProvider?.receiver = context
         
         let navigationVC = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UINavigationController

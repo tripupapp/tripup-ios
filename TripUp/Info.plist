@@ -14,6 +14,8 @@
 		<string>$(AWS_ASSETS_BUCKET)</string>
 		<key>AWS_ASSETS_BUCKET_REGION</key>
 		<string>eu-west-2</string>
+		<key>AWS_COGNITO_IDENTITYPOOLID</key>
+		<string>eu-west-2:e6a40f6b-595a-433d-9e51-5f3244a6fd37</string>
 		<key>DOMAIN</key>
 		<string>https://www.tripup.app</string>
 		<key>FEDERATION_PROVIDER</key>

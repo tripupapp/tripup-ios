@@ -164,6 +164,14 @@ class CryptoKeyTests: XCTestCase {
         XCTAssertNoThrow(testKey.encrypt(message.data(using: .utf8)!))
     }
 
+    func testEncryptFile() {
+        let testKey = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
+        let message = "hello world"
+        let url = FileManager.default.uniqueTempFile(filename: "input")!
+        try! message.write(to: url, atomically: true, encoding: .utf8)
+        XCTAssertNotNil(testKey.encrypt(fileAtURL: url, outputFilename: "output"))
+    }
+
     func testDecryptSignedMessage() {
         let cipher = """
         -----BEGIN PGP MESSAGE-----
@@ -359,6 +367,19 @@ class CryptoKeyTests: XCTestCase {
         XCTAssertEqual(String(data: decrypted, encoding: .utf8)!, message)
     }
 
+    func testDecryptFile() {
+        let testKey = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
+        let message = "hello world"
+        let url = FileManager.default.uniqueTempFile(filename: "input")!
+        try! message.write(to: url, atomically: true, encoding: .utf8)
+        let encryptedFile = testKey.encrypt(fileAtURL: url, outputFilename: "output")!
+
+        var decryptedFile: URL?
+        XCTAssertNoThrow(decryptedFile = try testKey.decrypt(fileAtURL: encryptedFile))
+        let decryptedString = try? String(contentsOf: decryptedFile!)
+        XCTAssertEqual(decryptedString, message)
+    }
+
     func testDecryptDataWrongKey() {
         let testKey1 = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
         let testKey2 = try! CryptoPrivateKey(key: testKeyString2, password: nil, for: .asset)
@@ -370,6 +391,24 @@ class CryptoKeyTests: XCTestCase {
         }
     }
 
+    func testDecryptFileWrongKey() {
+        let testKey1 = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
+        let testKey2 = try! CryptoPrivateKey(key: testKeyString2, password: nil, for: .asset)
+        let message = "hello world"
+        let url = FileManager.default.uniqueTempFile(filename: "input")!
+        try! message.write(to: url, atomically: true, encoding: .utf8)
+        let encryptedFile = testKey1.encrypt(fileAtURL: url, outputFilename: "output")!
+
+        XCTAssertThrowsError(try testKey2.decrypt(fileAtURL: encryptedFile)) { error in
+            if let error = error as? KeyMessageError {
+                XCTAssertEqual(error, KeyMessageError.incorrectKeyUsedToDecrypt)
+            } else {
+                print(error)
+                XCTFail()
+            }
+        }
+    }
+
     func testDecryptDataInvalid() {
         let testKey = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
         XCTAssertThrowsError(try testKey.decrypt(Data())) { errorThrown in
@@ -378,7 +417,40 @@ class CryptoKeyTests: XCTestCase {
         }
         XCTAssertThrowsError(try testKey.decrypt("Data()".data(using: .utf8)!)) { errorThrown in
             guard let error = errorThrown as? KeyMessageError else { print(errorThrown); XCTFail(); return }
-            XCTAssertEqual(error, KeyMessageError.invalidPGPData)
+            XCTAssertEqual(error, KeyMessageError.invalidLegacyPGPData)
+        }
+    }
+
+    func testDecryptFileInvalid() {
+        let testKey = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
+        let message = "hello world"
+        let url = FileManager.default.uniqueTempFile(filename: "input")!
+        try! message.write(to: url, atomically: true, encoding: .utf8)
+
+        XCTAssertThrowsError(try testKey.decrypt(fileAtURL: url)) { error in
+            if let error = error as? KeyMessageError {
+                XCTAssertEqual(error, KeyMessageError.invalidPGPMessage)
+            } else {
+                print(error)
+                XCTFail()
+            }
+        }
+    }
+
+    func testDecryptLegacyDataWithStreamingAPI() {
+        let testKey = try! CryptoPrivateKey(key: testKeyString1, password: testKeyPassword1, for: .user)
+        let message = "hello world"
+        let encryptedData = testKey.encrypt(message.data(using: .utf8)!)
+        let url = FileManager.default.uniqueTempFile(filename: "input")!
+        try! encryptedData.write(to: url, options: .atomic)
+
+        XCTAssertThrowsError(try testKey.decrypt(fileAtURL: url)) { error in
+            if let error = error as? KeyMessageError {
+                XCTAssertEqual(error, KeyMessageError.invalidPGPMessage)
+            } else {
+                print(error)
+                XCTFail()
+            }
         }
     }
 }
