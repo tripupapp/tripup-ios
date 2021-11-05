@@ -14,8 +14,6 @@ struct AppConfig {
     let appStoreID: String
     let appStoreURL: String
     let awsCognitoIdentityPoolID: String
-    let awsAssetsBucket: String
-    let awsAssetsBucketRegion: String
     let domain: String
     let federationProvider: String
     let firebaseDynamicLinksDomain: String
@@ -23,6 +21,8 @@ struct AppConfig {
     let logFormat: String
     let onesignalAppID: String
     let revenuecatAPIKey: String
+    let s3Bucket: String
+    let s3Region: String
     let serverSchemaVersion: String
 }
 
@@ -51,8 +51,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             appStoreID: infoPlistAppConfig["APP_STORE_ID"] as! String,
             appStoreURL: infoPlistAppConfig["APP_STORE_URL"] as! String,
             awsCognitoIdentityPoolID: infoPlistAppConfig["AWS_COGNITO_IDENTITYPOOLID"] as! String,
-            awsAssetsBucket: infoPlistAppConfig["AWS_ASSETS_BUCKET"] as! String,
-            awsAssetsBucketRegion: infoPlistAppConfig["AWS_ASSETS_BUCKET_REGION"] as! String,
             domain: infoPlistAppConfig["DOMAIN"] as! String,
             federationProvider: infoPlistAppConfig["FEDERATION_PROVIDER"] as! String,
             firebaseDynamicLinksDomain: infoPlistAppConfig["FIREBASE_DYNAMICLINKS_DOMAIN"] as! String,
@@ -60,6 +58,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             logFormat: "$C[$L]$c $Dyyyy-MM-dd HH:mm:ss.SSS$d    $n: $F:$l: $M",
             onesignalAppID: infoPlistAppConfig["ONESIGNAL_APP_ID"] as! String,
             revenuecatAPIKey: infoPlistAppConfig["REVENUECAT_APIKEY"] as! String,
+            s3Bucket: infoPlistAppConfig["S3_BUCKET"] as! String,
+            s3Region: infoPlistAppConfig["S3_REGION"] as! String,
             serverSchemaVersion: infoPlistAppConfig["SERVER_SCHEMA_VERSION"] as! String
         )
 
@@ -122,11 +122,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
-    }
-
-    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
-        if let awsAdapter = dataService as? AWSAdapter {
-            awsAdapter.application(application, handleEventsForBackgroundURLSession: identifier, completionHandler: completionHandler)
-        }
     }
 }
