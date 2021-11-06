@@ -21,7 +21,6 @@
 		200E12FB233FEEAC003012A2 /* AVFileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200E12FA233FEEAC003012A2 /* AVFileType.swift */; };
 		20168805210A546A00FA5D53 /* ContactsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168803210A546A00FA5D53 /* ContactsManager.swift */; };
 		2016880D210A54C300FA5D53 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016880B210A54C300FA5D53 /* API.swift */; };
-		20168818210A550400FA5D53 /* AWSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168815210A550400FA5D53 /* AWSAdapter.swift */; };
 		2016881A210A550400FA5D53 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20168817210A550400FA5D53 /* DataManager.swift */; };
 		2016881F210A553800FA5D53 /* PriorityQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016881C210A553700FA5D53 /* PriorityQueue.swift */; };
 		20168820210A553800FA5D53 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2016881D210A553700FA5D53 /* Heap.swift */; };
@@ -87,6 +86,10 @@
 		2047DBD12329484000598647 /* TUFullscreenViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2047DBD02329484000598647 /* TUFullscreenViewDelegate.swift */; };
 		2047DBD323294CFC00598647 /* FullscreenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2047DBD223294CFC00598647 /* FullscreenViewCell.swift */; };
 		204B267F25E027A6004870DB /* UITextFieldPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204B267E25E027A6004870DB /* UITextFieldPhoneNumber.swift */; };
+		204E701E272DBBE000BA3291 /* SotoCognitoIdentity in Frameworks */ = {isa = PBXBuildFile; productRef = 204E701D272DBBE000BA3291 /* SotoCognitoIdentity */; };
+		204E7020272DBBE000BA3291 /* SotoCognitoIdentityProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 204E701F272DBBE000BA3291 /* SotoCognitoIdentityProvider */; };
+		204E7022272DBBE000BA3291 /* SotoS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 204E7021272DBBE000BA3291 /* SotoS3 */; };
+		204E7024272DBBE000BA3291 /* SotoSTS in Frameworks */ = {isa = PBXBuildFile; productRef = 204E7023272DBBE000BA3291 /* SotoSTS */; };
 		205396A021BEE12500C323F5 /* AtomicVar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2053969F21BEE12500C323F5 /* AtomicVar.swift */; };
 		2055054422CE873900B391C1 /* TULocation.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055054222CE873500B391C1 /* TULocation.pb.swift */; };
 		2055054722CE87BA00B391C1 /* TULocationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055054622CE87BA00B391C1 /* TULocationExtensions.swift */; };
@@ -186,6 +189,8 @@
 		20CE93E826D7C11B00C26BC1 /* SaveToLibraryOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CE93E726D7C11B00C26BC1 /* SaveToLibraryOperation.swift */; };
 		20D7235A271104790078D477 /* Reference+MutableReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D72359271104790078D477 /* Reference+MutableReference.swift */; };
 		20D75169229C39FF00F1D37D /* FullscreenVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D75168229C39FF00F1D37D /* FullscreenVC.swift */; };
+		20E1DCA2271B47EF000F8AEC /* SotoS3FileTransfer in Frameworks */ = {isa = PBXBuildFile; productRef = 20E1DCA1271B47EF000F8AEC /* SotoS3FileTransfer */; };
+		20E1DCA5271B7C54000F8AEC /* SotoCognitoAuthenticationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 20E1DCA4271B7C54000F8AEC /* SotoCognitoAuthenticationKit */; };
 		20E3F68D23F0390300E25E3E /* SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3F68C23F0390300E25E3E /* SecureEnclave.swift */; };
 		20E7743A2327178700F2AB0C /* AlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E774392327178700F2AB0C /* AlbumCollectionViewCell.swift */; };
 		20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E8396022B92BA10098F45C /* PGPData.pb.swift */; };
@@ -195,15 +200,10 @@
 		20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CA26E94AFB008DC077 /* FirebaseAuth */; };
 		20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */; };
 		20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */; };
-		20EC25D426EA565C008DC077 /* AWSCognitoIdentityProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */; };
-		20EC25D626EA565C008DC077 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D526EA565C008DC077 /* AWSS3 */; };
-		20EC25D826EA565C008DC077 /* AWSMobileClientXCF in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D726EA565C008DC077 /* AWSMobileClientXCF */; };
-		20EC25DA26EA565C008DC077 /* AWSAuthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25D926EA565C008DC077 /* AWSAuthCore */; };
-		20EC25DC26EA565C008DC077 /* AWSCognitoIdentityProviderASF in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25DB26EA565C008DC077 /* AWSCognitoIdentityProviderASF */; };
-		20EC25DE26EA565C008DC077 /* AWSCore in Frameworks */ = {isa = PBXBuildFile; productRef = 20EC25DD26EA565C008DC077 /* AWSCore */; };
 		20EFCE5B26F66F3600246F5B /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 20EFCE5A26F66F3600246F5B /* SwiftProtobuf */; };
 		20EFCE5E26F66FB500246F5B /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 20EFCE5D26F66FB500246F5B /* SwiftyBeaver */; };
 		20F14AE6244EFAF000003CE2 /* eula.html in Resources */ = {isa = PBXBuildFile; fileRef = 20F14AE5244EFAF000003CE2 /* eula.html */; };
+		20FAD1F62735DA2500068A90 /* S3Adapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FAD1F52735DA2500068A90 /* S3Adapter.swift */; };
 		20FC7BEF25E416F80052B36F /* AssetOperationBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */; };
 		20FDD046241A9BE300F3B41A /* FastlaneSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDD045241A9BE300F3B41A /* FastlaneSnapshots.swift */; };
 		20FDD04E241A9D2A00F3B41A /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDD04D241A9D2A00F3B41A /* SnapshotHelper.swift */; };
@@ -318,7 +318,6 @@
 		200E12FA233FEEAC003012A2 /* AVFileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVFileType.swift; sourceTree = "<group>"; };
 		20168803210A546A00FA5D53 /* ContactsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsManager.swift; sourceTree = "<group>"; };
 		2016880B210A54C300FA5D53 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
-		20168815210A550400FA5D53 /* AWSAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AWSAdapter.swift; sourceTree = "<group>"; };
 		20168817210A550400FA5D53 /* DataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		2016881C210A553700FA5D53 /* PriorityQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriorityQueue.swift; sourceTree = "<group>"; };
 		2016881D210A553700FA5D53 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
@@ -483,6 +482,7 @@
 		20F4FA4020EBC19D00F7ED0D /* TripUp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TripUp.entitlements; sourceTree = "<group>"; };
 		20F5E8D122B001E900893527 /* TripUpTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TripUpTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20F5E8D522B001E900893527 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		20FAD1F52735DA2500068A90 /* S3Adapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3Adapter.swift; sourceTree = "<group>"; };
 		20FC7BEE25E416F80052B36F /* AssetOperationBatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetOperationBatch.swift; sourceTree = "<group>"; };
 		20FDD043241A9BE300F3B41A /* TripUpUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TripUpUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20FDD045241A9BE300F3B41A /* FastlaneSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastlaneSnapshots.swift; sourceTree = "<group>"; };
@@ -520,16 +520,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				20B8161826F5411B008CC26D /* Toast in Frameworks */,
-				20EC25D626EA565C008DC077 /* AWSS3 in Frameworks */,
+				20E1DCA2271B47EF000F8AEC /* SotoS3FileTransfer in Frameworks */,
 				20CE35AD265C2F4700683AD6 /* RealmSwift in Frameworks */,
 				20B8162C26F5514F008CC26D /* AlamofireNetworkActivityIndicator in Frameworks */,
-				20EC25DC26EA565C008DC077 /* AWSCognitoIdentityProviderASF in Frameworks */,
+				204E7020272DBBE000BA3291 /* SotoCognitoIdentityProvider in Frameworks */,
 				20B8161E26F54430008CC26D /* BadgeSwift in Frameworks */,
 				20B40E0725DFE73900706811 /* TripUpViews.framework in Frameworks */,
 				20B8163526F65BE5008CC26D /* CryptoSwift in Frameworks */,
 				2083E87A26EAD05D00FA51DE /* Gopenpgp.xcframework in Frameworks */,
 				20EC25CD26E94AFB008DC077 /* FirebaseDynamicLinks in Frameworks */,
-				20EC25D426EA565C008DC077 /* AWSCognitoIdentityProvider in Frameworks */,
+				20E1DCA5271B7C54000F8AEC /* SotoCognitoAuthenticationKit in Frameworks */,
+				204E7024272DBBE000BA3291 /* SotoSTS in Frameworks */,
 				20EFCE5B26F66F3600246F5B /* SwiftProtobuf in Frameworks */,
 				20B8162F26F5519F008CC26D /* AnimatedGradientView in Frameworks */,
 				20B8163826F65CAE008CC26D /* FTLinearActivityIndicator in Frameworks */,
@@ -538,16 +539,15 @@
 				20EFCE5E26F66FB500246F5B /* SwiftyBeaver in Frameworks */,
 				2071671125DEE69A00F281B2 /* TripUpShared.framework in Frameworks */,
 				20EC25CF26E94AFB008DC077 /* FirebaseCrashlytics in Frameworks */,
-				20EC25DE26EA565C008DC077 /* AWSCore in Frameworks */,
+				204E701E272DBBE000BA3291 /* SotoCognitoIdentity in Frameworks */,
 				20B8163E26F66208008CC26D /* Purchases in Frameworks */,
-				20EC25DA26EA565C008DC077 /* AWSAuthCore in Frameworks */,
 				20B8162926F550F9008CC26D /* Alamofire in Frameworks */,
 				20EC25CB26E94AFB008DC077 /* FirebaseAuth in Frameworks */,
 				20B8163226F586ED008CC26D /* Charts in Frameworks */,
 				20B8161B26F542FE008CC26D /* Connectivity in Frameworks */,
-				20EC25D826EA565C008DC077 /* AWSMobileClientXCF in Frameworks */,
 				20B8162126F544D0008CC26D /* IQKeyboardManagerSwift in Frameworks */,
 				20CE35AB265C2F4700683AD6 /* Realm in Frameworks */,
+				204E7022272DBBE000BA3291 /* SotoS3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -665,8 +665,8 @@
 		20168814210A54F100FA5D53 /* CloudStorage */ = {
 			isa = PBXGroup;
 			children = (
-				20168815210A550400FA5D53 /* AWSAdapter.swift */,
 				20168817210A550400FA5D53 /* DataManager.swift */,
+				20FAD1F52735DA2500068A90 /* S3Adapter.swift */,
 			);
 			path = CloudStorage;
 			sourceTree = "<group>";
@@ -1241,12 +1241,6 @@
 				20EC25CA26E94AFB008DC077 /* FirebaseAuth */,
 				20EC25CC26E94AFB008DC077 /* FirebaseDynamicLinks */,
 				20EC25CE26E94AFB008DC077 /* FirebaseCrashlytics */,
-				20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */,
-				20EC25D526EA565C008DC077 /* AWSS3 */,
-				20EC25D726EA565C008DC077 /* AWSMobileClientXCF */,
-				20EC25D926EA565C008DC077 /* AWSAuthCore */,
-				20EC25DB26EA565C008DC077 /* AWSCognitoIdentityProviderASF */,
-				20EC25DD26EA565C008DC077 /* AWSCore */,
 				20B8161726F5411B008CC26D /* Toast */,
 				20B8161A26F542FE008CC26D /* Connectivity */,
 				20B8161D26F54430008CC26D /* BadgeSwift */,
@@ -1262,6 +1256,12 @@
 				20EFCE5A26F66F3600246F5B /* SwiftProtobuf */,
 				20EFCE5D26F66FB500246F5B /* SwiftyBeaver */,
 				2046F4AF26FCCEDB00C5B5F1 /* OneSignal */,
+				20E1DCA1271B47EF000F8AEC /* SotoS3FileTransfer */,
+				20E1DCA4271B7C54000F8AEC /* SotoCognitoAuthenticationKit */,
+				204E701D272DBBE000BA3291 /* SotoCognitoIdentity */,
+				204E701F272DBBE000BA3291 /* SotoCognitoIdentityProvider */,
+				204E7021272DBBE000BA3291 /* SotoS3 */,
+				204E7023272DBBE000BA3291 /* SotoSTS */,
 			);
 			productName = TripUp;
 			productReference = 2071F4FB1E7AEE3800E2CE4F /* TripUp.app */;
@@ -1383,7 +1383,6 @@
 			packageReferences = (
 				20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */,
 				20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
 				20B8161626F5411B008CC26D /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 				20B8161926F542FD008CC26D /* XCRemoteSwiftPackageReference "connectivity" */,
 				20B8161C26F54430008CC26D /* XCRemoteSwiftPackageReference "swift-badge" */,
@@ -1399,6 +1398,9 @@
 				20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf" */,
 				20EFCE5C26F66FB500246F5B /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				2046F4AE26FCCEDA00C5B5F1 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */,
+				20E1DCA0271B47EF000F8AEC /* XCRemoteSwiftPackageReference "soto-s3-file-transfer" */,
+				20E1DCA3271B7C54000F8AEC /* XCRemoteSwiftPackageReference "soto-cognito-authentication-kit" */,
+				204E701C272DBBE000BA3291 /* XCRemoteSwiftPackageReference "soto" */,
 			);
 			productRefGroup = 2071F4FC1E7AEE3800E2CE4F /* Products */;
 			projectDirPath = "";
@@ -1636,7 +1638,6 @@
 				20168839210A555400FA5D53 /* UUID.swift in Sources */,
 				207150AB23423B8800829C5D /* Set.swift in Sources */,
 				2046D1DB258FAE39003B01B1 /* Schema0to1UpgradeOperation.swift in Sources */,
-				20168818210A550400FA5D53 /* AWSAdapter.swift in Sources */,
 				20258215213D8AA100E40A67 /* AppContext.swift in Sources */,
 				20569A6E246C1961008998AA /* UIView.swift in Sources */,
 				20D7235A271104790078D477 /* Reference+MutableReference.swift in Sources */,
@@ -1668,6 +1669,7 @@
 				20E8396222B92BA20098F45C /* PGPData.pb.swift in Sources */,
 				200E12F9233FE6C3003012A2 /* AssetObject.swift in Sources */,
 				202D63302508E49A0095FA36 /* UIViewControllerTransparent.swift in Sources */,
+				20FAD1F62735DA2500068A90 /* S3Adapter.swift in Sources */,
 				2006BB4C2488F17400A87B3F /* GuideBox.swift in Sources */,
 				20C175372697955100A89BA2 /* MD5FixerOperation.swift in Sources */,
 				20168857210A562100FA5D53 /* LoginView.swift in Sources */,
@@ -1933,7 +1935,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.1.8;
+				MARKETING_VERSION = 2.1.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tripup.ios.OneSignalNotificationServiceExtension;
@@ -1958,7 +1960,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.1.8;
+				MARKETING_VERSION = 2.1.9;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tripup.ios.OneSignalNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1972,7 +1974,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				API_BASE_URL = "http://localhost:3333";
-				AWS_ASSETS_BUCKET = "tripup-assets-dev";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -2029,6 +2030,7 @@
 				LOG_ASYNC = false;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				S3_ASSETS_BUCKET_NAME = "tripup-assets-dev";
 				SDKROOT = iphoneos;
 				SERVER_SCHEMA_VERSION = 1;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2041,7 +2043,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				API_BASE_URL = "https://api.tripup.app";
-				AWS_ASSETS_BUCKET = "tripup-assets-prod";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -2091,6 +2092,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "";
 				LOG_ASYNC = true;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				S3_ASSETS_BUCKET_NAME = "tripup-assets-prod";
 				SDKROOT = iphoneos;
 				SERVER_SCHEMA_VERSION = 1;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -2120,7 +2122,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.8;
+				MARKETING_VERSION = 2.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tripup.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2147,7 +2149,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.8;
+				MARKETING_VERSION = 2.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = app.tripup.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2422,6 +2424,14 @@
 				minimumVersion = 3.8.0;
 			};
 		};
+		204E701C272DBBE000BA3291 /* XCRemoteSwiftPackageReference "soto" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/soto-project/soto.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 		20B8161626F5411B008CC26D /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scalessec/Toast-Swift";
@@ -2526,20 +2536,28 @@
 				minimumVersion = 10.5.0;
 			};
 		};
+		20E1DCA0271B47EF000F8AEC /* XCRemoteSwiftPackageReference "soto-s3-file-transfer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/soto-project/soto-s3-file-transfer.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+		20E1DCA3271B7C54000F8AEC /* XCRemoteSwiftPackageReference "soto-cognito-authentication-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/soto-project/soto-cognito-authentication-kit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 		20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 8.7.0;
-			};
-		};
-		20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/aws-amplify/aws-sdk-ios-spm";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 2.25.0;
 			};
 		};
 		20EFCE5926F66F3600246F5B /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
@@ -2565,6 +2583,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2046F4AE26FCCEDA00C5B5F1 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
 			productName = OneSignal;
+		};
+		204E701D272DBBE000BA3291 /* SotoCognitoIdentity */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 204E701C272DBBE000BA3291 /* XCRemoteSwiftPackageReference "soto" */;
+			productName = SotoCognitoIdentity;
+		};
+		204E701F272DBBE000BA3291 /* SotoCognitoIdentityProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 204E701C272DBBE000BA3291 /* XCRemoteSwiftPackageReference "soto" */;
+			productName = SotoCognitoIdentityProvider;
+		};
+		204E7021272DBBE000BA3291 /* SotoS3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 204E701C272DBBE000BA3291 /* XCRemoteSwiftPackageReference "soto" */;
+			productName = SotoS3;
+		};
+		204E7023272DBBE000BA3291 /* SotoSTS */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 204E701C272DBBE000BA3291 /* XCRemoteSwiftPackageReference "soto" */;
+			productName = SotoSTS;
 		};
 		20B8161726F5411B008CC26D /* Toast */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2636,6 +2674,16 @@
 			package = 20CE35A9265C2F4700683AD6 /* XCRemoteSwiftPackageReference "realm-cocoa" */;
 			productName = RealmSwift;
 		};
+		20E1DCA1271B47EF000F8AEC /* SotoS3FileTransfer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20E1DCA0271B47EF000F8AEC /* XCRemoteSwiftPackageReference "soto-s3-file-transfer" */;
+			productName = SotoS3FileTransfer;
+		};
+		20E1DCA4271B7C54000F8AEC /* SotoCognitoAuthenticationKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20E1DCA3271B7C54000F8AEC /* XCRemoteSwiftPackageReference "soto-cognito-authentication-kit" */;
+			productName = SotoCognitoAuthenticationKit;
+		};
 		20EC25CA26E94AFB008DC077 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -2650,36 +2698,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20EC25C926E94AFA008DC077 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
-		};
-		20EC25D326EA565C008DC077 /* AWSCognitoIdentityProvider */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCognitoIdentityProvider;
-		};
-		20EC25D526EA565C008DC077 /* AWSS3 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSS3;
-		};
-		20EC25D726EA565C008DC077 /* AWSMobileClientXCF */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSMobileClientXCF;
-		};
-		20EC25D926EA565C008DC077 /* AWSAuthCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSAuthCore;
-		};
-		20EC25DB26EA565C008DC077 /* AWSCognitoIdentityProviderASF */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCognitoIdentityProviderASF;
-		};
-		20EC25DD26EA565C008DC077 /* AWSCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20EC25D226EA565C008DC077 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSCore;
 		};
 		20EFCE5A26F66F3600246F5B /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;

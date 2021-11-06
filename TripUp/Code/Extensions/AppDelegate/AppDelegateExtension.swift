@@ -248,12 +248,12 @@ extension AppDelegate: AppDelegateExtension {
         }
         if dataService == nil {
             do {
-                dataService = try AWSAdapter(
+                dataService = try S3Adapter(
                     authenticatedUser: authenticatedUser,
-                    federationProvider: config.federationProvider,
-                    identityPoolID: config.awsCognitoIdentityPoolID,
-                    region: config.awsAssetsBucketRegion,
-                    bucket: config.awsAssetsBucket)
+                    region: config.s3Region,
+                    bucket: config.s3Bucket,
+                    endpoint: nil,
+                    awsCognito: (identityPoolID: config.awsCognitoIdentityPoolID, federationProvider: config.federationProvider))
             } catch {
                 fatalError(String(describing: error))
             }
