@@ -200,7 +200,7 @@ class S3Adapter {
             self.cognitoIdentifiable = nil
         }
 
-        let s3ServiceObject = S3(client: awsClient, region: region, endpoint: endpoint)
+        let s3ServiceObject = S3(client: awsClient, region: region, endpoint: endpoint, timeout: .hours(24 * 7))
         self.s3FileTransferManager = S3FileTransferManager(s3: s3ServiceObject, threadPoolProvider: .createNew)
 
         self.region = region.rawValue
